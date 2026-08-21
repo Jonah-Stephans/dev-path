@@ -1,0 +1,12 @@
+{
+  "name": "dev-path",
+  "version": "0.1.0",
+  "description": "One engineering workflow: requirement to merged code. Eight stages, two human gates, ten skills.",
+  "author": {
+    "name": "Jonah Stephans",
+    "email": "jstephans@rootstock.com"
+  },
+  "repository": "https://github.com/Jonah-Stephans/dev-path",
+  "license": "MIT",
+  "keywords": ["salesforce", "workflow", "specs"]
+}

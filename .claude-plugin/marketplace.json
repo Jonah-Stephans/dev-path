@@ -1,0 +1,15 @@
+{
+  "name": "jonah-stephans",
+  "owner": {
+    "name": "Jonah Stephans",
+    "url": "https://github.com/Jonah-Stephans"
+  },
+  "description": "Jonah Stephans' Claude Code plugins.",
+  "plugins": [
+    {
+      "name": "dev-path",
+      "source": "./",
+      "description": "One engineering workflow: requirement to merged code."
+    }
+  ]
+}
