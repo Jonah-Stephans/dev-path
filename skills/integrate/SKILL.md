@@ -24,8 +24,8 @@ description: Check a built dev-path spec against its Outcomes and release it to 
 - **The front-matter block does not parse, or a field carries the wrong shape** → **stop and name the
   exact field.**
 
-**Nothing about the work is refused here.** No slice count, no `done` test, no box test — those are step
-3's, and step 3 is a verdict on the work rather than a check on the route.
+**Nothing about the work is refused here.** No slice count, no `done` test, no box test, no `fix_cycles`
+test — all of those are step 3's, and step 3 is a verdict on the work rather than a check on the route.
 
 **Prefix every message a gate or refusal prints with `dev-path: `.** Suggested.
 
@@ -35,7 +35,8 @@ description: Check a built dev-path spec against its Outcomes and release it to 
 
 1. Run the Outcomes pass; write `## Outcome checks`.
 2. Run the contention script again.
-3. **Refuse if any `- [ ]` remains**, naming all three exits.
+3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
+   Name all three exits on an unmet Outcome.
 4. Carry `## Critique findings` and `## Deviations` into the pull request body — **plus every
    `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
 5. Offer to file `## dev-path feedback` as an issue. **If it is empty, say the heading exists and file
@@ -92,8 +93,48 @@ where nothing of the plugin's exists.
 
 ## 3 · The refusal, and its three exits
 
-**Refuse while any `- [ ]` remains anywhere in the spec directory.** Same test as *Critique clean* — one
-grep, section-blind, zero judgment.
+**Step 3 holds two mechanical tests against a fixed grammar, and neither is a model judging.** One is a
+grep; the other is a walk over the slice files.
+
+**Test 1 — refuse while any `- [ ]` remains anywhere in the spec directory.** Same test as *Critique
+clean* — one grep, section-blind, zero judgment.
+
+**Test 2 — refuse while any slice carrying `done: true` has no `fix_cycles:` line.** Slice writes no such
+line at creation and Critique writes `fix_cycles: 0` on its first pass over a slice that has none, so the
+line's presence is the slice pass's own trace: **absent on a built slice, the pass never ran on it.**
+**`done: true` is the mechanical form of *carries code*** — a slice holding code and no `done: true` holds
+an open box, which test 1 already refuses on, so nothing here judges whether a slice built anything.
+
+```sh
+for f in dev-path/<slug>/slices/*.md; do
+  grep -q '^done:[[:space:]]*true' "$f" && ! grep -q '^fix_cycles:' "$f" && echo "$f"
+done
+```
+
+**Both patterns are anchored at line start, and that is the whole precision here.** Front matter sits at
+byte zero and its fields start their lines, so an anchored match reads the field and never the same string
+in a slice's prose — a slice that discusses `fix_cycles:` in its notes must not pass this test on the
+mention.
+
+**The next act on test 2 is `dev-path:critique` over the slices this test named.** Its invocation table
+routes a human-typed run with no change request on the pull request to exactly that, so a spec that missed
+the pass has a specified mode waiting rather than a workaround — and that pass writes the line that clears
+this refusal.
+
+**Name the slice pass when the pull request carries a review requesting changes**, because the same table
+then routes a human-typed run to the change-request pass instead. That pass triages a reviewer's comments
+and need not open the slices named here, so it does not clear this refusal. **Print the slice paths either
+way** — they are what the next run is for.
+
+**Why a second test earns its place at a step that was one grep.** An empty `## Critique findings` holds no
+box, so test 1 passes a spec no critic ever read and step 4 then carries the empty section into the pull
+request body — *nothing was wrong* and *the pass never ran* are otherwise indistinguishable at every check
+downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants named. **And
+Build reaching Critique is model-driven**: the imperative is in `dev-path:build` and nothing in the harness
+makes it certain, so what catches a skip is the trace, not a louder instruction.
+
+**The cost, said rather than smoothed: step 3 is no longer one grep.** It is a grep and a walk, and *one
+grep, zero judgment* is now a claim about `- [ ]` alone.
 
 **What to *do* about a box is section-dependent, and that is not the same as the test.** Under
 `## Critique findings` an open box means *fix this*; under `## Deviations` it means *do not proceed until
@@ -270,9 +311,9 @@ are met, or never. **Do not use a command that might do the thing to arrange for
 
 **`dev-path` passes no merge method and takes the repo's default.** The plugin holds no opinion about a
 repo's history, the same posture as holding no org name. One consequence, so Build is not misread:
-whether one commit per slice survives to the base branch depends on that default, and Build's per-slice
-argument is about attribution **on the branch and in the pull request**, never a requirement on the base
-branch.
+whether one code commit per slice survives to the base branch depends on that default, and Build's
+per-slice argument is about attribution **on the branch and in the pull request**, never a requirement on
+the base branch.
 
 **Confirm both commands on first use rather than assume them.** They are documented GitHub behaviour that
 this plugin has not yet exercised, and the confirmation costs one pull request on a scratch repo.

@@ -7,9 +7,10 @@
 # against a compliant plugin gets deleted — which puts the list back to a wish.
 #
 # Subject: the ten SKILL.md bodies, README.md and scripts/contention.sh — twelve
-# of the seventeen files, and every file that carries prose. The five exclusions
-# are deliberate: this file cannot be its own subject (it carries every retired
-# word as a literal), and ci.yml, the two manifests and LICENSE carry no prose of
+# of the eighteen files, and every file that carries prose. The six exclusions
+# are deliberate: neither test under tests/ is a subject — this one carries every
+# retired word as a literal, and compositions.sh carries the call strings it
+# asserts — and ci.yml, the two manifests and LICENSE carry no prose of
 # dev-path's authoring.
 #
 # Ten assertions, not seven: "unit of work", "unit" and "task" share a row on the

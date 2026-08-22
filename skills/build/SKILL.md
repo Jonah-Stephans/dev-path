@@ -179,8 +179,10 @@ that breaks precisely when that upgrade is taken. **A failed commit needs a huma
 reach one.** It agrees with how the adjacent tooling in this estate already reasons about commits. And it
 is immune to how a foreign guard identifies the caller.
 
-**Nothing observable changes: one commit per slice, none for a pause.** The worker writes `done: true` and
-returns; commit on that return; an open box means no commit.
+**Nothing observable changes: one code commit per slice, none for a pause.** The worker writes
+`done: true` and returns; commit on that return; an open box means no commit. **The critic's findings write
+is a second commit on the same slice**, on its own return and under the same division — so *one commit per
+slice* is a claim about code, and it is written that way wherever it is claimed.
 
 **Stage with `git add -A`**, and **any commit excess against the slice's declared scope is recorded as
 one `- [ ]` under `## Deviations`.**
@@ -226,6 +228,11 @@ Tolerance comparison in the invoice's currency
 dev-path/tolerance-config/slices/02-validation.md
 ```
 
+**A findings commit takes the same shape**, because a second shape would be a second convention to pin.
+Two commits on one slice therefore share a subject line, and what separates them is the diff — code in one,
+the slice file's `## Critique findings` in the other. **Intended rather than overlooked**, and a repo that
+wants them distinguishable in `git log --oneline` has its own standards rule, which wins here as above.
+
 **Why the path in the body rather than a prefix or a trailer.** `git log -- dev-path/<slug>/` already finds
 a spec's commits, so the path is for the human reading one commit in isolation and asking *which slice was
 this*. A prefix convention would be `dev-path` deciding the shape of the repo's history, which is
@@ -239,9 +246,52 @@ the pull request is what makes the work visible while it is in flight — a run 
 would leave the spec's own pull request stale for the whole build, which is the condition the draft pull
 request exists to prevent. **A pause commits nothing and therefore pushes nothing.**
 
+## Dispatch a critic on that same return
+
+**Mandated. A worker that returned having written `done: true` or `- [x] fixed` gets a critic before the
+walk moves on: run the skill `dev-path:critique` against that slice.** This is the Build ↔ Critique loop
+this skill opened by claiming, and it is the orchestrator's act — a worker cannot dispatch anything.
+
+> **This is model-driven and is not guaranteed.** There is no call syntax and no event that fires on a
+> skill finishing. Claude reads this instruction and normally follows it, and nothing in the harness makes
+> it certain. A repo that wants certainty adds a hook of its own; `dev-path` ships none and depends on
+> none.
+
+**Both returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
+never `done: true` — that field was written when the slice was built — so a condition reading `done: true`
+alone would dispatch the first critic and none of the re-reviews. **And the re-review is the one the
+artifact cannot catch:** by then `fix_cycles` is present, so Integrate's step 3 is satisfied, and a fixed
+box is checked, so the box grep is too. A skipped re-review is the missed increment this design states
+outright it cannot detect — which is why this line carries it instead of a trace.
+
+**The condition is a return that wrote one of those two, and not merely a return.** A pause returns too,
+and a pause stops the whole run: no commit, no critic, no walk. It is the same event that already means no
+commit.
+
+**Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `dev-path:critique` into *this*
+session, as the plugin's other three compositions do, and **that skill dispatches the critic** — *a fresh
+subagent every pass* is its line, in its file. One critic dispatch path in this plugin, and it is not this
+one. What this section owns is the call and its condition.
+
+**A fresh critic, every pass.** *Fresh, always*, in the lifecycle table above, and the rule behind it is
+that nothing is ever resumed into a role that judges its own prior output. Nothing is ever continued into
+a critic.
+
+**Nothing new carries it.** The dispatch convention above already names *critique* as one of the three
+things a dispatch asks for and its fixed first line already carries the slice's path — true of the critic's
+dispatch wherever it is composed, and no second convention is invented here.
+
+**The critic writes and returns; you commit its write.** Same division as the builder's. Then `fix_cycles`
+and the findings decide the next act: a finding open on this slice is a fix pass, under the cap above;
+nothing open walks to the next slice.
+
+**And this is why a session skipping the dispatch is visible.** `fix_cycles` is absent until Critique's
+first pass over a slice writes it, so its absence on a slice carrying `done: true` is the slice pass never
+having run — which Integrate's step 3 refuses on.
+
 ## Serial, for now
 
-**One commit per slice on the one spec branch, walked in `depends_on` order across fresh contexts. No
+**One code commit per slice on the one spec branch, walked in `depends_on` order across fresh contexts. No
 slice branches.** With commits there is no merge step to own; slice branches would build an unprotected
 integration branch that CI is contractually forbidden to run on, because every spec carries a draft pull
 request from Initiate and CI must skip drafts; and attribution is already paid twice, in one file and one
@@ -329,8 +379,8 @@ failure.** The alternative is a plugin that holds an opinion about which org thi
 does any stage create the org** — the engineer creates their own, and the repo's CI creates the fresh one
 for the whole-spec deploy. A plugin that creates an org is a plugin that names one.
 
-**Nothing is committed before it deploys**, which is what makes *one commit per slice* mean *one working
-slice per commit*.
+**Nothing is committed before it deploys**, which is what makes *one code commit per slice* mean *one
+working slice per commit*.
 
 > **It does not prove verticality and must not claim to.**
 

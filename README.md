@@ -64,14 +64,14 @@ passes having tested nothing.
 | A gate field is `true` before the next stage runs | **hard** | block 2 |
 | Spec and slice files match the schema | **hard** | block 4 |
 | A mid-run stop stops the whole run | **hard** | block 3 |
-| A missed `fix_cycles` write is caught | **withdrawn — there is nothing to catch** | a slice carrying `- [x] fixed` with the field at `0` is the **legal mid-cycle state**, and a missed write is byte-identical to it on disk |
+| A missed `fix_cycles` increment is caught | **withdrawn — there is nothing to catch** | a slice carrying `- [x] fixed` with the field at `0` is the **legal mid-cycle state**, and a missed increment is byte-identical to it on disk. **A missing line is a different thing and is caught** — Integrate's step 3 refuses on a built slice that has none |
 | A lesson entry carries a resolving link | **hard** | block 5 |
 | Learn runs before the merge | **hard** | blocks 6 and 7 |
 | **A per-worker token budget** | **NOT AVAILABLE** | no hook input carries token counts |
 
 **Three of those nine rows ship no block**, and the README says so rather than leaving you to notice the
-table is longer than the menu: the `fix_cycles` cap has no honest hook, the missed-write row is not a rule
-any more, and the token budget is unavailable.
+table is longer than the menu: the `fix_cycles` cap has no honest hook, the missed-increment row is not a
+rule any more, and the token budget is unavailable.
 
 **One markdown trap: the matcher is `Task|Agent`.** Where you see a backslash before the pipe in prose,
 it is markdown escaping a table column separator — it is not part of the string. The blocks below carry
@@ -452,7 +452,7 @@ a gate appearing at the end of the block rather than in the middle of it.
 | `depends_on` | each slice | Slice | the cited-paths check; Build's structural refusal; the order walk |
 | `touches` | each slice | Slice | the cited-paths check; the contention script; Build's mid-run-stop intersection — **three readers and no fourth** |
 | `done` | each slice | Build | the router; Build's `depends_on` refusal; derived spec progress |
-| `fix_cycles` | each slice | Critique | the two-cycle cap, read by `dev-path:build` at its start |
+| `fix_cycles` | each slice | Critique | the two-cycle cap, read by `dev-path:build` at its start. **Its presence** is read by Integrate's step 3 — absent on a built slice, the slice pass never ran |
 
 > **Value is always `true`. Absence is how you say no. Nothing ever writes `false`.**
 
@@ -480,15 +480,27 @@ human gate and `dev-path` does not own it: it is branch protection.
 | Design done? | `## Design` is non-empty | no |
 | Sliced? | files exist in `slices/` | no |
 | Built? | every slice carries `done: true` | no |
+| Critiqued? | every slice carrying `done: true` has a `fix_cycles:` line | no |
 | Critique clean? | no `- [ ]` anywhere in the spec directory | no |
 | In flight? | the spec exists only on a branch | no — git |
 | Merged? | the spec is on the base branch | no — git |
 | Abandoned? | a closed pull request whose file never got there | no — git |
 
-**The cost, stated rather than smoothed: there is no single place to look.** Progress is **eight
-observations — five over the files, three over git** — rather than one `head -5`. A `stage:` field would
+**The cost, stated rather than smoothed: there is no single place to look.** Progress is **nine
+observations — six over the files, three over git** — rather than one `head -5`. A `stage:` field would
 not add this; it would duplicate it, and if `stage: built` said built while two of five slices lacked
 `done: true`, the slice files would be right.
+
+> **`fix_cycles` absent on a slice that carries code ⇔ the slice pass never ran on it.**
+
+**That row is derived rather than stored, and it is the one worth spelling out.** Slice writes no
+`fix_cycles:` line at creation, Critique writes `fix_cycles: 0` on its first pass over a slice that has
+none, and nothing else ever writes the field — so the line's *presence* is the pass's own trace.
+**`done: true` is the mechanical form of *carries code***, which is how the row asks the question and how
+Integrate's step 3 tests it. **The two Critique rows are different questions**, and a real run answered
+them differently: seven slice files, six at `done: true`, every `## Critique findings` empty, no
+`fix_cycles:` line anywhere in the directory, and every downstream check clean. Integrate's step 3 refuses
+on it now, and **no ninth field was needed** — which is why the row's third column says no.
 
 ### The disposition grammar
 
@@ -546,6 +558,10 @@ human's, by hand, under any heading.
 Gating a section's presence yields the word `none` typed to satisfy a check, which is worse than nothing.
 **`## Outcome checks` is the one deliberate exception** — always written, one line per Outcome, because
 otherwise *nothing was wrong* and *the pass never ran* are indistinguishable.
+
+**The slice pass needs no such exception, which is why the list has one entry and not two.** Its trace is
+the `fix_cycles:` line on the slice, so an empty `## Critique findings` is already distinguishable from a
+pass that never ran — and Integrate refuses on that absence.
 
 </details>
 
@@ -666,10 +682,19 @@ be dishonest.
 ### Softness that is stated rather than hidden
 
 **Skill-to-skill invocation is model-driven and is not guaranteed.** `dev-path:technical-design` reaching
-`dev-path:survey` and `dev-path:slice`, and `dev-path:integrate` reaching `dev-path:learn`, are instructions
-naming a skill. There is no call syntax and no event that fires on a skill finishing. Claude reads the
-instruction and normally follows it, and **nothing in the harness makes it certain.** Both ways it can fail
-are visible in the artifact.
+`dev-path:survey` and `dev-path:slice`, `dev-path:build` reaching `dev-path:critique`, and
+`dev-path:integrate` reaching `dev-path:learn`, are instructions naming a skill. There is no call syntax and
+no event that fires on a skill finishing. Claude reads the instruction and normally follows it, and
+**nothing in the harness makes it certain.** Both ways it can fail are visible in the artifact.
+
+**The Build → Critique edge is the one with a demonstrated failure, and its detection test is
+`fix_cycles`.** For one release `dev-path:build` described a Build ↔ Critique loop and instructed nobody to
+run one — three of the four compositions were imperatives, that one was implicit, and the first real spec
+built seven slices, six of them to `done: true`, with an empty `## Critique findings` on every one and a
+real correctness defect among them. The imperative exists now, and what catches a session skipping it is
+that **`fix_cycles` absent on a slice that carries code is the slice pass never having run**, which
+Integrate refuses on. **That pairing is the answer everywhere in this design**: an instruction a session
+may skip is made visible in the artifact rather than shouted louder.
 
 **`dev-path` has no bypass, because it never blocked anything.** Non-use is always available and always
 free — which is why choosing not to use it is an adoption question, not evidence against the design.
@@ -761,7 +786,7 @@ without a token.
 **A directory level per requirements set is forbidden**, because it is the deleted level returning by the
 back door.
 
-**There is no `stage:` field, and the ergonomic cost is real** — progress is eight observations rather than
+**There is no `stage:` field, and the ergonomic cost is real** — progress is nine observations rather than
 one.
 
 **You refer to a spec by its draft pull request's number or title**, and there is no `pr:` field.
