@@ -90,6 +90,17 @@ passed both with zero findings.
 resume → return early and respawn → the human re-runs the command, and the engineer's seat is identical
 at every rung.
 
+**Where the session cannot dispatch a subagent at all, the bottom rung is the route, and it is available
+mid-run.** Finish the slice in hand, say plainly that the remaining slices want a fresh session, and hand
+back. **Say the uncritiqued state with it**: no critic ran, so `fix_cycles` is absent on what was just
+built, which is the condition Integrate refuses on. **That is a legitimate way to run Build rather than a
+failure**, because the seat is identical at every rung and the line above already says so.
+
+**A session that cannot dispatch does not critique its own build inline. It says so and stops.** That is
+the contamination rule above, not the ladder, and the ladder does not apply to it: the builder's rungs
+trade cost for context, and there is no rung on which the only critic available is the agent that wrote
+the code.
+
 **No named agent definitions.** Workers are the generic subagent with an inline prompt. A definition buys
 nothing a prompt does not, and it is the one surface a local `.claude/agents/` file silently outranks.
 
