@@ -354,8 +354,6 @@ whose file never got there. There is no `status:` field.
 ### `dev-path/<slug>/spec.md`
 
 ```markdown
-# <Title>
-
 ---
 type: feature
 upstream:
@@ -365,6 +363,8 @@ upstream:
 intent_accepted: true
 design_approved: true
 ---
+
+# <Title>
 
 ## Intent
 ## Outcomes
@@ -392,8 +392,6 @@ design_approved: true
 ### `dev-path/<slug>/slices/<nn>-<name>.md`
 
 ```markdown
-# <Title>
-
 ---
 depends_on:
   - dev-path/tolerance-config/slices/01-schema.md
@@ -402,6 +400,8 @@ touches:
 done: true
 fix_cycles: 1
 ---
+
+# <Title>
 
 ## What to build
 ## Acceptance criteria
@@ -429,10 +429,14 @@ execution order;** `depends_on` owns execution order. **`depends_on` values are 
 **`dev-path/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
 the only place a non-text file exists anywhere in `dev-path`.**
 
-### The front-matter block follows the title line
+### The front-matter block starts at byte zero
 
-**One consequence, because a builder will hit it: a hook or script that parses these files must not assume
-the block starts at byte zero.** Standard front-matter parsers do assume that.
+**The block is the first thing in the file and the title sits under it.** That is where every front-matter
+parser already looks, and where every markdown formatter already knows not to reformat. Below the title it
+is not front matter at all — it is a thematic break and a list, and prettier renests the list, which
+demotes `done`, `intent_accepted` and `design_approved` out of the top level without touching the file's
+validity as YAML. **One consequence, because a reader will see it:** GitHub renders the block as a table
+above the body.
 
 ### The eight fields
 
@@ -811,11 +815,6 @@ where it attaches.
 **The evidence base is not the target list.** Every measurement above was taken from repos `dev-path` does
 not run on — it is built for greenfield second-generation package repos. **Those measurements stand and
 none is retracted.**
-
-### One mechanical consequence a builder will hit
-
-**The front-matter block in `spec.md` and in a slice file follows the title line rather than starting at
-byte zero.** Any hook or script that parses it must not assume otherwise.
 
 </details>
 

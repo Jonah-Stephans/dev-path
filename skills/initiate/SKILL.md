@@ -170,8 +170,6 @@ resolves it before doing anything and the router grows a branch. Every spec is a
 `spec.md` and N ≥ 1 slice files; there is no collapsed single-file form.
 
 ```markdown
-# <Title>
-
 ---
 type: feature
 upstream:
@@ -180,6 +178,8 @@ upstream:
     source_updated: 2026-08-14
 ---
 
+# <Title>
+
 ## Intent
 ## Outcomes
 ## Out of scope
@@ -187,8 +187,15 @@ upstream:
 ## Evidence
 ```
 
-**The front-matter block follows the title line.** Anything parsing this file must not assume the block
-starts at byte zero; standard front-matter parsers do assume that.
+**The front-matter block starts at byte zero and the title sits under it.** That is where every
+front-matter parser already looks and, more to the point, where every markdown formatter already knows not
+to reformat. A fence below the title is not front matter to a formatter — it is a thematic break followed
+by an ordinary list, and prettier rewrites it into a nested one, which silently demotes `done` and the two
+gate fields out of the top level. That is measured, not theorised: it corrupted four slice files on the
+first real run.
+
+**One consequence, because a reader will see it.** GitHub renders a real front-matter block as a table
+above the body, so a merged `spec.md` shows its fields as a table and then its `# Title`.
 
 **No gate field yet.** `intent_accepted` is written at the gate below and not before. Value is always
 `true`; absence is how you say no; nothing ever writes `false`.
