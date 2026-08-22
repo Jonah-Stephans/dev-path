@@ -205,7 +205,14 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 
 ## Stop
 
-Write the findings, write `fix_cycles` if this pass is one of the three cases above, **commit**, and
-return. On a cap trip, stop the run and say which slice tripped it and what the answers are.
+Write the findings, write `fix_cycles` if this pass is one of the three cases above, and return.
+
+**Who commits that write depends on how this pass was invoked**, and it is the distinction the pass table
+above already draws rather than a new one. **Dispatched by `dev-path:build`: write and return, and the
+orchestrator commits on your return** — in that run the worker reports and the orchestrator commits, and a
+critic committing there is a second writer on one branch pointer. **Typed by a human: commit your own
+write**, because there is no orchestrator to do it for you.
+
+On a cap trip, stop the run and say which slice tripped it and what the answers are.
 
 Do not fix anything here. Do not tick a box you did not verify.

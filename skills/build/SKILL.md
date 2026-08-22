@@ -239,6 +239,30 @@ the pull request is what makes the work visible while it is in flight — a run 
 would leave the spec's own pull request stale for the whole build, which is the condition the draft pull
 request exists to prevent. **A pause commits nothing and therefore pushes nothing.**
 
+## Dispatch a critic on that same return
+
+**Mandated. A worker that returned having written `done: true` gets a critic before the walk moves on: run
+the skill `dev-path:critique` against that slice.** This is the Build ↔ Critique loop this skill opened by
+claiming, and it is the orchestrator's act — a worker cannot dispatch anything.
+
+**The condition is the `done: true` return and not merely a return.** A pause returns too, and a pause
+stops the whole run: no commit, no critic, no walk. It is the same event that already means no commit.
+
+**A fresh critic, every pass.** *Fresh, always*, in the lifecycle table above, and the rule behind it is
+that nothing is ever resumed into a role that judges its own prior output. Dispatch one; do not continue
+anything into it.
+
+**Nothing new carries it.** The dispatch above already names *critique* as one of the three things a
+dispatch asks for, and its fixed first line already carries the slice's path.
+
+**The critic writes and returns; you commit its write.** Same division as the builder's. Then `fix_cycles`
+and the findings decide the next act: a finding open on this slice is a fix pass, under the cap above;
+nothing open walks to the next slice.
+
+**And this is why a session skipping the dispatch is visible.** `fix_cycles` is absent until Critique's
+first pass over a slice writes it, so its absence on a slice carrying `done: true` is the slice pass never
+having run — which Integrate's step 3 refuses on.
+
 ## Serial, for now
 
 **One commit per slice on the one spec branch, walked in `depends_on` order across fresh contexts. No
