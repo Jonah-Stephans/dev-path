@@ -480,7 +480,7 @@ human gate and `dev-path` does not own it: it is branch protection.
 | Design done? | `## Design` is non-empty | no |
 | Sliced? | files exist in `slices/` | no |
 | Built? | every slice carries `done: true` | no |
-| Critiqued? | every slice that carries code has a `fix_cycles:` line | no |
+| Critiqued? | every slice carrying `done: true` has a `fix_cycles:` line | no |
 | Critique clean? | no `- [ ]` anywhere in the spec directory | no |
 | In flight? | the spec exists only on a branch | no — git |
 | Merged? | the spec is on the base branch | no — git |
@@ -495,11 +495,12 @@ not add this; it would duplicate it, and if `stage: built` said built while two 
 
 **That row is derived rather than stored, and it is the one worth spelling out.** Slice writes no
 `fix_cycles:` line at creation, Critique writes `fix_cycles: 0` on its first pass over a slice that has
-none, and nothing else ever writes the field — so the line's *presence* is the pass's own trace. **The two
-Critique rows are different questions**, and a real run answered them differently: seven slice files, six
-at `done: true`, every `## Critique findings` empty, no `fix_cycles:` line anywhere in the directory, and
-every downstream check clean. Integrate's step 3 refuses on it now, and **no ninth field was needed** —
-which is why the row's third column says no.
+none, and nothing else ever writes the field — so the line's *presence* is the pass's own trace.
+**`done: true` is the mechanical form of *carries code***, which is how the row asks the question and how
+Integrate's step 3 tests it. **The two Critique rows are different questions**, and a real run answered
+them differently: seven slice files, six at `done: true`, every `## Critique findings` empty, no
+`fix_cycles:` line anywhere in the directory, and every downstream check clean. Integrate's step 3 refuses
+on it now, and **no ninth field was needed** — which is why the row's third column says no.
 
 ### The disposition grammar
 

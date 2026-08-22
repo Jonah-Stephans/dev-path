@@ -207,11 +207,14 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 
 Write the findings, write `fix_cycles` if this pass is one of the three cases above, and return.
 
-**Who commits that write depends on how this pass was invoked**, and it is the distinction the pass table
-above already draws rather than a new one. **Dispatched by `dev-path:build`: write and return, and the
-orchestrator commits on your return** — in that run the worker reports and the orchestrator commits, and a
-critic committing there is a second writer on one branch pointer. **Typed by a human: commit your own
-write**, because there is no orchestrator to do it for you.
+**Who commits that write is your role and never which skill called this one.** **A dispatched critic
+writes and returns; the session that dispatched it commits on that return.** **The session holding this
+skill commits** — whether `dev-path:build` loaded it here or a human typed it, that session is the one that
+can.
+
+**One rule and not two paths**, because a critic is a subagent in every pass above: *write and return* is
+what a critic always does. Two writers on one branch pointer is the thing being avoided, and **a failed
+commit needs a human a subagent cannot reach** — both are properties of the worker, not of the caller.
 
 On a cap trip, stop the run and say which slice tripped it and what the answers are.
 
