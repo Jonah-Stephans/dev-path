@@ -117,12 +117,12 @@ decoration — `ls` sorts `10-` before `2-`. **The number is authoring order, ne
 of truth for one fact.
 
 ```markdown
-# <Title>
-
 ---
 depends_on:
 touches:
 ---
+
+# <Title>
 
 > Watch a new test go red before you make it green.
 > *Why: a test written before the code cannot be written to hit a coverage number — there is nothing to
@@ -134,7 +134,7 @@ touches:
 ## Critique findings
 ```
 
-**Write the test-first block into every slice file.** It sits between the front matter and the first
+**Write the test-first block into every slice file.** It sits between the title line and the first `## `
 heading, so it adds no `## ` heading and leaves a schema check that flags headings outside the schema
 unaffected. It is one copy per slice file — a five-slice spec carries it five times — which is the cost of
 a template that is generated rather than referenced. It is **Build's suggestion living in Slice's
