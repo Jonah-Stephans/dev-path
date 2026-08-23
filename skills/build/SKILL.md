@@ -90,6 +90,24 @@ passed both with zero findings.
 resume → return early and respawn → the human re-runs the command, and the engineer's seat is identical
 at every rung.
 
+**Where a dispatch is refused, or the session is under an instruction not to dispatch, the bottom rung is
+the route, and it is available mid-run.** Finish the build pass in hand, say plainly that the remaining
+slices want a fresh session, and hand back. **Say the uncritiqued state with it**: no critic ran, so
+`fix_cycles` is absent on what was just built, which is the condition Integrate refuses on. **That is a
+legitimate way to run Build rather than a failure**, because the seat is identical at every rung and the
+line above already says so.
+
+**A fix pass is the exception: hand back before opening it.** That pass ends in a critic dispatch this
+session cannot make, and a committed fix leaves nothing to see — `fix_cycles` is already on the slice from
+the pass that raised the finding and `- [x] fixed` closes the box, so the slice would read finished and
+clean. **Leave the finding open**, because an open `- [ ]` under `## Critique findings` is what Integrate
+refuses on.
+
+**A session that cannot dispatch says so and stops rather than critiquing its own build inline.** That is
+the contamination rule above, not the ladder, and the contamination rule is where the cost-only line does
+not reach: the builder's rungs trade cost for context, and there is no rung on which the only critic
+available is the agent that wrote the code.
+
 **No named agent definitions.** Workers are the generic subagent with an inline prompt. A definition buys
 nothing a prompt does not, and it is the one surface a local `.claude/agents/` file silently outranks.
 

@@ -670,6 +670,11 @@ it run, and navigate back. That is why `dev-path` names no transcript read.
 
 **Nothing depends on worker lifecycle for correctness, only for cost.**
 
+**Except on a harness that will not spawn at all, where the critic's half stops being about cost.** The
+builder walks down to the bottom rung and hands back, which is the cost trade working as stated. The critic
+does not run, because a session judging its own build is the contamination rule and no price makes that
+acceptable.
+
 **Live messaging is a declined available mechanism, not an assumed-absent one.** Sending a message to the
 main conversation from a background subagent works, and returns *queued for the main conversation's next
 turn* — queued, not interrupting, so it saves not one step over returning.

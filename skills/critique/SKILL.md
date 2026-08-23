@@ -48,7 +48,14 @@ change-request pass is unavailable**: say so, and run the slice pass. Do not gue
 **A fresh subagent every pass.** Two independent supports: a resumed judge that had prescribed the fix
 reported *"passed both with zero findings"* on work containing a real defect, and separating the agent
 doing the work from the agent judging it is a strong lever. **Priced at about 3% of the cost of the build
-it critiques**, so a fresh critic every pass costs effectively nothing.
+it critiques**, so a fresh critic every pass costs effectively nothing. **If a dispatch is refused, or this
+session is under an instruction not to dispatch, the slice pass is unavailable**: say so, write nothing, and
+hand back — the next act is re-running this skill where a subagent can be had. **Do not critique inline
+instead.** No exception for a session that did not build the slice, because the session that cannot dispatch
+is usually the one that did, and asking it to sort those two apart hands the judgment to the agent this rule
+exists to distrust. **`fix_cycles` staying absent is the right outcome and not a gap** — Integrate refuses on
+an absent line on a slice carrying code, and on the finding a Build that cannot dispatch leaves open rather
+than fixing, so an uncritiqued slice cannot reach a merge unseen.
 
 **Read the changed files, not only the diff.** Mandated. A diff without the surrounding file is a worse
 review on quality grounds alone — **and without this, scoped rules do nothing**, because a review
