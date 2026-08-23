@@ -129,13 +129,18 @@ between Survey's findings and Q1 so a reader never takes one for the other:
 ## Technical design questions
 ```
 
+**A `dev-path: ` prefix opens its own line above that header.** Prefixed inline, `##` stops being a
+heading and the round loses its only divider from what came before.
+
 Nothing goes between that header and Q1, and only blocks go between Q1 and the last question —
 **no sub-headings inside a round.** The tree rooted at the problem fixes the *order*, so the problem
 questions still come first; they arrive as Q1, Q2, Q3 and not under a label of their own. Ordering
 stays, labelling goes.
 
 **Later rounds reuse the block and omit the header.** It divides findings from questions, and a
-round after the first follows nothing but answers.
+round after the first follows nothing but answers. **The numbering runs on across rounds**: round 2
+opens at the next free number, so one number names one question for the whole conversation and *I
+disagree with Q3* is still answerable on the fortieth exchange.
 
 **The recommended-answer rule is load-bearing three ways:** it makes a forty-exchange conversation
 affordable, it makes *disagreement* the cheap response instead of an essay, and it is what makes the

@@ -7,11 +7,11 @@
 # against a compliant plugin gets deleted — which puts the list back to a wish.
 #
 # Subject: the ten SKILL.md bodies, README.md and scripts/contention.sh — twelve
-# of the eighteen files, and every file that carries prose. The six exclusions
-# are deliberate: neither test under tests/ is a subject — this one carries every
-# retired word as a literal, and compositions.sh carries the call strings it
-# asserts — and ci.yml, the two manifests and LICENSE carry no prose of
-# dev-path's authoring.
+# of the twenty files, and every file that carries prose. The eight exclusions
+# are deliberate: no test under tests/ is a subject — this one carries every
+# retired word as a literal, compositions.sh carries the call strings it asserts,
+# and round-format.sh carries the markers it asserts — and ci.yml, the two
+# manifests, LICENSE and .gitignore carry no prose of dev-path's authoring.
 #
 # Ten assertions, not seven: "unit of work", "unit" and "task" share a row on the
 # retired list and do not share a scope, and neither do "Research" and "Review".

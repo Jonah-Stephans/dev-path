@@ -817,9 +817,9 @@ conversation must end in an approval and a written artifact.
 **The design conversation's 🟡 and ❇️ markers diverge from grilling's on purpose, and neither reason is
 taste.** Colour carries the state — yellow is the question still waiting on the human, green is the answer
 already on the table — so a round is scannable before a word of it is read, which is the complaint the
-format answers. And a byte-identical block invites the refactor the entry above forbids: an editor who
-finds an exact copy of grilling's format is one step from replacing it with a call to grilling, where a
-distinct pair makes `dev-path`'s copy self-evidently its own.
+format answers. And a byte-identical block invites the refactor the third-party-dependency rule
+forbids: an editor who finds an exact copy of grilling's format is one step from replacing it with a
+call to grilling, where a distinct pair makes `dev-path`'s copy self-evidently its own.
 
 **Branch-name discovery requires an attached HEAD.** `git branch --show-current` returns empty with exit
 code 0 under a detached HEAD, so `dev-path` says *you are not on a branch* rather than *no spec on this
