@@ -1,7 +1,7 @@
 #!/bin/sh
-# dev-path — three assertions on the commit-excess tag: that Build writes it in a
-# shape a run can copy, that README's grammar table defines it, and that nothing
-# mechanical reads it.
+# dev-path — three assertions on the commit-excess tag: that Build writes it, as
+# an instruction and as a shape a run can copy, that README's grammar table
+# defines it, and that nothing mechanical reads it.
 #
 # The reason this file exists is an ambiguity the first real spec produced. Two
 # slices on one branch each carried an open `- [ ]` under `## Deviations`. On
@@ -41,16 +41,27 @@ for f in "$B" "$R"; do
   fi
 done
 
-# --- 1. Build writes the tag, anchored at line start. Build owns the audit, so
-#        Build is the only place the tag can be mandated. Anchored, and matched
-#        against the worked example rather than the mandating sentence, for two
-#        reasons: the example is the shape a run copies, and it is the half that
+# --- 1. Build writes the tag, in both halves of the slot. Build owns the audit,
+#        so Build is the only place the tag can be mandated, and the two halves
+#        fail independently: the mandating sentence is what a run acts on, the
+#        worked example is the shape it copies. Held apart so the message names
+#        which one went — the mandate can revert to a bare box while the example
+#        under it still reads correctly, and it is the mandate that is the rule.
+#
+#        The example is anchored at line start, which is also the half that
 #        proves `^- \[ \]` still matches the box — a tag that pushed the box off
-#        the line start would silence every check in the plugin at once. A
-#        sentence rewraps; a fenced line does not.
+#        the line start would silence every check in the plugin at once. A fenced
+#        line does not rewrap, so it can be anchored; the mandate is prose, so it
+#        is matched on its opening words instead.
 if ! grep -qE '^- \[ \] excess — ' "$B"; then
   echo "FAIL [writer] $B carries no worked example of the tagged box"
   echo "      expected a line of its own opening with: - [ ] excess — "
+  FAIL=1
+fi
+
+if ! grep -qF 'one `- [ ] excess — ' "$B"; then
+  echo "FAIL [writer] $B does not mandate the tag at the audit slot"
+  echo '      expected the instruction to read: one `- [ ] excess — <...>`'
   FAIL=1
 fi
 
@@ -73,30 +84,47 @@ fi
 #        and a scan that read prose would fail on the sentence stating the rule
 #        it is enforcing. Inside a fence it flags only code-shaped lines, so the
 #        worked example of the artifact passes and a grep over it does not.
+#        Code-shaped names the tools this plugin's checks are actually written in
+#        rather than the two that were easiest to think of: the hook menu alone
+#        runs on jq, sed and case, so a filter naming only grep and awk would let
+#        a reader written in any of them through the one assertion that exists to
+#        stop exactly that.
 #
-#        In the executable files every line is code, so those are scanned whole.
-#        This file is the one exclusion and the reason is the same one
-#        tests/retired-words.sh gives for excluding itself: it carries the tag as
-#        a literal, and a test that cannot pass against a compliant plugin gets
-#        deleted. Both subject lists are counted, because a glob that matched
-#        nothing would otherwise pass this assertion silently.
+#        In the executable files every line is code except a comment, and the
+#        comments are skipped. A comment mentioning the tag is explanation rather
+#        than a reader, and these files run a quarter to a half comment by line,
+#        so a whole-file scan would fail on the next header that explains the
+#        rule. This file is the one whole exclusion and the reason is the same
+#        one tests/retired-words.sh gives for excluding itself: it carries the
+#        tag as a literal, and a test that cannot pass against a compliant
+#        plugin gets deleted.
+#
+#        Both subject lists are counted, because a glob that matched nothing
+#        would otherwise pass this assertion silently — but counted as a floor
+#        rather than an exact number. `tests/*.sh` is one of the globs and this
+#        repo adds a test per change, so an equality here fails the next
+#        unrelated test file with a message about counts and nothing about the
+#        tag. This guard exits rather than accumulating into FAIL, as the
+#        subject-existence check above it does: a list this cannot scan makes
+#        every assertion under it meaningless, and an empty one would leave the
+#        grep below reading stdin, which hangs a CI job instead of failing it.
 PROSE=$(ls "$R" skills/*/SKILL.md 2>/dev/null)
 CODE=$(ls scripts/*.sh .github/workflows/ci.yml tests/*.sh 2>/dev/null | grep -v '^tests/deviation-tags\.sh$')
 PN=$(printf '%s\n' "$PROSE" | grep -c .)
 CN=$(printf '%s\n' "$CODE" | grep -c .)
 
-if [ "$PN" -ne 11 ] || [ "$CN" -ne 5 ]; then
-  echo "FAIL subject: expected 11 prose files and 5 executable files, found $PN and $CN"
-  FAIL=1
+if [ "$PN" -lt 11 ] || [ "$CN" -lt 4 ]; then
+  echo "FAIL subject: expected at least 11 prose and 4 executable files, found $PN and $CN"
+  exit 1
 fi
 
 READERS=$(
   awk '
     FNR == 1 { fence = 0 }
     /^```/   { fence = !fence; next }
-    fence && /excess([^a-z]|$)/ && /grep|awk|"command"/ { print FILENAME ": " $0 }
+    fence && /excess([^a-z]|$)/ && /grep|awk|sed|jq|case|rg|"command"/ { print FILENAME ": " $0 }
   ' $PROSE
-  grep -nE 'excess([^a-z]|$)' $CODE
+  grep -nE 'excess([^a-z]|$)' $CODE | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
 )
 
 if [ -n "$READERS" ]; then
