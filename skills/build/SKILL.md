@@ -197,10 +197,23 @@ that breaks precisely when that upgrade is taken. **A failed commit needs a huma
 reach one.** It agrees with how the adjacent tooling in this estate already reasons about commits. And it
 is immune to how a foreign guard identifies the caller.
 
-**Nothing observable changes: one code commit per slice, none for a pause.** The worker writes
-`done: true` and returns; commit on that return; an open box means no commit. **The critic's findings write
-is a second commit on the same slice**, on its own return and under the same division — so *one commit per
-slice* is a claim about code, and it is written that way wherever it is claimed.
+**Nothing observable changes: one code commit per slice, plus one for a pause.** The worker writes
+`done: true` and returns; commit on that return. **A pause returns too, and you commit on that return as
+well** — the worker wrote its box and stopped, and what it built before stopping is on disk. **The
+critic's findings write is a second commit on the same slice**, on its own return and under the same
+division — so *one commit per slice* is a claim about code, and it is written that way wherever it is
+claimed.
+
+**A pause commit is not a claim that the slice works.** What claims that is `done: true`, and a paused
+worker writes no such field. **Nothing mechanical reads the commit either** — the frozen test below joins
+the absence of `done` to an open box under `## Deviations`, Integrate refuses on that box, and neither
+looks at git. So permitting the commit changes the outcome of no check in this plugin.
+
+**What the commit buys is the work.** A pause can hold finished work: the run this rule came from had
+wired a linter and replaced a styling hook that resolved to nothing before the question that stopped it
+was reachable. **Uncommitted, that work is one `git checkout` from gone.** `git add -A` is here so Build's
+memory is out of the loop, and a pause that kept nothing would put it back — in the one case where the
+next actor is a human who did not do the work.
 
 **Stage with `git add -A`**, and **any commit excess against the slice's declared scope is recorded as
 one `- [ ] excess — <the paths, and what swept them in>` under `## Deviations`, and that slot is the only
@@ -268,9 +281,11 @@ dev-path/tolerance-config/slices/02-validation.md
 ```
 
 **A findings commit takes the same shape**, because a second shape would be a second convention to pin.
-Two commits on one slice therefore share a subject line, and what separates them is the diff — code in one,
-the slice file's `## Critique findings` in the other. **Intended rather than overlooked**, and a repo that
-wants them distinguishable in `git log --oneline` has its own standards rule, which wins here as above.
+Commits on one slice therefore share a subject line, and what separates them is the diff — code in a
+builder's, the slice file's `## Critique findings` in a critic's. **A pause commit shares it too**, with
+the commit that finishes the slice after a human clears the box. **Intended rather than overlooked**, and
+a repo that wants them distinguishable in `git log --oneline` has its own standards rule, which wins here
+as above.
 
 **Why the path in the body rather than a prefix or a trailer.** `git log -- dev-path/<slug>/` already finds
 a spec's commits, so the path is for the human reading one commit in isolation and asking *which slice was
@@ -283,7 +298,11 @@ belongs.
 **The push is per commit, not per run.** You cannot have a draft pull request on an unpushed branch, and
 the pull request is what makes the work visible while it is in flight — a run that pushed once at the end
 would leave the spec's own pull request stale for the whole build, which is the condition the draft pull
-request exists to prevent. **A pause commits nothing and therefore pushes nothing.**
+request exists to prevent. **A pause commits and stops there: no push.** The person a pause needs is the
+engineer at the terminal that just stopped, holding this run's report and the slice file, and the pull
+request is not in that loop — a repo that took README's first hook block denies exactly this push while a
+box is open. **The pause commit reaches the remote on the next push**, once a human has cleared the box and
+the slice has finished.
 
 ## Dispatch a critic on that same return
 
@@ -296,6 +315,12 @@ this skill opened by claiming, and it is the orchestrator's act — a worker can
 > it certain. A repo that wants certainty adds a hook of its own; `dev-path` ships none and depends on
 > none.
 
+**Dispatch before you report.** The call goes out ahead of any summary of what was built, in the turn the
+worker returned. **A turn that reports the build and then ends is the observed shape of the failure the
+line above names** — the sentence describing the dispatch stands in for the dispatch, and it is likeliest
+where the report is long and the call is one clause at the end of it. Narration is not the act. Where both
+happen in one turn, the order is dispatch, then report.
+
 **Both returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
 never `done: true` — that field was written when the slice was built — so a condition reading `done: true`
 alone would dispatch the first critic and none of the re-reviews. **And the re-review is the one the
@@ -304,8 +329,8 @@ box is checked, so the box grep is too. A skipped re-review is the missed increm
 outright it cannot detect — which is why this line carries it instead of a trace.
 
 **The condition is a return that wrote one of those two, and not merely a return.** A pause returns too,
-and a pause stops the whole run: no commit, no critic, no walk. It is the same event that already means no
-commit.
+and a pause stops the whole run: no critic, no walk. **What that return does earn is its commit**, above
+— keeping the work is not the same act as judging it.
 
 **Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `dev-path:critique` into *this*
 session, as the plugin's other three compositions do, and **that skill dispatches the critic** — *a fresh
@@ -432,8 +457,9 @@ failure.** The alternative is a plugin that holds an opinion about which org thi
 does any stage create the org** — the engineer creates their own, and the repo's CI creates the fresh one
 for the whole-spec deploy. A plugin that creates an org is a plugin that names one.
 
-**Nothing is committed before it deploys**, which is what makes *one code commit per slice* mean *one
-working slice per commit*.
+**Nothing writes `done: true` before it deploys**, which is what makes a slice carrying `done: true` mean
+a working slice. **The claim is the field, not the commit** — a pause commits as well, and that commit
+says the work exists, never that it works.
 
 > **It does not prove verticality and must not claim to.**
 
