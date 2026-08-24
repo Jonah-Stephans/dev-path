@@ -334,6 +334,11 @@ the same heading is the commit audit's — a note on files a commit swept in —
 to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged
 whatever was on disk: close the untagged one, and **leave a tagged box open.**
 
+**A tagged box left open still reads as *frozen*, so name the slice as the next one to build.** The frozen
+test joins the absence of `done: true` to an open box under `## Deviations` and never reads the tag, so the
+slice you just unblocked keeps answering *frozen* until `dev-path:build` finishes it. Building it is never
+denied. Building a sibling ahead of it is.
+
 ## Stop
 
 **Push once the layout settles**, so the human sees the design and the slice layout together on the draft

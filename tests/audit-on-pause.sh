@@ -1,10 +1,11 @@
 #!/bin/sh
-# dev-path — five assertions on the commit audit when the commit is a pause's:
+# dev-path — six assertions on the commit audit when the commit is a pause's:
 # that the audit slot is still unconditional, that no statement of the retired
 # `done: true` precondition survives in any prose file, that the tag alone now
 # carries the distinction at each site that used to name it, that the shape a
-# human meets first — two open boxes on one paused slice — is drawn once, and
-# that the two sentences pointing at `done` were left pointing there.
+# human meets first — two open boxes on one paused slice — is drawn, that the
+# window a cleared pause leaves behind is stated wherever a run could walk into
+# it, and that the two sentences pointing at `done` were left pointing there.
 #
 # The reason this file exists is that #28 permitted a pause to commit and left
 # staging alone, so `git add -A` on a pause can sweep a stray file and the audit
@@ -84,6 +85,14 @@ BUILD=$(flatten < "$B")
 #        fail on all of them. The slot is the one sentence that sets the box's
 #        shape, so a route that gated the audit has to edit it.
 #
+#        The span opens a paragraph *before* the slot, at the sentence arguing
+#        what the commit buys. A span opening on the slot's own first words is
+#        escapable by the route it exists to stop: `The audit runs only where the
+#        worker returned `done: true`. Stage with `git add -A`, and any commit
+#        excess...` gates the audit without putting a `done` inside the slot, and
+#        reads clean. That paragraph carries no `done` today and has no reason
+#        to, and it is where a gate would have to go to still read as prose.
+#
 #        Cut with index() rather than a greedy `sed`, and required to be
 #        non-empty. `sed 's/.*A//; s/B.*//'` reads *last* A to *first* B, so a
 #        second copy of either phrase silently relocates the span, and anchors in
@@ -101,7 +110,7 @@ if ! printf '%s' "$BUILD" | grep -qF "against the slice's declared scope is reco
   FAIL=1
 fi
 
-SLOT=$(printf '%s' "$BUILD" | awk -v a='Stage with `git add -A`' -v b="place the box's shape is set" '
+SLOT=$(printf '%s' "$BUILD" | awk -v a='What the commit buys is the work' -v b="place the box's shape is set" '
   {
     i = index($0, a)
     j = index($0, b)
@@ -139,6 +148,22 @@ on a slice that already carries `done: true`
 on a slice that already finished
 written after the slice finished'
 
+# The four above are the forms that were actually here. These three are the same
+# claim reworded, and they are here because the argument for scanning the whole
+# estate is that the sentence reads as background description — and somebody
+# restoring background description from memory paraphrases it. Neither list is a
+# decision procedure for *is this the precondition*; together with assertion 3's
+# positive anchors they are a net, and the net is what a check of prose can be.
+#
+# `on a finished slice` is deliberately not among them. README says it of a box
+# under `## Critique findings`, where a finished slice is exactly the point. The
+# two live `on a slice that carries code` sentences about `fix_cycles` are why
+# the first pattern requires a completion token after `carries` rather than
+# stopping at the verb.
+RETIRED_RX='on a slice that (already )?(carries `?done|carried `?done|finished|completed|is done|was done|has finished)
+written \*?after\*? [^.]{0,40}(done|slice (finished|completed))
+after the slice (finished|completed|was done|is done)'
+
 PROSE=$(ls "$R" skills/*/SKILL.md 2>/dev/null)
 PN=$(printf '%s\n' "$PROSE" | grep -c .)
 
@@ -153,6 +178,10 @@ for f in $PROSE; do
     printf '%s\n' "$RETIRED" | while IFS= read -r form; do
       [ -n "$form" ] || continue
       printf '%s' "$FLAT" | grep -qF "$form" && printf '%s\n' "$form"
+    done
+    printf '%s\n' "$RETIRED_RX" | while IFS= read -r rx; do
+      [ -n "$rx" ] || continue
+      printf '%s' "$FLAT" | grep -oE "$rx"
     done
   )
   if [ -n "$HITS" ]; then
@@ -202,11 +231,14 @@ if [ -n "$MISSES" ]; then
   FAIL=1
 fi
 
-# --- 4. The pair is drawn once. Two open boxes under one `## Deviations`, one
+# --- 4. The pair is drawn. Two open boxes under one `## Deviations`, one
 #        untagged and one tagged, is the artifact a human meets before any prose
 #        about it, and before this change it could not exist. Read as a fenced
 #        block so it is the worked example that is asserted and not a sentence
-#        describing one.
+#        describing one. A floor and not exactly one, for the reason the subject
+#        counts above are floors: a second worked example is a thing this repo
+#        might legitimately grow, and failing that with a message about counts
+#        would say nothing about the pair.
 #
 #        A tagged box is a box whose first word is followed by an em dash; the
 #        untagged one is any other open box. That reads the shape rather than the
@@ -244,7 +276,41 @@ if ! awk '
   FAIL=1
 fi
 
-# --- 5. What this change was not allowed to touch, pinned where nothing else
+# --- 5. The window a cleared pause leaves behind is stated at all three sites a
+#        run could walk into it. Closing the pause box does not close the tagged
+#        one — that disposition is the human's at merge — so from the clearing
+#        until `done: true` the slice carries no `done` and an open box under
+#        `## Deviations`. That is the frozen test's *frozen*, and it is hook
+#        block 3's `is frozen and needs a human` on the dispatch of any sibling.
+#
+#        Nothing mechanical can tell that state from a real pause without reading
+#        the tag, and reading the tag is the one thing tests/deviation-tags.sh
+#        forbids. So what closes the window is a rule about order — the cleared
+#        slice is built next, and block 3 never denies the slice it is being
+#        asked to dispatch — and a rule about order is worth only the files that
+#        state it. Build owns dispatch, technical-design is where the clearing
+#        happens, and README's block 3 is the paste whose message is wrong for
+#        as long as the window is open.
+WINDOW="$B|the cleared slice is the next slice this run builds
+$T|name the slice as the next one to build
+$R|once a pause is cleared it is wider than the truth"
+
+GAPS=$(
+  printf '%s\n' "$WINDOW" | while IFS='|' read -r f frag; do
+    [ -n "$frag" ] || continue
+    flatten < "$f" | grep -qF "$frag" || printf '%s — %s\n' "$f" "$frag"
+  done
+)
+
+if [ -n "$GAPS" ]; then
+  echo "FAIL [cleared-pause window] a site is silent on the slice a cleared pause leaves"
+  echo '      the tagged box outlives the pause, so the slice reads frozen until `done: true`;'
+  echo '      each line below is the file and the fragment it no longer holds'
+  printf '%s\n' "$GAPS" | sed 's/^/      /'
+  FAIL=1
+fi
+
+# --- 6. What this change was not allowed to touch, pinned where nothing else
 #        pins it. tests/pause-commits.sh holds the frozen test's two halves, so
 #        what is held here is the joint: the sentence saying that test reads
 #        `done` and not the tag. Dropping the precondition from the prose around
@@ -267,6 +333,6 @@ if ! grep -qF "grep -q '^done: true\$'" "$R"; then
 fi
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "audit-on-pause: the audit is unconditional, the tag carries it, the pair is drawn — clean"
+  echo "audit-on-pause: the audit is unconditional, the tag carries it, the pair is drawn, the window is named — clean"
 fi
 exit "$FAIL"

@@ -571,6 +571,16 @@ open box under `## Deviations` is the true reading of that slice — it is stopp
 while it is, and Integrate refuses at the end. What the tag adds is which instruction is which: untagged
 is *do not proceed until a human answers*, tagged is *somebody should say whether that file was fine*.
 
+**The tagged box outlives the pause, and the frozen test goes on reading *frozen*.** The
+`dev-path:technical-design` session closes the untagged box and leaves the tagged one for the human at
+merge, so from the moment the pause clears until this stage writes `done: true` the slice carries no
+`done: true` and an open box under `## Deviations` — frozen, by a test that never reads the tag.
+**Mandated: after a human clears a pause, the cleared slice is the next slice this run builds.** Building
+that slice is never the thing denied — the stop is always read off some *other* slice, and a repo that took
+README's third hook block skips the one it is being asked to dispatch — and `done: true` at the end of that
+build closes the window. Reaching for a sibling first is what turns a cleared pause into a false *frozen*,
+and holding one slice to build another was already *on request only*.
+
 **You do not close your own pause.** The `dev-path:technical-design` session that resolves it writes the
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.
 

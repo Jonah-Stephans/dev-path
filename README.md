@@ -191,8 +191,16 @@ how you say no, and nothing ever writes `false` — so a block greping `^done: f
 
 **And the open-box test is scoped to `## Deviations`.** Slice writes `## Acceptance criteria` as open boxes
 at creation, so **every slice not yet built carries open boxes** — an unscoped grep would deny the second
-dispatch of every ordinary run. What this block looks for is a *pause*, and a pause is an open box under
-`## Deviations`.
+dispatch of every ordinary run. What this block looks for is a stopped slice, and it reads one as the
+absence of `done: true` plus an open box under `## Deviations`.
+
+**That reading is wider than a pause, and once a pause is cleared it is wider than the truth.** The
+`dev-path:technical-design` session closes the pause box and **leaves the audit's tagged box open**, so
+until Build finishes that slice it carries no `done: true` and an open box, and this block calls it frozen.
+**Build's rule closes the window: the cleared slice is the next one it builds.** Dispatching it is never
+denied, because the block skips the slice it is being asked to dispatch, and `done: true` lands at the end
+of that build. Reaching for a sibling first is what trips the false stop, and holding one slice to build
+another was already *on request only*.
 
 This is the strict form: it denies while **any** other slice in the spec is frozen. Build's
 disjoint-`touches` exception is deliberately not in the paste — a repo that wants it compares the two
