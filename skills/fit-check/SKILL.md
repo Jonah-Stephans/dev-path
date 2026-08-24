@@ -233,7 +233,7 @@ does not run the gate — these are what it requires of the repo's.
 | 22 | `.claude/rules/` stays commit-eligible | 2 | `git check-ignore -v --non-matching .claude/rules/ .claude/rules/dev-path-probe.md`, and again with `--no-index`. **Probe a non-`rstk-` filename** | present · absent |
 | 23 | `.claude/lessons.md` left alone | 2 | `git check-ignore -v --non-matching .claude/lessons.md`, plus `git ls-files --error-unmatch` and `git log --diff-filter=D -- .claude/lessons.md` | present · absent · could not determine |
 | 24 | `.rstk/` gitignored | 2 | `git check-ignore -v --non-matching .rstk/ .rstk/probe.json` — **with the trailing slash**. Then `git ls-files -- .rstk`, because already-committed is a worse state than un-ignored and needs a different fix | present · absent |
-| 26 | No always-on rule redirects Build's dispatch | 2 | Read every `.claude/rules/*.md` whose `paths:` is `"*"`, empty or absent, for a directive naming a subagent type, a model, a turn cap, or context forwarding. **What such a rule names is out of reach** — agent definitions ship in a plugin, not the repo | present · absent · **not observable** (the definition's own caps) |
+| 26 | No always-on rule redirects Build's dispatch | 2 | Every always-on `.claude/rules/*.md` — `paths:` absent, empty, or a match-everything glob in any spelling — and root `CLAUDE.md`, read for a directive naming a subagent type, a model, a turn cap, or context forwarding. **Finding none is *present*, never *could not determine*, and what the rule names is out of reach unless the repo defines it** — see below | present · absent · **not observable** (the definition's own caps, on the plugin route) |
 
 > **A precondition on the repo comes with a backstop, never alone — and say why: another plugin's presence
 > depends on the *engineer*, not the repo, so it is not observable from the repo at all. A precondition
@@ -253,22 +253,39 @@ injected and the skill is merely read.**
 **What that costs is not style.** A named agent definition can pin a model, a tool list and a turn cap, and
 none of the three is visible in the dispatch or anywhere in the spec directory. In one measured run a
 `maxTurns: 50` on the mandated agent stopped three Build workers at exactly turn fifty — each mid-tool-call,
-each losing every acceptance criterion it had verified and not yet written down. Generic workers in the same
-run reached seventy turns and returned cleanly. **Nothing reported that a cap existed, let alone that it had
-been hit**, and the run's own conclusion was that the slice had been cut too large.
+each losing every acceptance criterion it had verified and not yet written down. The two generic workers in
+the same run ran fifty-eight and seventy turns and returned cleanly. **Nothing reported that a cap existed,
+let alone that it had been hit**, and the run's own conclusion was that the slice had been cut too large.
 
-**The check is half-blind and says so rather than guessing.** The rule file is in the working tree and reads
-plainly, so *present* and *absent* are honest verdicts about the rule. The definition it names is not: it
-ships in a plugin whose presence depends on the engineer, so `model`, `maxTurns` and `tools` are **not
-observable** from a repo. **Do not resolve the name and do not read `~/.claude/plugins/`** — that is a
-machine, not a repository, and every verdict this skill prints is about a repository.
+**Read the always-on set permissively, and read an empty one as *present*.** `paths:` absent is the form
+`dev-path:learn` writes; `paths: ["*"]` is the form the measured run carried. **A check matching one literal
+spelling misses the file it was written from**, so accept the key absent, an empty list, and `"*"`, `["*"]`,
+`["**"]` and `["**/*"]` alike — the same permissiveness entry 13 needs for `.forceignore` patterns, and for
+the same reason. **Read root `CLAUDE.md` on the same terms:** it reaches the orchestrator that dispatches,
+which is the whole mechanism here. **And a repo carrying no such file at all is *present*, not *could not
+determine*** — a departure from rule 1 of the six, and the one place where **vacuous is satisfied**, because
+here the artifact's absence *is* the property rather than a greenfield repo not having got to it yet.
 
-**This entry has no backstop, and the rule above says every repo precondition needs one. That is recorded
-here rather than closed with an invented check.** The failure is silent at every layer: the foreign rule is obeyed correctly,
-the dispatch succeeds, the worker is killed, and it returns nothing. **The nearest honest backstop is
-Build's rather than this skill's** — a worker returning having written neither `done: true` nor a pause box
-has either never started or been cut off, and on disk those are the same absence. Until something separates
-them, entry 26 is a warning and not a guard.
+**The check is half-blind about what the rule names, and says so rather than guessing.** The rule file is in
+the working tree and reads plainly, so *present* and *absent* are honest verdicts about the rule. The
+definition it names usually is not: it ships in a plugin whose presence depends on the engineer, so `model`,
+`maxTurns` and `tools` are **not observable** from a repo. **Do not resolve the name and do not read
+`~/.claude/plugins/`** — that is a machine, not a repository, and every verdict this skill prints is about a
+repository.
+
+**The exception is a definition the repo carries itself.** A `.claude/agents/<name>.md` in the working tree
+is an ordinary read, and Build names that file as the surface that outranks its own mandate. Where the rule
+points at one, `model`, `maxTurns` and `tools` **are** observable and the caps get a verdict. **Not
+observable belongs to the plugin route** — the measured case and the common one — and is never the blanket
+answer.
+
+**Where the definition does ship in a plugin this entry has no backstop, and the rule above says every repo
+precondition needs one. That is recorded here rather than closed with an invented check.** The failure is
+silent at every layer: the foreign rule is obeyed correctly, the dispatch succeeds, the worker is killed,
+and it returns nothing. **The nearest honest backstop is Build's rather than this skill's** — a worker
+returning having written neither `done: true` nor a pause box has either never started or been cut off, and
+on disk those are the same absence, which Build's resume rule currently reads as *not started*. Until
+something separates them, entry 26 is a warning and not a guard.
 
 ### Culture
 
