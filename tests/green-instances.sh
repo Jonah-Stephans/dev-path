@@ -46,10 +46,27 @@ for f in "$B" "$R"; do
   fi
 done
 
-# The deploy-tick-done section, from its own heading to the next `## ` heading.
-# Ranged on headings rather than line numbers so the span survives the section
-# growing.
-SECTION=$(awk '/^## Deploy, then tick/ { on = 1; next } on && /^## / { exit } on' "$B")
+# The deploy-tick-done section, from its own heading to the next heading of its
+# own level or higher. Ranged on headings rather than line numbers so the span
+# survives the section growing, and closed on `# ` as well as `## ` because a
+# span that runs past a top-level boundary is a looser assertion wearing a
+# strict one's message: the anchors below would start matching prose that is not
+# in this section at all.
+SECTION=$(awk '
+  /^## Deploy, then tick/ { on = 1; next }
+  on && (/^# / || /^## /) { exit }
+  on
+' "$B")
+
+# A renamed heading arrives here as an empty span, and an empty span answers
+# every assertion below with the same message a deletion gets. Exit rather than
+# accumulate, for the reason tests/deviation-tags.sh gives for an unscannable
+# subject: the prose may be untouched and sitting under a new heading, and a
+# message naming the prose sends a reader to the wrong thing.
+if [ -z "$SECTION" ]; then
+  echo "FAIL subject: $B carries no '## Deploy, then tick' section to read"
+  exit 1
+fi
 
 # --- 1. Two instances, both inside that section. Anchored on the whole line so
 #        a mention of the phrase in running prose does not count as an instance.
@@ -83,7 +100,22 @@ if ! printf '%s\n' "$SECTION" | flatten | grep -q 'asserted what the client sent
 fi
 
 # --- 3. README's honesty list carries both cases, by the same two anchors.
-HONESTY=$(awk '/^### What verification does and does not reach/ { on = 1; next } on && /^### / { exit } on' "$R")
+#
+#        Closed on `## ` as well as `### `, so a new section opening above the
+#        next sub-heading ends the span instead of being swallowed by it. Not on
+#        `# `: README carries `# <Title>` inside fenced artifact templates, and a
+#        terminator that matched one would end the span on an example rather than
+#        a heading. The two levels that close it here have no fenced instances.
+HONESTY=$(awk '
+  /^### What verification does and does not reach/ { on = 1; next }
+  on && (/^## / || /^### /) { exit }
+  on
+' "$R")
+
+if [ -z "$HONESTY" ]; then
+  echo "FAIL subject: $R carries no '### What verification does and does not reach' section"
+  exit 1
+fi
 
 if ! printf '%s\n' "$HONESTY" | flatten | grep -q 'scored 86.7% coverage'; then
   echo "FAIL [mirror] $R's verification list has lost the deploy-green case"

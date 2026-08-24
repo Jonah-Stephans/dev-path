@@ -379,9 +379,9 @@ what found them, and one missing import got as far as a wrong runtime conclusion
 
 **Suggested, with its reason: prefer `Edit`, and where a bash replacement is genuinely the right tool,
 grep for the result rather than trusting the exit code.** This reason reaches further than the mandate
-above it. Rule delivery is about
-`dev-path`'s own artifacts; a patch that did not land is about any file you touch, code included. **The
-mandate keeps its scope and bash stays available on code** — what this adds is the check.
+above it. Rule delivery is about `dev-path`'s own artifacts; a patch that did not land is about any file
+you touch, code included. **The mandate keeps its scope and bash stays available on code** — what this
+adds is the check.
 
 **Suggested, with its reason: read a neighbouring file of the kind you are about to write, before writing
 it.** It was never only a rule-loading trick — house style, naming and structure were always part of it,
