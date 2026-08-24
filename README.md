@@ -665,10 +665,15 @@ are enforced by programs; this orchestrator is a model running a skill, and no h
 counts or context size. **Nobody in the coding-agent systems surveyed has such a bound either** — so it is
 an admission, not a gap to fill.
 
-**Survey's five-dispatch ceiling is prose, and nothing checks it.** Unlike `fix_cycles >= 2` there is no
-field to read and no arithmetic to run — the number lives in the instruction, and a session either honours
-it or does not. It is written down at all because the unbounded form measured itself once, at thirteen
-researchers on a thirteen-Outcome spec.
+**Survey's five-dispatch ceiling is prose, and no run is checked against it.** Unlike `fix_cycles >= 2`
+there is no field to read and no arithmetic to run — the number lives in the instruction, and a session
+either honours it or does not. It is written down at all because the unbounded form measured itself once,
+at thirteen researchers on a thirteen-Outcome spec.
+
+**What a test can hold is the instruction, and that is what one holds.** The four files quoting the number
+are pinned to the same number and the split is pinned to adding up, because a loosened ceiling with three
+stale quotations still reading five is drift a test can see. **A sixth dispatch is not**, and no test in
+this repo pretends otherwise.
 
 **The determinism split.** `fix_cycles` being an integer and `>= 2` being arithmetic is deterministic, and
 so is *is a box still open* — a regex against a fixed grammar, roughly 100% accurate where prose reads at

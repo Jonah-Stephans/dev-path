@@ -59,16 +59,27 @@ against is an agent reading *up to four* as *four*.
 
 **The ceiling covers the whole stage, because one covering the first pass is not a ceiling.** An open
 extension clause is what put thirteen researchers on a thirteen-Outcome spec, and every single decision to
-dispatch one more was locally reasonable. An orchestrator that expects to chase something clusters into
-three and holds a slot.
+dispatch one more was locally reasonable.
+
+**The fifth slot cannot be spent on the first pass, so nothing needs holding back.** An orchestrator that
+expects to chase something already has its slot; one that finds nothing to chase never dispatches a fifth.
+**Four plus one, and never four plus two** — *at most one further dispatch* is the half of this ceiling
+that binds the mechanism thirteen came from, where every extra was justified one at a time.
 
 **Extend the list as you go, and record what you dispatched. Seeded, never cold.** An answer routinely
 names the next thing worth asking about; dispatch that too — that is what the fifth slot is for. The
 dispatch list is prose in `## Current state` and nothing checks it — **no new field.**
 
+**When two answers each name something and only one slot is left, chase the one the design will rest on**
+— not the one that reads as most interesting. The other one is not dropped; it is written down, below.
+
 **Where the Outcomes do not cluster meaningfully, chunk them in order.** A mis-grouped Outcome gets a less
 focused answer, never a missing one — so messy Outcomes are no reason to stall, and no reason to talk
 past the ceiling.
+
+**Say in `## Current state` when the ceiling shaped the answer** — unrelated areas chunked together to fit
+four, or a thread named and not chased. A shallower finding Design knows is shallow is usable; one Design
+reads as complete is not, and Survey is the only stage that can still tell the difference.
 
 **Findings stay per-Outcome.** A dispatch and a finding do not have to share a shape: one researcher
 handed four related Outcomes hands back four separate answers.

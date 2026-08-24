@@ -54,9 +54,16 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 written.**
 
 **Dispatch the checkers on the cheapest tier that reliably reads a diff and judges it against a written
-statement; the orchestrator stays where it is.** Suggested, with its reason — the same reason and the same
-exclusion `dev-path:survey` gives for its researchers: named by the property because a tier name is a
-model property and this one will move, and **Haiku is excluded by decision.**
+statement; the orchestrator stays where it is.** Suggested, with its reason. **Named by the property
+first, because a tier name is a model property and this one will move** — Sonnet is the current instance,
+and **Haiku is excluded by decision.**
+
+**The reason is this stage's own, and not the one `dev-path:survey` gives for its researchers.** A
+checker's job is bounded — one diff against one written statement — which is the cheapest kind of judgment
+to get right, where a researcher's is an open-ended read. **What a cheap tier must not be handed here is
+breadth, and one checker per Outcome is what leaves it none.** The stakes cut the other way and are why
+the tier is suggested rather than mandated: an unmet verdict stops step 3 and reaches the reviewer in the
+pull-request body, and a wrong `met` reaches nobody.
 
 **It is the one deliberate exception to *nothing writes a placeholder*** — always written, because
 otherwise *nothing was wrong* and *the pass never ran* are indistinguishable. It is not a placeholder:
