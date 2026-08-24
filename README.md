@@ -646,6 +646,9 @@ spend it per slice: two orgs per spec, not N+1.
 **Green is provably not done.** A slice whose feature was a dynamic query on a nonexistent field passed
 validation, passed its test and scored 86.7% coverage.
 
+**A green test of your own proves no more.** A suite asserted what the client sent, a null layout id, and
+never what the server did with it, while the running org overwrote a layout instead of adding one.
+
 **A slice made only of custom metadata has no behavioural verification whatsoever**, and no check is
 invented for it. Nor for permission sets, layouts or screen flows — **the platform ships no runner that can
 fail a build for any of them.**
