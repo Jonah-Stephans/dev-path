@@ -123,6 +123,11 @@ proceed on this slice until a human clears it** — **a pause box is never groun
 readings of one test: the grep answers *is anything open*, the section answers *what do I do about this
 one*.
 
+**One box under `## Deviations` carries its own tag, and it is not a pause.** `- [ ] excess` is the commit
+audit's note on a slice that already carries `done: true` — reviewing that slice is exactly what happens
+next. **Leave it as you found it**: not a finding to fix, and not yours to close. The human
+closes it at review.
+
 ## The two-cycle cap
 
 > **The cap does not stop the work. It stops the work being unattended.**

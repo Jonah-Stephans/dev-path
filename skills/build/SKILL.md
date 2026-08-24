@@ -203,7 +203,26 @@ is a second commit on the same slice**, on its own return and under the same div
 slice* is a claim about code, and it is written that way wherever it is claimed.
 
 **Stage with `git add -A`**, and **any commit excess against the slice's declared scope is recorded as
-one `- [ ]` under `## Deviations`.**
+one `- [ ] excess — <the paths, and what swept them in>` under `## Deviations`, and that slot is the only
+place the box's shape is set.**
+
+```markdown
+## Deviations
+- [ ] excess — package-lock.json, committed by `git add -A` and outside this slice's `touches`
+```
+
+**The tag is mandatory, and it closes a real ambiguity rather than decorating one.** An untagged open box
+under `## Deviations` is a pause: *this slice does not proceed until a human answers*. This one is a note
+about files, written on a slice that already finished. Untagged, the two are the same three characters in
+a diff, and telling them apart means joining the box to `done` in the front matter — which every check
+does correctly, and which nobody skimming seven slice files on a pull request does at all. **`excess`
+names the shortfall in the box itself**, exactly as `- [ ] unmet` names it on an Outcome check.
+
+**It adds no state, and nothing over a spec directory reads it.** Every existing test matches
+`^- \[ \]` and still matches this one:
+*Critique clean* stays section-blind, Integrate still refuses on it, and **the frozen test below still
+joins on `done` rather than reading the tag** — a tag is prose a run can forget to write, `done: true` is
+mechanical, and the test deciding whether a push is denied reads the mechanical one.
 
 **Why the audit beat a filter**, because it looks like the lazier choice and is not. Both need the *same*
 comparison — what git reports changed, versus `touches` plus `dev-path/` plus created files — so the
@@ -216,8 +235,10 @@ cannot lose work, which takes Build's memory out of the loop.
 below does not catch it and no later `dev-path` run is looking for it — **a done slice with an open box
 under `## Deviations` is not a pause and must not be read as one.** **It is the human's, at review**, in
 the grammar: `- [x] false positive` if the files were in scope and `touches` was simply incomplete, or
-`- [x] won't fix — <reason>` if they were not. What puts it in front of them is Integrate's step 3, which
-refuses while any box is open and names the exits.
+`- [x] won't fix — <reason>` if they were not. **Closing it replaces `excess` with the disposition** —
+every checked box carries its tag as the first word, and only `fixed` and `met` mean the code changed.
+What puts it in front of them is Integrate's step 3, which refuses while any box is open and names the
+exits.
 
 **The audit is also a backstop, and that is a rule rather than a side effect.**
 
@@ -472,6 +493,10 @@ creation, so an unbuilt slice already carries open boxes and *any open box* no l
 from not-started. **A pause is an open box under `## Deviations`.** Same grammar, different instruction:
 under `## Critique findings` an open box means *fix this*; under `## Deviations` it means *do not proceed
 on this slice until a human clears it*. **A pause box is never ground on as a fix item.**
+
+**A pause box carries no tag.** `- [ ] excess` under this same heading is the commit audit's, on a slice
+that already carries `done: true` — which a human reads off the tag where the frozen test above reads
+`done`.
 
 **You do not close your own pause.** The `dev-path:technical-design` session that resolves it writes the
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.

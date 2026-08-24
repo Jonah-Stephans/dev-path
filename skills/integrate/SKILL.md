@@ -142,6 +142,11 @@ a human clears it* — **a pause box is never ground on as a fix item.** An unti
 criteria` box holds Integrate exactly as an open finding does, and **that is intended behaviour rather
 than a false positive.**
 
+**A tagged box under `## Deviations` holds this refusal exactly as a pause does**, and the tag names the
+decision rather than whether one is owed. `- [ ] excess` is the commit audit's note, written after the
+slice finished and closed by hand at merge: `- [x] false positive` where the files were in scope and
+`touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
+
 **On an unmet Outcome, name all three exits.** The question that separates them is **did we fall short of
 the target, or was the target wrong?**
 
@@ -206,7 +211,8 @@ directory.**
 `## Acceptance criteria`, and exit 2 puts one under `## Outcome checks` — but carrying
 `## Acceptance criteria` wholesale would put every criterion of every slice in the body, which is the
 noise this step exists to reduce. **`- [ ] unmet` rides with it because it is the same line's other
-half:** the reviewer needs the shortfall next to the decision to ship without it.
+half:** the reviewer needs the shortfall next to the decision to ship without it. **`- [ ] excess` needs no
+line of its own** — its sibling in the grammar sits under `## Deviations`, which rides whole.
 
 ## 5 · Offer to file `## dev-path feedback`
 

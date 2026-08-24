@@ -129,6 +129,10 @@ push of the commit that created it. The block skips `## Deviations` on a slice c
 **never skips `## Critique findings`** — a finding left open on a finished slice is a real stop. The
 message names which of the two headings it found, because the two mean different things.
 
+**That box also carries a `- [ ] excess` tag, and this block deliberately does not read it.** A block
+deciding whether your push goes through reads `done: true`, because a field nothing else writes beats a
+word a run can forget. The tag is for the human reading the diff, where no join ever happens.
+
 ---
 
 **2 — A gate field is `true` before a slice is built.**
@@ -419,7 +423,9 @@ write them.
   it. One `- [ ]` per criterion, closed as `- [x] met`. They count toward *Critique clean* like every other
   box in the directory.
 - **`## Deviations`** — Build records; Integrate carries into the pull request body; the human sees it at
-  merge. Recording is mandatory; whether to stop is the engineer's call.
+  merge. Recording is mandatory; whether to stop is the engineer's call. **Two kinds of open box live here
+  and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is the commit audit's
+  note on a slice that already finished.
 - **`## Critique findings`** — Critique's slice pass. Appends across cycles.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
@@ -521,7 +527,7 @@ on it now, and **no ninth field was needed** — which is why the row's third co
 | Marker | Means |
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
-| `- [ ] unmet` | the same open box with its shortfall spelled out. **Not a sixth state** — every check greps `^- \[ \]`, which matches it |
+| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **Not new states** — every check greps `^- \[ \]`, which matches both |
 | `- [x] fixed` / `- [x] met` | the code does it |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway** |
@@ -536,6 +542,10 @@ only reason a directory-wide check is safe.
 box means *fix this*; under `## Deviations` it means *do not proceed on this slice until a human clears
 it*. **Two readings of one test** — the grep answers *is anything open*, the section answers *what do I do
 about this one*.
+
+**Inside `## Deviations` the tag says who clears it, and that is not a third reading.** An untagged box is
+the pause, closed by the `dev-path:technical-design` session that resolves it; `- [ ] excess` is the commit
+audit's, closed by the human at merge. Both hold every check open until they close.
 
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
 it may not have been, and **only `fixed` and `met` mean the code changed.**
