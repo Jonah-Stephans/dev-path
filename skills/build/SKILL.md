@@ -369,6 +369,20 @@ the model's own account:
 **The read is where rule delivery happens**, so a slice worked through `cat` and `sed` is a slice worked
 with the repo's scoped rules absent. This holds even if no other plugin is installed.
 
+**A second reason, and this one is not about rules: `Edit` fails loudly on a stale match and a bash
+replacement does not.** `Edit` refuses a string it cannot find and says so. `sed -i` and a python
+`str.replace` both exit zero having matched nothing, so **the absence of an error is not evidence a patch
+applied.** With a formatter in `lint-staged`, the file on disk drifts from the file you read between the
+read and the write — four spaces become two, single quotes become double — and a replacement written
+against what you read then matches nothing. One run lost four patches that way. Grepping afterwards is
+what found them, and one missing import got as far as a wrong runtime conclusion first.
+
+**Suggested, with its reason: prefer `Edit`, and where a bash replacement is genuinely the right tool,
+grep for the result rather than trusting the exit code.** This reason reaches further than the mandate
+above it. Rule delivery is about
+`dev-path`'s own artifacts; a patch that did not land is about any file you touch, code included. **The
+mandate keeps its scope and bash stays available on code** — what this adds is the check.
+
 **Suggested, with its reason: read a neighbouring file of the kind you are about to write, before writing
 it.** It was never only a rule-loading trick — house style, naming and structure were always part of it,
 and that half stands on its own. It cannot be rephrased as *ensure the standard is loaded*, because an
@@ -434,6 +448,23 @@ A slice whose feature was a dynamic query on a nonexistent field **passed valida
 scored 86.7% coverage.** Deploy-time integrity verifies the dependency graph, never the feature. The gate
 is real and worth having — the same feature cut horizontally fails with 5 errors and 0 components
 deployed — but do not read a green deploy as a finished slice.
+
+> **Green is provably not done.**
+
+**Said twice on purpose, because these are two different failures. The one above is the platform's check
+not checking your feature. This one is your own test not checking it.**
+
+One method, `saveLayout(layoutId, ...)`, where `null` meant *no particular layout*. Its two callers wanted
+opposite things from that: the client meant *make me a new one*, and the server read it as *update the one
+that loads on arrival*. In the running org, *New layout* renamed and overwrote the existing layout instead
+of sitting beside it. **The jest suite was green throughout, because it asserted what the client sent** —
+`layoutId` was null, as intended — **and never what the server did with it.** Clicking *New layout* in a
+real org is what found it, and the fix splits `createLayout` from a `saveLayout` that refuses a null id.
+
+**A test that asserts what you sent is not a test of what happened.** That is what makes this one sharper
+than the coverage number above: the test was written for the code, it asserted the right variable, and it
+still could not have caught the bug, because it asserted the call and the bug was in what the callee did
+with it. There is no percentage to explain it away and no platform to blame.
 
 **Then tick `## Acceptance criteria`.** **Mandated: tick each `- [ ]` as you satisfy it, and never
 before.** The tag is `- [x] met` — a criterion is a statement about behaviour, so it closes the way an
