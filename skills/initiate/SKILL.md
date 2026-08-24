@@ -103,10 +103,15 @@ because the human context-switches in, out and back in — and Initiate has noth
 every refusal is homed elsewhere, the gate's job is a *reading*, and the spec-boundary decision sits at
 Design.
 
-**Accepted cost, stated so it is not discovered later: a possibly-wasted Survey.** Survey's fan-out is
-keyed on Outcomes, and unargued Outcomes can send it at the wrong areas, with Design's conversation
-correcting the problem after Survey ran. It is cheap — discarded subagent reads inside one session, not
-a human hour, not code, not a pull request.
+**Accepted cost, stated so it is not discovered later: a possibly-wasted Survey.** Survey clusters the
+Outcomes into areas and reads against them, so unargued Outcomes can send it at the wrong areas, with
+Design's conversation correcting the problem after Survey ran.
+
+**What makes that acceptable is Survey's ceiling, and not a fan-out being free.** A wasted Survey costs at
+most five discarded subagent reads inside one session — no human hour, no code, no pull request. **An
+earlier form of this paragraph called the fan-out cheap outright, and that claim is withdrawn**: measured,
+it was thirteen researchers on the session's own tier, and that sentence is why nothing ever bounded the
+count.
 
 ## Derive the slug
 

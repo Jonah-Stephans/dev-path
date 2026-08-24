@@ -53,6 +53,11 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 **One subagent per Outcome. Write `## Outcome checks` on `spec.md`, one line per Outcome, always
 written.**
 
+**Dispatch the checkers on the cheapest tier that reliably reads a diff and judges it against a written
+statement; the orchestrator stays where it is.** Suggested, with its reason — the same reason and the same
+exclusion `dev-path:survey` gives for its researchers: named by the property because a tier name is a
+model property and this one will move, and **Haiku is excluded by decision.**
+
 **It is the one deliberate exception to *nothing writes a placeholder*** — always written, because
 otherwise *nothing was wrong* and *the pass never ran* are indistinguishable. It is not a placeholder:
 every line is a real per-Outcome verdict.
@@ -65,6 +70,12 @@ every line is a real per-Outcome verdict.
 
 **`- [ ] unmet` is not a sixth state.** It is a bare `- [ ]` with the shortfall spelled out, so every
 check that greps `^- \[ \]` matches it.
+
+**Why one checker per Outcome, where Survey groups.** An Integrate checker reads a known diff against a
+known statement, so it is cheap per agent — it has no breadth problem to bound. And grouping here would
+concentrate *judgment*: one checker holding four Outcomes writes four verdicts from one reading, at the one
+stage where a wrong verdict merges code. Survey's findings feed a human conversation that catches a weak
+one; `## Outcome checks` is the last gate.
 
 **Why the pass runs here and not per slice.** On slice 1 of 5 nearly every Outcome is unmet. And it
 cannot key on *the last slice done* either: slices can be built in any order and in more than one

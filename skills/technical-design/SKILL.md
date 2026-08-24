@@ -72,8 +72,9 @@ decision note that a resumed session needs.
 
 ## 1 · Survey
 
-**If `## Current state` is empty, run the skill `dev-path:survey` against this spec.** It fans out one
-subagent per Outcome, discards them, and writes `## Current state`.
+**If `## Current state` is empty, run the skill `dev-path:survey` against this spec.** It clusters the
+Outcomes into areas, fans out one subagent per area to a ceiling of five, discards them, and writes
+`## Current state`.
 
 > **This is model-driven and is not guaranteed.** There is no call syntax and no event that fires on a
 > skill finishing. Claude reads this instruction and normally follows it, and nothing in the harness makes
@@ -89,8 +90,8 @@ subagent**, and that is the whole reason this composition is legal. **Survey end
 Design can run in the same session** — the design conversation wants the findings live, and a subagent
 would end holding them somewhere this conversation cannot reach.
 
-**The only subagents anywhere in this command are Survey's per-Outcome researchers**, which Survey itself
-mandates. Nothing else here fans out.
+**The only subagents anywhere in this command are Survey's researchers** — clustered by area and capped at
+five for the whole stage, which Survey itself mandates. Nothing else here fans out.
 
 ## 2 · The design conversation
 

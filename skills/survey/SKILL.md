@@ -39,10 +39,43 @@ disconnected, and that is the only structural immunity available.
 `## Outcomes`, and `## Intent` for context. `## Outcomes` always exists — the intent gate requires it
 non-empty — so there is no empty-seed case.
 
-## Fan out, one subagent per Outcome
+## Fan out, one researcher per area
 
-**Mandated. One subagent per Outcome, each asked *what exists today that bears on this?*, each
-discarded. The session ends holding conclusions, not files.**
+**Mandated. Cluster the Outcomes into the distinct areas they touch, dispatch one subagent per area, each
+asked *what exists today that bears on these?*, each discarded. The session ends holding conclusions, not
+files.**
+
+**Cluster before anything reads the repo**, from `## Intent` and `## Outcomes` alone — that is the whole
+material at this point and it is enough, because an Outcome names the area it concerns. **Why the area and
+not the Outcome:** a spec's Outcomes usually concern one or two subsystems, so N researchers keyed on N
+Outcomes re-read the same files N times with no view of each other.
+
+> **At most four researchers on the first pass, and at most one further dispatch to chase what an answer
+> named. Five for the whole of Survey.**
+
+**Four is the exception and never the target.** A three-Outcome spec about one subsystem gets **one**
+researcher, and that is the normal case rather than a shortfall — the failure this ceiling is written
+against is an agent reading *up to four* as *four*.
+
+**The ceiling covers the whole stage, because one covering the first pass is not a ceiling.** An open
+extension clause is what put thirteen researchers on a thirteen-Outcome spec, and every single decision to
+dispatch one more was locally reasonable. An orchestrator that expects to chase something clusters into
+three and holds a slot.
+
+**Extend the list as you go, and record what you dispatched. Seeded, never cold.** An answer routinely
+names the next thing worth asking about; dispatch that too — that is what the fifth slot is for. The
+dispatch list is prose in `## Current state` and nothing checks it — **no new field.**
+
+**Where the Outcomes do not cluster meaningfully, chunk them in order.** A mis-grouped Outcome gets a less
+focused answer, never a missing one — so messy Outcomes are no reason to stall, and no reason to talk
+past the ceiling.
+
+**Findings stay per-Outcome.** A dispatch and a finding do not have to share a shape: one researcher
+handed four related Outcomes hands back four separate answers.
+
+**Why the Outcome keys the finding.** The per-item question is Survey's actual job, and it is the same key
+at both ends of `dev-path`: Survey asks *what exists that bears on this Outcome*, and the Outcomes pass at
+Integrate asks *did we achieve it*.
 
 **The discard is the load-bearing half, and here is why it must not be edited into something tidier:
 Design runs in the same session as Survey because it wants the findings.** That only works if Survey ends
@@ -51,13 +84,34 @@ subagents alive, would end with the findings somewhere the design conversation c
 session cannot reset its own context, so a subagent is the only fresh context this skill can produce —
 and handing back conclusions is what makes the fresh context free.
 
-**Extend the list as you go, and record what you dispatched. Seeded, never cold.** An Outcome's answer
-routinely names the next thing worth asking about; dispatch that too. The dispatch list is prose in
-`## Current state` and nothing checks it — **no new field.**
+**Dispatch the researchers on the cheapest tier that reliably reads code and summarises it; the
+orchestrator stays where it is.** Suggested, with its reason.
 
-**Why Outcomes and not something else.** The per-item question is Survey's actual job, and it is the same
-key at both ends of `dev-path`: Survey asks *what exists that bears on this Outcome*, and the Outcomes
-pass at Integrate asks *did we achieve it*.
+**Named by the property first, because a tier name is a model property and this one will move.** Sonnet is
+the current instance. **Haiku is excluded by decision** — the hallucination risk is not worth the saving
+on a stage whose output a design conversation then builds on. On a harness with one tier the rule
+degrades to a no-op, which is the other half of why it is written this way.
+
+Mechanically available today: the `Agent` tool takes a per-dispatch `model` parameter, so an Opus
+orchestrator dispatches Sonnet researchers and stays on Opus itself. **A `fork` subagent ignores that
+override** — Survey's researchers are not forks, and a fork would defeat the fan-out anyway by inheriting
+the context this stage spends a subagent to get out of. **And there is no per-dispatch effort knob on the
+plain `Agent` tool**: the tier is the only dial this rule can reach, so *cheaper* has no finer setting than
+*a cheaper model*.
+
+## Bounded by the query, never a sweep
+
+> **Bounded by the query, never a sweep — over the code as much as over the specs.**
+
+**One rule over both, and each half carries its own reason, because a rule with one reason gets scoped
+back to whichever half the reason fits.**
+
+- **The specs, because the corpus accumulates without limit.** Specs are permanent, so grep-by-topic is
+  fine at five hundred specs and a corpus sweep never is.
+- **The code, because every read costs now.** *Code is replaced, so a codebase stays flat* is true and
+  answers a different question: *the repo does not grow over years* is not *reading the repo is cheap in
+  this run*. A four-hundred-file repo is flat forever and still costs a fortune read four times over —
+  and clustered researchers must not re-pay for the same files.
 
 ## Ground sideways as well as down
 
@@ -69,13 +123,8 @@ interval — which is exactly the reasoning that stops a later spec refactoring 
 
 So read the work around this spec, not only the code.
 
-**Merged specs — grep `dev-path/` the way you grep the codebase.**
-
-> **Bounded by the query, never a sweep.**
-
-That distinction is the whole reason it scales. Code is *replaced*, so reading a codebase stays flat.
-Specs are permanent and accumulate forever, so grep-by-topic is fine at five hundred specs and a corpus
-sweep never is.
+**Merged specs — grep `dev-path/` the way you grep the codebase.** Bounded by the query, never a sweep:
+this is the grep that rule was written for first, and the reason it scales at five hundred specs.
 
 **In-flight specs — read the neighbour report from the contention checkpoint.** Grep sees only the working
 tree; unmerged specs need `git show <branch>:<path>`, which `scripts/contention.sh` already does. Read
