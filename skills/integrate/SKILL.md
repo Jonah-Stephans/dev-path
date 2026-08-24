@@ -161,9 +161,9 @@ criteria` box holds Integrate exactly as an open finding does, and **that is int
 than a false positive.**
 
 **A tagged box under `## Deviations` holds this refusal exactly as a pause does**, and the tag names the
-decision rather than whether one is owed. `- [ ] excess` is the commit audit's note, written after the
-slice finished and closed by hand at merge: `- [x] false positive` where the files were in scope and
-`touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
+decision rather than whether one is owed. `- [ ] excess` is the commit audit's note on files a commit
+swept in, closed by hand at merge: `- [x] false positive` where the files were in scope and `touches` was
+incomplete, or `- [x] won't fix — <reason>` where they were not.
 
 **On an unmet Outcome, name all three exits.** The question that separates them is **did we fall short of
 the target, or was the target wrong?**

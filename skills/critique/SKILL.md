@@ -124,9 +124,9 @@ readings of one test: the grep answers *is anything open*, the section answers *
 one*.
 
 **One box under `## Deviations` carries its own tag, and it is not a pause.** `- [ ] excess` is the commit
-audit's note on a slice that already carries `done: true` — reviewing that slice is exactly what happens
-next. **Leave it as you found it**: not a finding to fix, and not yours to close. The human
-closes it at review.
+audit's note on files a commit swept in past the slice's `touches`, and review is exactly where it gets
+closed. **Leave it as you found it**: not a finding to fix, and not yours to close. The human closes it at
+review.
 
 ## The two-cycle cap
 

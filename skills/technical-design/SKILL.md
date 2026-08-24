@@ -330,8 +330,14 @@ Resolve the question, tick the box in the disposition grammar, and say which sli
 it open means `dev-path:build` will refuse the slice again on the next run.
 
 **The pause is the untagged box, and it is the only one here that is yours.** A `- [ ] excess` box under
-the same heading is the commit audit's, written on a slice that already carries `done: true`, and its
-disposition belongs to the human at merge. **Leave a tagged box open.**
+the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
+to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged
+whatever was on disk: close the untagged one, and **leave a tagged box open.**
+
+**A tagged box left open still reads as *frozen*, so name the slice as the next one to build.** The frozen
+test joins the absence of `done: true` to an open box under `## Deviations` and never reads the tag, so the
+slice you just unblocked keeps answering *frozen* until `dev-path:build` finishes it. Building it is never
+denied. Building a sibling ahead of it is.
 
 ## Stop
 

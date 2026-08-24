@@ -122,12 +122,17 @@ right test. This one runs on **every push during a build**, and Slice writes `##
 open boxes at creation, so section-blind here would deny the first push of every ordinary run. It is
 scoped to the two sections that mean stop, and to the spec on this branch rather than all of `dev-path/`.
 
-**A third scoping, and it is Build's rule rather than this menu's.** The commit-excess box is written
-*after* `done: true`, and **a done slice with an open box under `## Deviations` is not a pause and must not
-be read as one** — that box lands inside the slice's own commit, so without this the block would deny the
-push of the commit that created it. The block skips `## Deviations` on a slice carrying `done: true`, and
-**never skips `## Critique findings`** — a finding left open on a finished slice is a real stop. The
-message names which of the two headings it found, because the two mean different things.
+**A third scoping, and it is Build's rule rather than this menu's.** **A done slice with an open box under
+`## Deviations` is not a pause and must not be read as one** — the commit-excess box lands inside the
+slice's own commit, so without this the block would deny the push of the commit that created it. The block
+skips `## Deviations` on a slice carrying `done: true`, and **never skips `## Critique findings`** — a
+finding left open on a finished slice is a real stop. The message names which of the two headings it found,
+because the two mean different things.
+
+**A pause commit can write that box too, and the block is right to deny that push.** `git add -A` stages
+what is on disk whether the slice finished or not, so a paused slice can carry both boxes — the pause,
+untagged, and the audit's, tagged. No `done: true`, nothing skipped, push denied, which is what a pause
+wants anyway.
 
 **That box also carries a `- [ ] excess` tag, and this block deliberately does not read it.** A block
 deciding whether your push goes through reads `done: true`, because a field nothing else writes beats a
@@ -186,8 +191,16 @@ how you say no, and nothing ever writes `false` — so a block greping `^done: f
 
 **And the open-box test is scoped to `## Deviations`.** Slice writes `## Acceptance criteria` as open boxes
 at creation, so **every slice not yet built carries open boxes** — an unscoped grep would deny the second
-dispatch of every ordinary run. What this block looks for is a *pause*, and a pause is an open box under
-`## Deviations`.
+dispatch of every ordinary run. What this block looks for is a stopped slice, and it reads one as the
+absence of `done: true` plus an open box under `## Deviations`.
+
+**That reading is wider than a pause, and once a pause is cleared it is wider than the truth.** The
+`dev-path:technical-design` session closes the pause box and **leaves the audit's tagged box open**, so
+until Build finishes that slice it carries no `done: true` and an open box, and this block calls it frozen.
+**Build's rule closes the window: the cleared slice is the next one it builds.** Dispatching it is never
+denied, because the block skips the slice it is being asked to dispatch, and `done: true` lands at the end
+of that build. Reaching for a sibling first is what trips the false stop, and holding one slice to build
+another was already *on request only*.
 
 This is the strict form: it denies while **any** other slice in the spec is frozen. Build's
 disjoint-`touches` exception is deliberately not in the paste — a repo that wants it compares the two
@@ -425,7 +438,7 @@ write them.
 - **`## Deviations`** — Build records; Integrate carries into the pull request body; the human sees it at
   merge. Recording is mandatory; whether to stop is the engineer's call. **Two kinds of open box live here
   and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is the commit audit's
-  note on a slice that already finished.
+  note on files a commit swept in past this slice's `touches`. **Both can be open on one slice.**
 - **`## Critique findings`** — Critique's slice pass. Appends across cycles.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
