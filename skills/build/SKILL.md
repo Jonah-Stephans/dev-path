@@ -226,10 +226,11 @@ place the box's shape is set.**
 
 **The tag is mandatory, and it closes a real ambiguity rather than decorating one.** An untagged open box
 under `## Deviations` is a pause: *this slice does not proceed until a human answers*. This one is a note
-about files, written on a slice that already finished. Untagged, the two are the same three characters in
-a diff, and telling them apart means joining the box to `done` in the front matter — which every check
-does correctly, and which nobody skimming seven slice files on a pull request does at all. **`excess`
-names the shortfall in the box itself**, exactly as `- [ ] unmet` names it on an Outcome check.
+about files a commit swept in. Untagged, the two are the same three characters in a diff, and **`done` in
+the front matter does not always tell you which** — a pause commits and stages the same way, so both boxes
+can be open on one slice carrying no `done: true`, where the field answers nothing. And nobody skimming
+seven slice files on a pull request is joining anything anyway. **`excess` names the shortfall in the box
+itself**, exactly as `- [ ] unmet` names it on an Outcome check.
 
 **It adds no state, and nothing over a spec directory reads it.** Every existing test matches
 `^- \[ \]` and still matches this one:
@@ -244,14 +245,14 @@ risk is dropping a file Build legitimately created, which shows up later as a fa
 to debug. The audit's risk is committing something out of scope, **and it is flagged.** And `git add -A`
 cannot lose work, which takes Build's memory out of the loop.
 
-**Who closes that box, and it is not a skill.** It is written *after* `done: true`, so the frozen test
-below does not catch it and no later `dev-path` run is looking for it — **a done slice with an open box
-under `## Deviations` is not a pause and must not be read as one.** **It is the human's, at review**, in
-the grammar: `- [x] false positive` if the files were in scope and `touches` was simply incomplete, or
-`- [x] won't fix — <reason>` if they were not. **Closing it replaces `excess` with the disposition** —
-every checked box carries its tag as the first word, and only `fixed` and `met` mean the code changed.
-What puts it in front of them is Integrate's step 3, which refuses while any box is open and names the
-exits.
+**Who closes that box, and it is not a skill.** No later `dev-path` run is looking for it — **a done slice
+with an open box under `## Deviations` is not a pause and must not be read as one**, and where a pause
+commit writes one the frozen test below still reads that slice correctly, because the pause box is there
+beside it. **It is the human's, at review**, in the grammar: `- [x] false positive` if the files were in
+scope and `touches` was simply incomplete, or `- [x] won't fix — <reason>` if they were not. **Closing it
+replaces `excess` with the disposition** — every checked box carries its tag as the first word, and only
+`fixed` and `met` mean the code changed. What puts it in front of them is Integrate's step 3, which
+refuses while any box is open and names the exits.
 
 **The audit is also a backstop, and that is a rule rather than a side effect.**
 
@@ -551,9 +552,24 @@ from not-started. **A pause is an open box under `## Deviations`.** Same grammar
 under `## Critique findings` an open box means *fix this*; under `## Deviations` it means *do not proceed
 on this slice until a human clears it*. **A pause box is never ground on as a fix item.**
 
-**A pause box carries no tag.** `- [ ] excess` under this same heading is the commit audit's, on a slice
-that already carries `done: true` — which a human reads off the tag where the frozen test above reads
+**A pause box carries no tag.** `- [ ] excess` under this same heading is the commit audit's, and **the
+tag tells them apart wherever they land** — which is what a human reads, where the frozen test above reads
 `done`.
+
+**Both boxes can be open on one slice, and a pause commit is how.** `git add -A` stages what is on disk
+whether the slice finished or not, so the audit can write its box on the very slice that just paused:
+
+```markdown
+## Deviations
+- [ ] The second Outcome implies mid-cycle proration and the design carries no basis for it —
+      needs a decision before this slice continues.
+- [ ] excess — package-lock.json, committed by `git add -A` and outside this slice's `touches`
+```
+
+**The frozen test still answers *frozen* here, and still reads `done` to do it.** No `done: true` plus an
+open box under `## Deviations` is the true reading of that slice — it is stopped, the push stays denied
+while it is, and Integrate refuses at the end. What the tag adds is which instruction is which: untagged
+is *do not proceed until a human answers*, tagged is *somebody should say whether that file was fine*.
 
 **You do not close your own pause.** The `dev-path:technical-design` session that resolves it writes the
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.

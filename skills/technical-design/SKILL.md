@@ -330,8 +330,9 @@ Resolve the question, tick the box in the disposition grammar, and say which sli
 it open means `dev-path:build` will refuse the slice again on the next run.
 
 **The pause is the untagged box, and it is the only one here that is yours.** A `- [ ] excess` box under
-the same heading is the commit audit's, written on a slice that already carries `done: true`, and its
-disposition belongs to the human at merge. **Leave a tagged box open.**
+the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
+to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged
+whatever was on disk: close the untagged one, and **leave a tagged box open.**
 
 ## Stop
 
