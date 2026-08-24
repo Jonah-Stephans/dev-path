@@ -1,5 +1,5 @@
 ---
-description: Check a repo against the twenty-five preconditions dev-path needs and report where it stands. Use before adopting dev-path on a repo, or any time afterwards to see what is still missing.
+description: Check a repo against the twenty-six preconditions dev-path needs and report where it stands. Use before adopting dev-path on a repo, or any time afterwards to see what is still missing.
 disable-model-invocation: true
 ---
 
@@ -17,7 +17,7 @@ gets wired like the other nine.**
 re-runnable at any time, never required.
 
 **Two moments, one skill.** *What does this repo need* on a new repo and *where does this repo stand* on an
-existing one are the same twenty-five checks with the output shaped by what is found.
+existing one are the same twenty-six checks with the output shaped by what is found.
 
 **What `dev-path` runs on: greenfield second-generation package repos.** That is what these preconditions
 assume — a first commit. **Migration onto an existing repo is neither designed nor forbidden**, and there
@@ -92,7 +92,7 @@ requires. Absent, and this is not a Salesforce project.
 
 | | Entries |
 | --- | --- |
-| **Still reported** — properties of git, GitHub and Claude Code, which any repo has | 1 · 2 · 3 · 4 · 5 · 8 · 17 · 21 · 22 · 23 · 24 · 25 |
+| **Still reported** — properties of git, GitHub and Claude Code, which any repo has | 1 · 2 · 3 · 4 · 5 · 8 · 17 · 21 · 22 · 23 · 24 · 25 · 26 |
 | **Not applicable** — they name platform artifacts that do not exist here | 6 · 7 · 9 · 10 · 11 · 12 · 13 · 14 · 15 · 16 · 18 · 19 · 20 |
 
 **Three rules, and each one is a way this could go wrong instead:**
@@ -102,14 +102,14 @@ requires. Absent, and this is not a Salesforce project.
    Reporting thirteen absents on a Node repo is a report nobody reads twice.
 2. **Not-applicable is stated once, at the top, not thirteen times.** It is a fact about the repo, not a
    verdict on each entry, so **it does not become a fifth verdict token.** *"No `sfdx-project.json`: this
-   is not a Salesforce project, so thirteen of the twenty-five do not apply."*
+   is not a Salesforce project, so thirteen of the twenty-six do not apply."*
 3. **Never translate an entry into the repo's own ecosystem.** No looking for the Node equivalent of a
    decomposition preset. That is inventing a check.
 
 **Still offer the safe fixes** — `.gitattributes` and the `.rstk/` ignore line are both in the reported
 set and neither is platform-specific.
 
-## The twenty-five, and how each is observed
+## The twenty-six, and how each is observed
 
 **Three groups, sorted by whether you would notice it missing.** The hard-versus-soft split is
 deliberately not used: it is a claim about *importance*, which is the one axis three people writing a
@@ -119,7 +119,7 @@ anywhere.
 | Group | Means | Count |
 | --- | --- | --- |
 | **1 — announces itself** | the act that needs it fails, and the tool's own error is the whole signal | **3** |
-| **2 — silent in flight, visible on inspection** | nothing fails; the value is simply absent, but the property is readable from the repo | **18** |
+| **2 — silent in flight, visible on inspection** | nothing fails; the value is simply absent, but the property is readable from the repo | **19** |
 | **3 — silent and out of reach** | a behaviour or a posture. Nothing observes it, ever — at most a symptom | **4** |
 
 **Branch protection is in group 2, and that reclassification is what justifies the axis.** Nothing errors
@@ -233,6 +233,7 @@ does not run the gate — these are what it requires of the repo's.
 | 22 | `.claude/rules/` stays commit-eligible | 2 | `git check-ignore -v --non-matching .claude/rules/ .claude/rules/dev-path-probe.md`, and again with `--no-index`. **Probe a non-`rstk-` filename** | present · absent |
 | 23 | `.claude/lessons.md` left alone | 2 | `git check-ignore -v --non-matching .claude/lessons.md`, plus `git ls-files --error-unmatch` and `git log --diff-filter=D -- .claude/lessons.md` | present · absent · could not determine |
 | 24 | `.rstk/` gitignored | 2 | `git check-ignore -v --non-matching .rstk/ .rstk/probe.json` — **with the trailing slash**. Then `git ls-files -- .rstk`, because already-committed is a worse state than un-ignored and needs a different fix | present · absent |
+| 26 | No always-on rule redirects Build's dispatch | 2 | Read every `.claude/rules/*.md` whose `paths:` is `"*"`, empty or absent, for a directive naming a subagent type, a model, a turn cap, or context forwarding. **What such a rule names is out of reach** — agent definitions ship in a plugin, not the repo | present · absent · **not observable** (the definition's own caps) |
 
 > **A precondition on the repo comes with a backstop, never alone — and say why: another plugin's presence
 > depends on the *engineer*, not the repo, so it is not observable from the repo at all. A precondition
@@ -241,6 +242,33 @@ does not run the gate — these are what it requires of the repo's.
 **Entry 24's backstop is Build's commit audit.** If the ignore is missing, or a new tool starts writing
 somewhere nobody anticipated, the file is committed and written down as excess. `dev-path` **benefits from
 the ignore without depending on it.**
+
+**Entry 26 is the one this list learned from a failed run.** An unscoped `.claude/rules/` file auto-loads
+into every session and every non-fork subagent — the same delivery Build depends on for the repo's
+standards — so a rule saying *use this named agent* reaches the orchestrator with exactly the force of one
+saying *use these SLDS hooks*. Build mandates the opposite: **no named agent definitions; workers are the
+generic subagent with an inline prompt.** Where both are present **the rule wins, because the rule is
+injected and the skill is merely read.**
+
+**What that costs is not style.** A named agent definition can pin a model, a tool list and a turn cap, and
+none of the three is visible in the dispatch or anywhere in the spec directory. In one measured run a
+`maxTurns: 50` on the mandated agent stopped three Build workers at exactly turn fifty — each mid-tool-call,
+each losing every acceptance criterion it had verified and not yet written down. Generic workers in the same
+run reached seventy turns and returned cleanly. **Nothing reported that a cap existed, let alone that it had
+been hit**, and the run's own conclusion was that the slice had been cut too large.
+
+**The check is half-blind and says so rather than guessing.** The rule file is in the working tree and reads
+plainly, so *present* and *absent* are honest verdicts about the rule. The definition it names is not: it
+ships in a plugin whose presence depends on the engineer, so `model`, `maxTurns` and `tools` are **not
+observable** from a repo. **Do not resolve the name and do not read `~/.claude/plugins/`** — that is a
+machine, not a repository, and every verdict this skill prints is about a repository.
+
+**This entry has no backstop, and the rule above says every repo precondition needs one. That is recorded
+here rather than closed with an invented check.** The failure is silent at every layer: the foreign rule is obeyed correctly,
+the dispatch succeeds, the worker is killed, and it returns nothing. **The nearest honest backstop is
+Build's rather than this skill's** — a worker returning having written neither `done: true` nor a pause box
+has either never started or been cut off, and on disk those are the same absence. Until something separates
+them, entry 26 is a warning and not a guard.
 
 ### Culture
 
