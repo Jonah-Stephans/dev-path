@@ -167,6 +167,14 @@ worker is being asked to do this pass — build the slice, fix these named findi
 findings themselves when it is a fix pass, because those are what Critique already wrote down and what the
 pass is *for*. **No conversation history, no prior worker's output, no file contents.**
 
+**Where the generalisation goes instead, because the list above is right to keep it out.** A run learns
+things no one slice holds: *the fixtures in this repo are uniform in a way that lets a passing test prove
+nothing* is a statement over several slices, and in your conversation it is exactly the prior worker's
+output this list refuses. **It goes on disk, under `## Traps` on `spec.md`, written by the critic that
+confirmed the finding it came from.** The next worker then reaches it by reading the spec, which the
+dispatch already tells it to do, and **a fresh orchestrator at slice 07 reaches it the same way** — which
+is what makes the bottom rung of the ladder above genuinely identical rather than nearly so.
+
 ## Any stop that needs a human stops the whole run
 
 Stated once for **any** mid-run stop rather than once per trigger, because two rules with the same reason
@@ -201,8 +209,8 @@ is immune to how a foreign guard identifies the caller.
 `done: true` and returns; commit on that return. **A pause returns too, and you commit on that return as
 well** — the worker wrote its box and stopped, and what it built before stopping is on disk. **The
 critic's findings write is a second commit on the same slice**, on its own return and under the same
-division — so *one commit per slice* is a claim about code, and it is written that way wherever it is
-claimed.
+division, and **a trap it wrote on `spec.md` rides in that commit** rather than earning one of its own —
+so *one commit per slice* is a claim about code, and it is written that way wherever it is claimed.
 
 **A pause commit is not a claim that the slice works.** What claims that is `done: true`, and a paused
 worker writes no such field. **Nothing mechanical reads the commit either** — the frozen test below joins
@@ -438,6 +446,17 @@ rule builds against nothing, and that is the honest degradation** rather than a 
 This is not choosing to be lax; it is refusing to write a rule in a voice nothing can back. Both halves of
 its rationale are statements about what is and is not possible: a test written first cannot be a coverage
 artifact, and a test you never saw fail is a test you have not tested.
+
+**Mandated: read `## Traps` on `spec.md` before you write a test, and go to that heading by name.** Every
+entry is one mutation a test on this spec has to be able to fail on, written down by the critic that
+watched a test pass while the code was wrong. **The heading is the instruction, not the file** — a worker
+reading the spec for Intent, Outcomes and Design passes over `## Traps` without attending to it, and a
+spec whose traps nobody read looks exactly like a spec that had none. **A spec with no `## Traps` section
+is the ordinary case**, and finding none there costs you one read.
+
+**Red-before-green and a trap catch different failures.** Red-before-green proves a test fails when the
+code is missing. A trap names what the same test has to fail on when the code is **present and wrong**,
+which is the half red-before-green cannot see.
 
 ## Deploy, then tick, then `done: true`, then return
 

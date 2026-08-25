@@ -61,7 +61,7 @@ rested on Outcomes that have just changed. Leaving `design_approved: true` in pl
 
 | Deleted | Survives untouched |
 | --- | --- |
-| `intent_accepted` **and** `design_approved` | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations` |
+| `intent_accepted` **and** `design_approved` | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
 
 **The slices survive on purpose.** They are work, `design_approved` is absent so nothing acts on them, and
 `dev-path:technical-design` re-slices when the design settles. Deleting them would be this skill throwing
