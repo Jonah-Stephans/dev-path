@@ -42,6 +42,18 @@
 # a field at the gate, or a model-invocable dev-path:sketch. All three are out
 # of scope by name, and out of scope is not a thing a diff shows you later.
 #
+# Two calls, both raised in review and neither taken. **A mandate worded
+# without the word.** *The artifact is required for a new surface* carries no
+# `Mandated` and passes the ban below; what catches it is assertion 4, because
+# the sentence it pins — **Suggest the route; never require the artifact** —
+# would be sitting on the same page contradicting it, and a section that
+# contradicts itself is the thing a reader reports. A grep over *must* and
+# *required* would fail on prose that merely quotes the rule. **The literal ban
+# is self-defeating in the tests/deviation-tags.sh sense:** a sentence in this
+# section promising it adds no `design_approved` would fail the assertion
+# enforcing that promise. Accepted — the section has no business naming the
+# field either way, and the alternative is a fuzzier grep for a cheaper message.
+#
 # What no assertion here does is check the wording of any sentence beyond its
 # anchor. The prose is the author's; the structure is the test's.
 #
@@ -50,10 +62,10 @@
 cd "$(dirname "$0")/.." || exit 1
 
 T=skills/technical-design/SKILL.md
-K=skills/sketch/SKILL.md
+S=skills/sketch/SKILL.md
 FAIL=0
 
-for f in "$T" "$K"; do
+for f in "$T" "$S"; do
   if [ ! -f "$f" ]; then
     echo "FAIL subject: $f does not exist"
     exit 1
@@ -103,7 +115,7 @@ want() {
 #        everywhere and is a different rule.
 want default 'A new surface has no anchor' \
   'the case the rule is about: a surface that does not exist yet has no anchor'
-want default 'recommend the artifact' \
+want default 'so recommend the artifact' \
   'what the branch does on that case: it recommends the artifact rather than skipping it'
 
 # --- 2. The defence it preserves, and the paragraph being preserved. One
@@ -119,17 +131,23 @@ want defence 'This cannot create overhead' \
 
 # --- 3. The stated limit, in the idiom the altitude stop above it already uses.
 #        Anchored on the never-reached case as this rule states it, for the
-#        reason the header gives.
+#        reason the header gives. Both anchors here and the second one under
+#        assertion 1 carry the word on the far side of the negation — `so
+#        recommend`, `never reaches` — because an anchor that stops one word
+#        short is satisfied by the sentence that says the opposite, and these
+#        three sit exactly where a *not* fits.
 want limit 'Stated limit' \
   'the limit stated as a limit, the way ### The altitude stop states its own'
-want limit 'raises no question about the screen' \
+want limit 'raises no question about the screen never reaches the branch' \
   'the case not covered: a Design that raises no question never reaches the branch at all'
 
 # --- 4. What the insertion was not allowed to touch. Both halves of the
 #        trigger, because a qualifier added under a trigger is one edit from
 #        replacing it; both governing sentences, because they are what keeps the
-#        recommendation refusable; the craft table's three rows, because the
-#        bottom row is the one this rule sends work to; and the sketch handoff,
+#        recommendation refusable; the craft table's bottom row, which is the
+#        row a question about arrangement lands on and so the row this rule
+#        sends work to — the other two rows are pinned by nothing here; and the
+#        sketch handoff,
 #        because a recommendation with no plumbing behind it is advice.
 want trigger 'would two competent engineers picture the same screen?' \
   'the trigger question, unchanged'
@@ -162,14 +180,28 @@ for banned in 'Mandated' 'design_approved'; do
   fi
 done
 
-if ! grep -qF 'disable-model-invocation: true' "$K"; then
-  echo "FAIL [human-invoked] $K is no longer model-disabled"
+# A field is the other way a recommendation stops being refusable, and it would
+# not land in this section — it would land at the gate, which is a `## ` heading
+# away and outside every span above. So the field half is read off the whole
+# file: two gate fields exist in this plugin, and a third named anywhere here is
+# a gate this change was not allowed to introduce.
+FIELDS=$(grep -oE '[a-z_]+_(approved|accepted)' "$T" | sort -u | grep -vxE 'design_approved|intent_accepted')
+
+if [ -n "$FIELDS" ]; then
+  echo "FAIL [no new gate] $T names a gate field beyond the two that exist"
+  echo '      design_approved and intent_accepted are the whole list; a third is a new gate'
+  printf '%s\n' "$FIELDS" | sed 's/^/      found: /'
+  FAIL=1
+fi
+
+if ! grep -qF 'disable-model-invocation: true' "$S"; then
+  echo "FAIL [human-invoked] $S is no longer model-disabled"
   echo '      the artifact stays something a human asks for, however the branch recommends'
   FAIL=1
 fi
 
-if ! flatten < "$K" | grep -qF 'Human-invoked. Not a stage.'; then
-  echo "FAIL [human-invoked] $K no longer says so in its prose"
+if ! flatten < "$S" | grep -qF 'Human-invoked. Not a stage.'; then
+  echo "FAIL [human-invoked] $S no longer says so in its prose"
   echo '      the front matter and the sentence are one rule in two places'
   FAIL=1
 fi

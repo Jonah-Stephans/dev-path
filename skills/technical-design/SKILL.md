@@ -248,7 +248,7 @@ without resolving it.
 
 **A new surface has no anchor, so recommend the artifact.** Both worked examples above anchor to a screen
 that already exists, and the anchor is what makes *yes, two competent engineers picture the same screen*
-checkable at all; asserted about a page nobody has seen it costs nothing to say, and it is rarely true.
+checkable at all; asserted about a screen nobody has seen, it costs nothing to say and is rarely true.
 **This moves what the branch recommends, never how often the branch is reached, so the overhead argument
 above stands whole.**
 
