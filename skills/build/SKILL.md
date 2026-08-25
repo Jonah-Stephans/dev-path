@@ -1,17 +1,17 @@
 ---
-description: Build the slices of an approved dev-path spec into code and tests. Use once a design is approved and its slices are cut.
+description: Build the slices of an approved devpath spec into code and tests. Use once a design is approved and its slices are cut.
 ---
 
 # Build
 
-`dev-path:build` loops Build ↔ Critique over the spec's slice list in `depends_on` order. This body has
+`devpath:build` loops Build ↔ Critique over the spec's slice list in `depends_on` order. This body has
 two halves: **the orchestrator's instructions**, which is what the main session does, and **the worker
 prompt**, which is what each dispatched subagent is told.
 
 ## Refuse first
 
-Read the front matter of `dev-path/<slug>/spec.md`, then of every slice file. That read is the validation
-— there is no separate front-matter check anywhere in `dev-path`, because a read the router needs in order
+Read the front matter of `devpath/<slug>/spec.md`, then of every slice file. That read is the validation
+— there is no separate front-matter check anywhere in `devpath`, because a read the router needs in order
 to route cannot be disconnected.
 
 - **`git branch --show-current` returns `main`, `<base>`, or a branch with no matching spec directory**
@@ -20,8 +20,8 @@ to route cannot be disconnected.
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
 - **`design_approved` is not `true`** → **stop.** Build runs behind gate 2. Say the next act: run
-  `dev-path:technical-design` and take the design through its gate.
-- **Zero slice files** → **stop.** Say the next act: run `dev-path:slice` against the approved design.
+  `devpath:technical-design` and take the design through its gate.
+- **Zero slice files** → **stop.** Say the next act: run `devpath:slice` against the approved design.
 - **A slice's `depends_on` does not parse, or the front-matter block does not parse, or a field carries
   the wrong shape** → **stop and name the exact field and the slice.** *Malformed* stops the stage;
   *absent* is a legal state meaning *not yet*, and `done` and `fix_cycles` are legitimately absent on a
@@ -32,7 +32,7 @@ to route cannot be disconnected.
   sibling spec may legitimately have moved or deleted the file since Slice ran, and refusing here would
   fail this spec for a condition its author did not cause and cannot meaningfully fix.
 
-**Prefix every message a gate or refusal prints with `dev-path: `.** Suggested — two enforcement layers
+**Prefix every message a gate or refusal prints with `devpath: `.** Suggested — two enforcement layers
 with overlapping symptoms are otherwise indistinguishable, and a human reading a stop should know which
 plugin stopped them.
 
@@ -48,7 +48,7 @@ cleared.**
 
 **Why re-derive from disk.** The measured failure of conversation-held orchestrator state is specific and
 expensive: controllers that lost their place have re-dispatched entire completed sequences of work.
-`dev-path` already holds the right things — `done` per slice, `fix_cycles`, `## Critique findings`,
+`devpath` already holds the right things — `done` per slice, `fix_cycles`, `## Critique findings`,
 `## Deviations` — in a committed directory.
 
 ## Worker lifecycle
@@ -114,7 +114,7 @@ nothing a prompt does not, and it is the one surface a local `.claude/agents/` f
 ## The order walk
 
 **Mandated. Before dispatching anything, sort the spec's slices into `depends_on` order. If no order
-exists, refuse, name every slice in the cycle, and stop. The next act is `dev-path:slice`.**
+exists, refuse, name every slice in the cycle, and stop. The next act is `devpath:slice`.**
 
 `depends_on` is written by a model and nothing validates that the graph is acyclic, and **a two-slice
 cycle is an unbounded loop in the busiest skill.** This is cheap rather than machinery: the graph is small
@@ -141,10 +141,10 @@ going*.
 **Mandated. A dispatch prompt opens with a literal first line naming the slice file:**
 
 ```
-dev-path slice: dev-path/tolerance-config/slices/01-schema.md
+devpath slice: devpath/tolerance-config/slices/01-schema.md
 ```
 
-**The prefix `dev-path slice: ` is fixed and the remainder of the line is the slice file's full path.**
+**The prefix `devpath slice: ` is fixed and the remainder of the line is the slice file's full path.**
 The rest of the dispatch follows on the lines after it and the convention says nothing about those.
 
 **Changing this is a breaking change, not a wording tweak.** It is contract surface: a repo may gate on
@@ -180,7 +180,7 @@ is what makes the bottom rung of the ladder above genuinely identical rather tha
 Stated once for **any** mid-run stop rather than once per trigger, because two rules with the same reason
 behind them drift apart later.
 
-> **Any stop that needs a human stops the whole `dev-path:build` run. The engineer may hold the stopped
+> **Any stop that needs a human stops the whole `devpath:build` run. The engineer may hold the stopped
 > slice and continue another on request only, guarded by a `touches` set intersection — disjoint goes,
 > overlapping is refused.**
 
@@ -247,13 +247,13 @@ joins on `done` rather than reading the tag** — a tag is prose a run can forge
 mechanical, and the test deciding whether a push is denied reads the mechanical one.
 
 **Why the audit beat a filter**, because it looks like the lazier choice and is not. Both need the *same*
-comparison — what git reports changed, versus `touches` plus `dev-path/` plus created files — so the
+comparison — what git reports changed, versus `touches` plus `devpath/` plus created files — so the
 machinery cost is identical and the only difference is exclude-it versus include-and-note-it. A filter's
 risk is dropping a file Build legitimately created, which shows up later as a failed deploy somebody has
 to debug. The audit's risk is committing something out of scope, **and it is flagged.** And `git add -A`
 cannot lose work, which takes Build's memory out of the loop.
 
-**Who closes that box, and it is not a skill.** No later `dev-path` run is looking for it — **a done slice
+**Who closes that box, and it is not a skill.** No later `devpath` run is looking for it — **a done slice
 with an open box under `## Deviations` is not a pause and must not be read as one**, and where a pause
 commit writes one the frozen test below still reads that slice correctly, because the pause box is there
 beside it. **It is the human's, at review**, in the grammar: `- [x] false positive` if the files were in
@@ -268,9 +268,9 @@ refuses while any box is open and names the exits.
 > plugin's presence depends on the **engineer**, not the repo, so it is not observable from the repo at
 > all. A precondition that cannot be checked needs one.
 
-`dev-path:fit-check` asks a repo to gitignore the directories other tooling writes into. If that ignore is
+`devpath:fit-check` asks a repo to gitignore the directories other tooling writes into. If that ignore is
 missing, or a new tool starts writing somewhere nobody anticipated, `git add -A` commits the file and the
-audit writes it down as excess. **`dev-path` benefits from the ignore without depending on it.**
+audit writes it down as excess. **`devpath` benefits from the ignore without depending on it.**
 
 **Two costs, stated.** Under concurrent slices `git add -A` would sweep a sibling's half-finished work. It
 cannot fire today and, when parallelism arrives, it fires **loudly** — slice 02's commit records slice 03's
@@ -286,7 +286,7 @@ for that repo.**
 ```
 Tolerance comparison in the invoice's currency
 
-dev-path/tolerance-config/slices/02-validation.md
+devpath/tolerance-config/slices/02-validation.md
 ```
 
 **A findings commit takes the same shape**, because a second shape would be a second convention to pin.
@@ -296,9 +296,9 @@ the commit that finishes the slice after a human clears the box. **Intended rath
 a repo that wants them distinguishable in `git log --oneline` has its own standards rule, which wins here
 as above.
 
-**Why the path in the body rather than a prefix or a trailer.** `git log -- dev-path/<slug>/` already finds
+**Why the path in the body rather than a prefix or a trailer.** `git log -- devpath/<slug>/` already finds
 a spec's commits, so the path is for the human reading one commit in isolation and asking *which slice was
-this*. A prefix convention would be `dev-path` deciding the shape of the repo's history, which is
+this*. A prefix convention would be `devpath` deciding the shape of the repo's history, which is
 overreach; a trailer would be a string to pin.
 
 **No issue key, because there is no tracker.** `upstream` holds what was read and a commit is not where it
@@ -316,12 +316,12 @@ the slice has finished.
 ## Dispatch a critic on that same return
 
 **Mandated. A worker that returned having written `done: true` or `- [x] fixed` gets a critic before the
-walk moves on: run the skill `dev-path:critique` against that slice.** This is the Build ↔ Critique loop
+walk moves on: run the skill `devpath:critique` against that slice.** This is the Build ↔ Critique loop
 this skill opened by claiming, and it is the orchestrator's act — a worker cannot dispatch anything.
 
 > **This is model-driven and is not guaranteed.** There is no call syntax and no event that fires on a
 > skill finishing. Claude reads this instruction and normally follows it, and nothing in the harness makes
-> it certain. A repo that wants certainty adds a hook of its own; `dev-path` ships none and depends on
+> it certain. A repo that wants certainty adds a hook of its own; `devpath` ships none and depends on
 > none.
 
 **Dispatch before you report.** The call goes out ahead of any summary of what was built, in the turn the
@@ -341,7 +341,7 @@ outright it cannot detect — which is why this line carries it instead of a tra
 and a pause stops the whole run: no critic, no walk. **What that return does earn is its commit**, above
 — keeping the work is not the same act as judging it.
 
-**Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `dev-path:critique` into *this*
+**Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `devpath:critique` into *this*
 session, as the plugin's other three compositions do, and **that skill dispatches the critic** — *a fresh
 subagent every pass* is its line, in its file. One critic dispatch path in this plugin, and it is not this
 one. What this section owns is the call and its condition.
@@ -377,7 +377,7 @@ Slices run in series first because the engineers are new to this way of working,
 is worthless. Moving to slice branches later is **purely additive** — Build cuts a branch instead of a
 commit and nothing else in the design changes.
 
-**Worktrees are the engineer's business and `dev-path` mandates nothing about them.**
+**Worktrees are the engineer's business and `devpath` mandates nothing about them.**
 
 ---
 
@@ -387,7 +387,7 @@ What follows is what each dispatched subagent is told. Dispatch it after the fix
 
 ## Read before you write
 
-**Mandated: use the file tools — `Read`, `Write` and `Edit` — for `dev-path`'s own artifacts, and use
+**Mandated: use the file tools — `Read`, `Write` and `Edit` — for `devpath`'s own artifacts, and use
 `Read` explicitly.** This is measured. Across 15 runs with loading instrumented by a hook rather than by
 the model's own account:
 
@@ -413,7 +413,7 @@ what found them, and one missing import got as far as a wrong runtime conclusion
 
 **Suggested, with its reason: prefer `Edit`, and where a bash replacement is genuinely the right tool,
 grep for the result rather than trusting the exit code.** This reason reaches further than the mandate
-above it. Rule delivery is about `dev-path`'s own artifacts; a patch that did not land is about any file
+above it. Rule delivery is about `devpath`'s own artifacts; a patch that did not land is about any file
 you touch, code included. **The mandate keeps its scope and bash stays available on code** — what this
 adds is the check.
 
@@ -522,7 +522,7 @@ you graded rather than met.
 cannot satisfy is not edited into one you can: either resolving it changes only *how*, in which case
 re-cut and note the deviation, or it changes *what*, in which case **pause**.
 
-**`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `dev-path` writes
+**`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `devpath` writes
 `fixed`, `met` and `false positive`; it never writes this one.** So it is never your unilateral way past a
 criterion you could not meet.
 
@@ -591,7 +591,7 @@ while it is, and Integrate refuses at the end. What the tag adds is which instru
 is *do not proceed until a human answers*, tagged is *somebody should say whether that file was fine*.
 
 **The tagged box outlives the pause, and the frozen test goes on reading *frozen*.** The
-`dev-path:technical-design` session closes the untagged box and leaves the tagged one for the human at
+`devpath:technical-design` session closes the untagged box and leaves the tagged one for the human at
 merge, so from the moment the pause clears until this stage writes `done: true` the slice carries no
 `done: true` and an open box under `## Deviations` — frozen, by a test that never reads the tag.
 **Mandated: after a human clears a pause, the cleared slice is the next slice this run builds.** Building
@@ -600,7 +600,7 @@ README's third hook block skips the one it is being asked to dispatch — and `d
 build closes the window. Reaching for a sibling first is what turns a cleared pause into a false *frozen*,
 and holding one slice to build another was already *on request only*.
 
-**You do not close your own pause.** The `dev-path:technical-design` session that resolves it writes the
+**You do not close your own pause.** The `devpath:technical-design` session that resolves it writes the
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.
 
 ## On a fix pass
@@ -616,7 +616,7 @@ ticking a criterion as you satisfy it and never before. Critique owns `false pos
 
 > **A worker can reach the orchestrator. Only the orchestrator can reach the human.**
 
-**`dev-path` names exactly one route: write it down, then return.** The artifact on disk is the question's
+**`devpath` names exactly one route: write it down, then return.** The artifact on disk is the question's
 durable form; the return value is the signal. No live messaging, no elicitation, no prose question into
 the void.
 
@@ -629,7 +629,7 @@ checked*: live messaging is a declined available mechanism, not an assumed-absen
 to the main conversation from a background subagent **works**, and returns *queued for the main
 conversation's next turn* — **queued, not interrupting**, so it saves not one step over returning.
 
-**Escalate on irreversibility, not uncertainty.** `dev-path` always has a controller, so the instruction
+**Escalate on irreversibility, not uncertainty.** `devpath` always has a controller, so the instruction
 is rule and report, never stall. That does not weaken the pause: building the wrong thing is exactly the
 irreversibility case.
 

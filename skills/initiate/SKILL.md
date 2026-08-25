@@ -1,10 +1,10 @@
 ---
-description: Turn an arriving requirement — a link, a paste, or one typed sentence — into a dev-path spec. Use at the start of a piece of work, before any design or code.
+description: Turn an arriving requirement — a link, a paste, or one typed sentence — into a devpath spec. Use at the start of a piece of work, before any design or code.
 ---
 
 # Initiate
 
-Initiate creates the spec. It is the first stage of `dev-path` and the only one that runs before a
+Initiate creates the spec. It is the first stage of `devpath` and the only one that runs before a
 spec exists.
 
 **The contract is a postcondition on the spec, never a precondition on the arriving text.** There is no
@@ -13,17 +13,17 @@ state after a human accepted a distillation. A precondition on the arriving text
 whether someone else's prose is good enough, held against the one party this workflow cannot bind.
 
 **The primary experience is an engineer typing a sentence. A link is one way to supply one.** Read that
-ordering as load-bearing: written the other way round `dev-path` reads as tracker-shaped, and it is not.
+ordering as load-bearing: written the other way round `devpath` reads as tracker-shaped, and it is not.
 **A spec with no upstream is the normal case, not a degraded one** — an engineer-originated refactor has
 no requirements set, no requester and no link, `upstream` is an empty list, and nothing else moves.
 
 Where the arriving text has internal structure, **the engineer points at one requirement.** That pointing
 is a human act, so the requirements set's own shape — numbered, bulleted, or a wall of prose — is
-something `dev-path` **tolerates and never parses**.
+something `devpath` **tolerates and never parses**.
 
 ## Refuse first
 
-**`dev-path:initiate` is excepted from the refuse-on-`main` rule, explicitly and by name.** Every other
+**`devpath:initiate` is excepted from the refuse-on-`main` rule, explicitly and by name.** Every other
 stage skill discovers its spec with `git branch --show-current` and refuses on `main` or on a branch with
 no matching spec directory. Initiate is the skill that *creates* the branch, so it has nothing to
 discover, and the rule read literally would be an Initiate that can never create anything.
@@ -36,35 +36,35 @@ Two refusals are Initiate's own.
 - **A branch that already holds a spec directory for a different slug** → **stop.** That is somebody
   else's spec branch, and creating a second spec on it would put two specs in one pull request, which
   one branch / one draft pull request / one approval forbids. Say the next act: `git checkout <base>`
-  and run `dev-path:initiate` again.
+  and run `devpath:initiate` again.
 - **A colliding slug**, found by the sweep below → **stop, and propose a better, non-colliding slug.**
   Never a numeric suffix — not `decline-codes-2`. Being forced to say what is *different* about the
   second spec produces a better name than the first one had, so the proposal is a real name:
   `decline-code-retry-window`.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested — the same prefix
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested — the same prefix
 every pasteable block in the README echoes, so a human reading a stop meets one prefix rather than two.
 
 ### Re-entry on an accepted spec withdraws both gates, and says so
 
-**Mandated.** `dev-path:initiate` re-run on a spec directory that already carries `intent_accepted: true`
+**Mandated.** `devpath:initiate` re-run on a spec directory that already carries `intent_accepted: true`
 **announces that the intent gate is returning to unapproved** before it changes anything, then **deletes
 `intent_accepted` and `design_approved`**, and carries on. Say it in substance: *this moves the intent back
 to unapproved — you will accept the new version when we are done.*
 
-**Withdrawal is a deletion of the field, never a `false`.** Nothing in `dev-path` ever writes `false`, and
+**Withdrawal is a deletion of the field, never a `false`.** Nothing in `devpath` ever writes `false`, and
 a guard written against `intent_accepted: false` could never fire.
 
 **Taking `design_approved` with it is not overreach.** Initiate overwrites the five sections, so any design
 rested on Outcomes that have just changed. Leaving `design_approved: true` in place would let
-`dev-path:build` proceed on a design approved against a superseded problem.
+`devpath:build` proceed on a design approved against a superseded problem.
 
 | Deleted | Survives untouched |
 | --- | --- |
 | `intent_accepted` **and** `design_approved` | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
 
 **The slices survive on purpose.** They are work, `design_approved` is absent so nothing acts on them, and
-`dev-path:technical-design` re-slices when the design settles. Deleting them would be this skill throwing
+`devpath:technical-design` re-slices when the design settles. Deleting them would be this skill throwing
 away an artifact the human never asked it to throw away. **The draft pull request survives, always** — one
 per spec, for the spec's whole life, and nothing in a re-entry changes which spec this is.
 
@@ -77,20 +77,20 @@ and git keeps the old value regardless.
 
 **Read the requirement. Read the epic's own text if there is one. Never walk its children.** Mandated.
 Reading one more document is not parsing the requirements set's shape; walking its children is, and
-`dev-path` never does that.
+`devpath` never does that.
 
 **Snapshot once.** No later stage ever reads upstream again. That single decision is what collapses the
 whole upstream dependency to one optional read at one moment, keeps every downstream stage pure to the
 repo, and makes a cold session work offline.
 
 **Say *no later stage* rather than *never*, because there is one route back:** a human re-runs
-`dev-path:initiate` on an existing spec directory when the requirement itself moved, and that run
+`devpath:initiate` on an existing spec directory when the requirement itself moved, and that run
 re-reads upstream and updates the entry in place. That is Initiate running again on a human's request,
 not a downstream stage reaching sideways — so there is still no drift check, and there cannot be one.
 
-**`dev-path` declares no MCP server.** Initiate accepts a link or pasted text and is agnostic about how
+**`devpath` declares no MCP server.** Initiate accepts a link or pasted text and is agnostic about how
 a link gets read. The degradation ladder is: an MCP server the engineer already has → whatever
-direct-read tooling the engineer has → paste. `dev-path` declares none of the three, because shipping a
+direct-read tooling the engineer has → paste. `devpath` declares none of the three, because shipping a
 server declaration forces it on repos that do not want one, and owning credentials is a route already
 proven to rot.
 
@@ -98,7 +98,7 @@ proven to rot.
 and the intent gate quietly becomes an early design gate resting on a shallow read.
 
 **Initiate is not a conversation.** Command 1's only human moment is the gate. There is exactly one
-conversation in `dev-path` and it is at Design. Two shallow conversations cost more than one deep one,
+conversation in `devpath` and it is at Design. Two shallow conversations cost more than one deep one,
 because the human context-switches in, out and back in — and Initiate has nothing left to argue about:
 every refusal is homed elsewhere, the gate's job is a *reading*, and the spec-boundary decision sits at
 Design.
@@ -121,10 +121,10 @@ digits, hyphen-separated. Nothing else.**
 | Rule | Why it is a rule and not a preference |
 | --- | --- |
 | **From the intent, never from the upstream text** | `upstream` is optional and the no-upstream case is the normal one. A slug derived from an issue key is the tracker's identifier wearing a directory's clothes |
-| **Two to four words** | it is read in `ls dev-path/` and in a branch listing. One word is almost never distinguishing on the second spec; five is a sentence |
+| **Two to four words** | it is read in `ls devpath/` and in a branch listing. One word is almost never distinguishing on the second spec; five is a sentence |
 | **Lower case, ASCII, `[a-z0-9-]` only** | it is simultaneously a directory name and a git branch name. **No slash** — a slash makes it a branch namespace rather than a slug, and it is what tells a lessons branch apart from a spec branch |
 | **No leading or trailing hyphen, no dots, no consecutive hyphens** | `.` and `..` are git ref restrictions, and the rest is what keeps `ls` output readable |
-| **No prefix and no number** — not `dev-path-`, not `feat-`, not the `type` value, not a sequence | the directory it sits in already says `dev-path`, `type` is a field, and sequential numbering does not survive this store: specs are created on branches that cannot see each other, so two engineers running Initiate the same morning both take `47-` and the collision surfaces at merge instead of here |
+| **No prefix and no number** — not `devpath-`, not `feat-`, not the `type` value, not a sequence | the directory it sits in already says `devpath`, `type` is a field, and sequential numbering does not survive this store: specs are created on branches that cannot see each other, so two engineers running Initiate the same morning both take `47-` and the collision surfaces at merge instead of here |
 | **Name what is different about it** | the same standard the collision proposal uses. Applied at the first spec, the second one is cheaper |
 
 **A directory level per requirements set, or its name as a slug prefix, is the deleted level returning by
@@ -138,13 +138,13 @@ be overhead, and the gate is already there, reading the thing the slug names.
 
 ## Sweep for a colliding slug
 
-`dev-path/` is flat and merged specs are never deleted, so the second `dev-path/decline-codes/` is
+`devpath/` is flat and merged specs are never deleted, so the second `devpath/decline-codes/` is
 refused by `mkdir` rather than by policy. Check `<base>` plus every branch, local and remote, in one
 sweep — **before any work exists.**
 
 ```sh
 git fetch --prune --quiet
-git ls-tree -r --name-only <base> -- dev-path/ | awk -F/ '{print $2}' | sort -u
+git ls-tree -r --name-only <base> -- devpath/ | awk -F/ '{print $2}' | sort -u
 git for-each-ref --format='%(refname:short)' refs/heads refs/remotes
 ```
 
@@ -168,9 +168,9 @@ stop nobody can clear.
 
 ## Write
 
-**`git checkout -b <slug>` from `<base>`**, then write `dev-path/<slug>/spec.md`.
+**`git checkout -b <slug>` from `<base>`**, then write `devpath/<slug>/spec.md`.
 
-**`dev-path/` sits at the repository root. Fixed, not configurable.** A setting means every skill
+**`devpath/` sits at the repository root. Fixed, not configurable.** A setting means every skill
 resolves it before doing anything and the router grows a branch. Every spec is a directory with
 `spec.md` and N ≥ 1 slice files; there is no collapsed single-file form.
 
@@ -205,7 +205,7 @@ above the body, so a merged `spec.md` shows its fields as a table and then its `
 **No gate field yet.** `intent_accepted` is written at the gate below and not before. Value is always
 `true`; absence is how you say no; nothing ever writes `false`.
 
-**`type` is one of `feature`, `bug`, `refactor`, `config`, `doc`.** Nothing in `dev-path` branches on it
+**`type` is one of `feature`, `bug`, `refactor`, `config`, `doc`.** Nothing in `devpath` branches on it
 today — it is kept because a human reading a spec is a reader.
 
 **Write only the sections you have something to put in.** A stage writes a section only when it has
@@ -307,9 +307,9 @@ Pretending otherwise is how you get a check that goes green on a spec nobody rea
 actually wants is **read the Outcomes and confirm the translation is faithful to the Evidence**, both
 halves on the page. That reading is what converts a model's judgment into a human-accepted statement.
 
-**How the yes is captured: plain prose, and then the turn ends.** `dev-path` names no question tool at
+**How the yes is captured: plain prose, and then the turn ends.** `devpath` names no question tool at
 either gate. A tool that presents options invites a click where this gate wants a read — and naming a
-harness tool is a dependency `dev-path` does not otherwise take, whereas a gate that works by ending the
+harness tool is a dependency `devpath` does not otherwise take, whereas a gate that works by ending the
 turn works in every harness that can run a skill at all.
 
 **So: state what was accepted, show the slug, ask for the go/no-go in one sentence, and stop.** The next
@@ -330,16 +330,16 @@ gh pr create --draft --base <base> --head <slug> --title '<the spec title>' --bo
 ```
 
 **The body is `## Intent`, verbatim.** It is the one section the gate requires non-empty and the one a
-reader wants first, and `dev-path:integrate` rewrites the body later anyway.
+reader wants first, and `devpath:integrate` rewrites the body later anyway.
 
 **This step runs on a no as well as a yes, and that is deliberate.** A spec whose intent was declined is
-not a mistake to hide: `dev-path:technical-design` refuses without the field, so nothing proceeds, and
+not a mistake to hide: `devpath:technical-design` refuses without the field, so nothing proceeds, and
 **abandoned is a closed pull request whose file never reached `<base>`** — which requires the pull request
 to exist. Initiate always writes a spec, and this is what that costs and buys.
 
 **If `gh` is absent or unauthenticated the command fails with `gh`'s own error and Initiate stops there.**
 The branch and the commit already exist, so nothing is lost, and the next act is named: authorise `gh`
-and re-run `dev-path:initiate` on the existing directory, which opens the pull request. The act that
+and re-run `devpath:initiate` on the existing directory, which opens the pull request. The act that
 needs the property is the check, and the tool's own error is the whole signal.
 
 **What the draft pull request buys, so nobody removes it as ceremony.** A bare branch is genuinely
@@ -349,7 +349,7 @@ request ends all of that and makes pushing **mechanical rather than disciplinary
 draft pull request on an unpushed branch. It needs no approval, cannot be merged, and gives the design
 gate a readable, inline-commentable diff at zero approval cost.
 
-**One branch, one draft pull request, one approval.** `dev-path:initiate` opens it; `dev-path:integrate`
+**One branch, one draft pull request, one approval.** `devpath:initiate` opens it; `devpath:integrate`
 marks that same pull request ready and arms auto-merge.
 
-Then show what was written and stop. The next act is `dev-path:technical-design`.
+Then show what was written and stop. The next act is `devpath:technical-design`.

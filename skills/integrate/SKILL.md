@@ -1,5 +1,5 @@
 ---
-description: Check a built dev-path spec against its Outcomes and release it to merge. Use when every slice of a spec is done and the work is ready to ship.
+description: Check a built devpath spec against its Outcomes and release it to merge. Use when every slice of a spec is done and the work is ready to ship.
 ---
 
 # Integrate
@@ -20,14 +20,14 @@ description: Check a built dev-path spec against its Outcomes and release it to 
 - **`intent_accepted` is not `true`, or `design_approved` is not `true`** → **stop, naming which.**
   Integrate sits behind **both** gates, and unlike the standalone stage skills it is a command, so
   **nothing has checked either field before it.** The route being closed is a human typing
-  `/dev-path:integrate` on a spec that never passed the design gate.
+  `/devpath:integrate` on a spec that never passed the design gate.
 - **The front-matter block does not parse, or a field carries the wrong shape** → **stop and name the
   exact field.**
 
 **Nothing about the work is refused here.** No slice count, no `done` test, no box test, no `fix_cycles`
 test — all of those are step 3's, and step 3 is a verdict on the work rather than a check on the route.
 
-**Prefix every message a gate or refusal prints with `dev-path: `.** Suggested.
+**Prefix every message a gate or refusal prints with `devpath: `.** Suggested.
 
 ## The eight steps, in order
 
@@ -39,11 +39,11 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
    Name all three exits on an unmet Outcome.
 4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
    every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
-5. Offer to file `## dev-path feedback` as an issue. **If it is empty, say the heading exists and file
+5. Offer to file `## devpath feedback` as an issue. **If it is empty, say the heading exists and file
    nothing.**
 6. Name a signal back to the engineer, if anything written down shows one. **If step 5 is also filing, it
    is one issue, not two.**
-7. Run `dev-path:learn`.
+7. Run `devpath:learn`.
 8. Mark the draft pull request ready and arm auto-merge.
 
 ---
@@ -58,7 +58,7 @@ statement; the orchestrator stays where it is.** Suggested, with its reason. **N
 first, because a tier name is a model property and this one will move** — Sonnet is the current instance,
 and **Haiku is excluded by decision.**
 
-**The reason is this stage's own, and not the one `dev-path:survey` gives for its researchers.** A
+**The reason is this stage's own, and not the one `devpath:survey` gives for its researchers.** A
 checker's job is bounded — one diff against one written statement — which is the cheapest kind of judgment
 to get right, where a researcher's is an open-ended read. **What a cheap tier must not be handed here is
 breadth, and one checker per Outcome is what leaves it none.** The stakes cut the other way and are why
@@ -124,7 +124,7 @@ line's presence is the slice pass's own trace: **absent on a built slice, the pa
 an open box, which test 1 already refuses on, so nothing here judges whether a slice built anything.
 
 ```sh
-for f in dev-path/<slug>/slices/*.md; do
+for f in devpath/<slug>/slices/*.md; do
   grep -q '^done:[[:space:]]*true' "$f" && ! grep -q '^fix_cycles:' "$f" && echo "$f"
 done
 ```
@@ -134,7 +134,7 @@ byte zero and its fields start their lines, so an anchored match reads the field
 in a slice's prose — a slice that discusses `fix_cycles:` in its notes must not pass this test on the
 mention.
 
-**The next act on test 2 is `dev-path:critique` over the slices this test named.** Its invocation table
+**The next act on test 2 is `devpath:critique` over the slices this test named.** Its invocation table
 routes a human-typed run with no change request on the pull request to exactly that, so a spec that missed
 the pass has a specified mode waiting rather than a workaround — and that pass writes the line that clears
 this refusal.
@@ -148,7 +148,7 @@ way** — they are what the next run is for.
 box, so test 1 passes a spec no critic ever read and step 4 then carries the empty section into the pull
 request body — *nothing was wrong* and *the pass never ran* are otherwise indistinguishable at every check
 downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants named. **And
-Build reaching Critique is model-driven**: the imperative is in `dev-path:build` and nothing in the harness
+Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in the harness
 makes it certain, so what catches a skip is the trace, not a louder instruction.
 
 **The cost, said rather than smoothed: step 3 is no longer one grep.** It is a grep and a walk, and *one
@@ -170,8 +170,8 @@ the target, or was the target wrong?**
 
 | Exit | Means | Where it lands |
 | --- | --- | --- |
-| **Run `dev-path:build`** | there is work left | Build **cuts a new slice** for the unmet Outcome, builds it, and the deviation is written down |
-| **`- [x] won't fix`** | **the Outcome was right. We are shipping without it.** | the ledger — `grep -rn "won't fix" dev-path/`, forever |
+| **Run `devpath:build`** | there is work left | Build **cuts a new slice** for the unmet Outcome, builds it, and the deviation is written down |
+| **`- [x] won't fix`** | **the Outcome was right. We are shipping without it.** | the ledger — `grep -rn "won't fix" devpath/`, forever |
 | **Rework** | **the Outcome was never what we wanted.** | nowhere. Nothing was shipped short |
 
 **Naming all three is load-bearing:** without it, the way to ship something knowingly unresolved is
@@ -189,12 +189,12 @@ destination, no attribution.**
 ### Exit 2's line is the human's, by hand
 
 > **`- [x] won't fix — <reason>` on an unmet Outcome is written by the human, by hand, between the
-> refused run and the next one. `dev-path` has no other route to it.**
+> refused run and the next one. `devpath` has no other route to it.**
 
 **Say it, because a builder who does not read it will wire a step 3 that tries to write it.** A run admits
 no mid-run human input, so a run must end where a human is needed — Integrate cannot name the three
 exits, wait, and write the one the human picks, because the run is over at the naming. And re-running
-`dev-path:integrate` cannot produce the line either, because step 1 rewrites `## Outcome checks` and
+`devpath:integrate` cannot produce the line either, because step 1 rewrites `## Outcome checks` and
 would write the same Outcome unmet again. **Step 1's carry-forward rule is the other half of the
 mechanism**, and it only makes sense against a line something else wrote.
 
@@ -234,18 +234,18 @@ line of its own** — its sibling in the grammar sits under `## Deviations`, whi
 
 **`## Traps` rides whole as well, and it is the section that tells a reviewer what to read the tests
 for.** Each entry names a mutation the tests on this spec had to be able to fail on, which is the question
-a reviewer cannot answer from a green suite. It is also step 7's input: `dev-path:learn` generalises
+a reviewer cannot answer from a green suite. It is also step 7's input: `devpath:learn` generalises
 `## Critique findings` at the end, and a trap is that generalisation already done by the pass that was
 there. **Empty is the ordinary case** — say the heading is empty and carry nothing, as with the feedback
 offer below.
 
-## 5 · Offer to file `## dev-path feedback`
+## 5 · Offer to file `## devpath feedback`
 
-The engineer writes `## dev-path feedback` on `spec.md` at the moment of friction — optional, ungated,
+The engineer writes `## devpath feedback` on `spec.md` at the moment of friction — optional, ungated,
 absence normal. Read it, show a draft issue, and **on confirmation** run:
 
 ```sh
-gh issue create --repo Jonah-Stephans/dev-path
+gh issue create --repo Jonah-Stephans/devpath
 ```
 
 **Using the engineer's own credentials.** No credential is stored anywhere.
@@ -288,17 +288,17 @@ observation as data — because merging the voices breaks bound 4.
 
 ## 7 · Learn
 
-**Run the skill `dev-path:learn` against this spec, before step 8 arms the merge.**
+**Run the skill `devpath:learn` against this spec, before step 8 arms the merge.**
 
 > **This is model-driven and is not guaranteed.** There is no call syntax and no event that fires on a
 > skill finishing. Claude reads this instruction and normally follows it, and nothing in the harness makes
 > it certain. **Do not write *cannot be forgotten*** — that is a guarantee this design does not have. A
-> repo that wants it guaranteed adds a `Stop` hook of its own; `dev-path` ships none and depends on none.
+> repo that wants it guaranteed adds a `Stop` hook of its own; `devpath` ships none and depends on none.
 
 **It runs before the arming, and the order is deliberate.** Arming auto-merge is irreversible: on a pull
 request already carrying its approval, a required check that finishes fast can merge it while a later
 step is still running. **Nothing is lost by running Learn first** — its two available inputs are
-`dev-path`'s own files, `## Critique findings` and `## Deviations`, and both are complete before this
+`devpath`'s own files, `## Critique findings` and `## Deviations`, and both are complete before this
 command started. Learn reads nothing the ready transition produces.
 
 ## 8 · Mark ready, then arm auto-merge
@@ -327,7 +327,7 @@ gh api graphql -f query='
 setting took, and a silently ineffective arming is indistinguishable from a working one until a spec
 merges without CI.
 
-> **`dev-path` never runs `gh pr merge --auto`, anywhere, for any purpose.**
+> **`devpath` never runs `gh pr merge --auto`, anywhere, for any purpose.**
 
 **Why, and it is the sharpest rule in this body.** `gh pr merge --auto` calls the auto-merge mutation only
 when the pull request is *not already immediately mergeable* — so on a `CLEAN`, `HAS_HOOKS` or `UNSTABLE`
@@ -335,12 +335,12 @@ pull request **it performs a real merge.** On a repo whose base branch is unprot
 `CLEAN` the moment it leaves draft, and **step 8 is the first moment CI runs on this pull request at
 all** — so `--auto` merges it immediately with no review and no CI. **The one deploy in a spec's life that
 can fail on a dangling reference is skipped by the command meant to schedule it**, and a repo missing
-branch protection would get a worse outcome from `dev-path` than from doing nothing.
+branch protection would get a worse outcome from `devpath` than from doing nothing.
 
 **The mutation cannot merge.** It sets a setting; the merge happens later, when GitHub's own conditions
 are met, or never. **Do not use a command that might do the thing to arrange for the thing.**
 
-**`dev-path` passes no merge method and takes the repo's default.** The plugin holds no opinion about a
+**`devpath` passes no merge method and takes the repo's default.** The plugin holds no opinion about a
 repo's history, the same posture as holding no org name. One consequence, so Build is not misread:
 whether one code commit per slice survives to the base branch depends on that default, and Build's
 per-slice argument is about attribution **on the branch and in the pull request**, never a requirement on
@@ -358,8 +358,8 @@ different in the two ways that matter: it is the whole spec as one payload, and 
 already, so references resolve against org state ∪ payload rather than against an org carrying an earlier
 deploy of the same spec.
 
-**`dev-path` does not run it.** It is the repo's own deploy gate, and CI not running on draft pull
-requests is what puts it here rather than earlier. What `dev-path` contributes is the timing and the
+**`devpath` does not run it.** It is the repo's own deploy gate, and CI not running on draft pull
+requests is what puts it here rather than earlier. What `devpath` contributes is the timing and the
 precondition — never the workflow.
 
 **Nobody owns integration order.** Arrival order: mark ready, arm auto-merge, a reviewer approves, GitHub

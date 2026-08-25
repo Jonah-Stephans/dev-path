@@ -1,11 +1,11 @@
 ---
-description: Check a repo against the twenty-six preconditions dev-path needs and report where it stands. Use before adopting dev-path on a repo, or any time afterwards to see what is still missing.
+description: Check a repo against the twenty-six preconditions devpath needs and report where it stands. Use before adopting devpath on a repo, or any time afterwards to see what is still missing.
 disable-model-invocation: true
 ---
 
 # Fit check
 
-**Human-invoked, never fired by `dev-path`. It is not a stage.**
+**Human-invoked, never fired by `devpath`. It is not a stage.**
 
 **It reads no spec** — no front matter, no branch-name discovery, no slug. It runs in a repo that may
 contain zero specs, so nothing about the other nine skills' opening read applies here. **Say that, or it
@@ -19,12 +19,12 @@ re-runnable at any time, never required.
 **Two moments, one skill.** *What does this repo need* on a new repo and *where does this repo stand* on an
 existing one are the same twenty-six checks with the output shaped by what is found.
 
-**What `dev-path` runs on: greenfield second-generation package repos.** That is what these preconditions
+**What `devpath` runs on: greenfield second-generation package repos.** That is what these preconditions
 assume — a first commit. **Migration onto an existing repo is neither designed nor forbidden**, and there
 is **no migration mode and no second flavour of any requirement.** Three of the entries are one-time
-repo-wide jobs a running repo does *outside* `dev-path`, before it starts, because each invalidates source
+repo-wide jobs a running repo does *outside* `devpath`, before it starts, because each invalidates source
 tracking or rewrites the whole tree: entries 8, 11 and 16. The bill belongs to the repo, is paid once, and
-is paid before `dev-path` starts.
+is paid before `devpath` starts.
 
 ## Refuse first
 
@@ -34,7 +34,7 @@ is paid before `dev-path` starts.
 - **`gh` is unavailable or unauthenticated** → **carry on**, reporting every API-backed entry as *could
   not determine*. Do not stop: two thirds of the list is readable from the working tree.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ## Run order
 
@@ -59,7 +59,7 @@ check, and improving it means inventing one** — which is the one act this skil
    key's presence before believing its absence.**
 3. **Never treat vacuous as satisfied.** On a repo with no history, entry 12 has no labels files to count
    and entry 16 has nothing to convert. **A trigger derived from existing artifacts is blind on a
-   greenfield repo**, which is exactly where `dev-path` runs.
+   greenfield repo**, which is exactly where `devpath` runs.
 
 ### Six rules that apply to every entry
 
@@ -148,14 +148,14 @@ concealed that nothing whatsoever detects its absence.
 **Report entries 6 and 7 as *configured* or *not observable*, never as absent.** What is observable is
 whether `sfdx-project.json` and a scratch org definition exist — never whether an org has been created.
 **Entry 7 degrades exactly as a group-1 entry should:** with no default org set, Build's first deploy fails
-with the CLI's own error and `dev-path` adds nothing.
+with the CLI's own error and `devpath` adds nothing.
 
 **Who creates the two orgs, because no stage does:**
 
 | Org | Created by |
 | --- | --- |
-| the engineer's own scratch org, kept for the life of the spec | **the engineer.** No `dev-path` stage creates it |
-| the fresh org for the whole-spec deploy at the ready transition | **the repo's CI**, as part of the deploy gate `dev-path` does not run |
+| the engineer's own scratch org, kept for the life of the spec | **the engineer.** No `devpath` stage creates it |
+| the fresh org for the whole-spec deploy at the ready transition | **the repo's CI**, as part of the deploy gate `devpath` does not run |
 
 **A plugin that creates orgs is a plugin that names one**, which is the line the plugin does not cross.
 **The two orgs do different jobs and neither is per slice:** the engineer's own proves the code works and
@@ -180,7 +180,7 @@ real-runtime sketch pulls the first org's creation earlier than Build.
 | 15 | Multiple `packageDirectories`, no `package` keys | 2 | `jq -e '(.packageDirectories\|length > 1) and (.packageDirectories\|all(has("package")\|not))' sfdx-project.json`. Also check every `path` exists on disk | present · absent |
 | 16 | Source-format conversion, once ‡ | 2 | Bare-suffix files (`*.object`, `*.profile`, `*.labels`, `*.flow` …) are metadata-format evidence; `*-meta.xml` on XML-only types plus a decomposed `objects/` is source-format evidence. **Four outcomes, including mixed** | present · absent · absent (mixed) · could not determine |
 
-‡ = a one-time repo-wide job that precedes `dev-path`.
+‡ = a one-time repo-wide job that precedes `devpath`.
 
 **Entries 12 and 14 carry their whole argument here, because the paragraph *is* the mechanism.**
 
@@ -223,14 +223,14 @@ deploy would carry, and the repo already computes it.
 
 **Entries 18 and 20 sit inside the deploy gate, and four conditions bind that gate:** a **fresh** org,
 because references resolve against org state ∪ payload; an **explicit test level**, since the default runs
-no tests; **org-wide coverage defaults**; and **read the exit code, not the result object.** `dev-path`
+no tests; **org-wide coverage defaults**; and **read the exit code, not the result object.** `devpath`
 does not run the gate — these are what it requires of the repo's.
 
 ### Coexistence
 
 | # | Entry | Group | Observed by | Can reach |
 | --- | --- | --- | --- | --- |
-| 22 | `.claude/rules/` stays commit-eligible | 2 | `git check-ignore -v --non-matching .claude/rules/ .claude/rules/dev-path-probe.md`, and again with `--no-index`. **Probe a non-`rstk-` filename** | present · absent |
+| 22 | `.claude/rules/` stays commit-eligible | 2 | `git check-ignore -v --non-matching .claude/rules/ .claude/rules/devpath-probe.md`, and again with `--no-index`. **Probe a non-`rstk-` filename** | present · absent |
 | 23 | `.claude/lessons.md` left alone | 2 | `git check-ignore -v --non-matching .claude/lessons.md`, plus `git ls-files --error-unmatch` and `git log --diff-filter=D -- .claude/lessons.md` | present · absent · could not determine |
 | 24 | `.rstk/` gitignored | 2 | `git check-ignore -v --non-matching .rstk/ .rstk/probe.json` — **with the trailing slash**. Then `git ls-files -- .rstk`, because already-committed is a worse state than un-ignored and needs a different fix | present · absent |
 | 26 | No always-on rule redirects Build's dispatch | 2 | Every always-on `.claude/rules/*.md` — `paths:` absent, empty, or a match-everything glob in any spelling — and root `CLAUDE.md`, read for a directive naming a subagent type, a model, a turn cap, or context forwarding. **Finding none is *present*, never *could not determine*, and what the rule names is out of reach unless the repo defines it** — see below | present · absent · **not observable** (the definition's own caps, on the plugin route) |
@@ -240,7 +240,7 @@ does not run the gate — these are what it requires of the repo's.
 > that cannot be checked needs one.**
 
 **Entry 24's backstop is Build's commit audit.** If the ignore is missing, or a new tool starts writing
-somewhere nobody anticipated, the file is committed and written down as excess. `dev-path` **benefits from
+somewhere nobody anticipated, the file is committed and written down as excess. `devpath` **benefits from
 the ignore without depending on it.**
 
 **Entry 26 is the one this list learned from a failed run.** An unscoped `.claude/rules/` file auto-loads
@@ -258,7 +258,7 @@ the same run ran fifty-eight and seventy turns and returned cleanly. **Nothing r
 let alone that it had been hit**, and the run's own conclusion was that the slice had been cut too large.
 
 **Read the always-on set permissively, and read an empty one as *present*.** `paths:` absent is the form
-`dev-path:learn` writes; `paths: ["*"]` is the form the measured run carried. **A check matching one literal
+`devpath:learn` writes; `paths: ["*"]` is the form the measured run carried. **A check matching one literal
 spelling misses the file it was written from**, so accept the key absent, an empty list, and `"*"`, `["*"]`,
 `["**"]` and `["**/*"]` alike — the same permissiveness entry 13 needs for `.forceignore` patterns, and for
 the same reason. **Read root `CLAUDE.md` on the same terms:** it reaches the orchestrator that dispatches,
@@ -485,7 +485,7 @@ reports.** The human names the ones they want; apply those and no others. **Neve
 and never all of them on a bare *yes*.**
 
 **Enabling auto-merge is the one that writes to GitHub, and that is not a contradiction of *it stores
-nothing*.** *Stores nothing* is about `dev-path`'s own artifacts — no report file, no field, no readiness
+nothing*.** *Stores nothing* is about `devpath`'s own artifacts — no report file, no field, no readiness
 note. This is **the human's act, performed on request.**
 
 ```sh

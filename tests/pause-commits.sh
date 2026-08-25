@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — five assertions on the pause commit: that Build mandates it, that it
+# devpath — five assertions on the pause commit: that Build mandates it, that it
 # claims nothing about the slice working at either site that ties committing to
 # deploying, that it stops short of a push and README's hook block still denies
 # that push, that none of the six retired forms of the old rule has come back,

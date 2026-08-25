@@ -1,14 +1,14 @@
 ---
-description: Produce something physical to settle an open design question on a dev-path spec. Use when a design conversation stalls because two people picture different screens.
+description: Produce something physical to settle an open design question on a devpath spec. Use when a design conversation stalls because two people picture different screens.
 disable-model-invocation: true
 ---
 
 # Sketch
 
 **Human-invoked. Not a stage.** Say it plainly, or a later reader adds it to the stage list. Nothing in
-`dev-path` fires this skill; a human types it.
+`devpath` fires this skill; a human types it.
 
-It is the side trip `dev-path` offers when a design question needs something physical. **It owns the
+It is the side trip `devpath` offers when a design question needs something physical. **It owns the
 plumbing and says nothing about the craft.**
 
 **Why it is a skill rather than an instruction in the design conversation.** The alternative makes the loop
@@ -19,15 +19,15 @@ human-mediated hops. A skill that reads the spec directly removes both.
 
 **The slug arrives as `$ARGUMENTS`, and this skill refuses without one.**
 
-- **No argument** → **stop.** Say the next act: run it again as `/dev-path:sketch <slug>`.
-- **No `dev-path/<slug>/` directory** → **stop**, and say which slugs exist.
+- **No argument** → **stop.** Say the next act: run it again as `/devpath:sketch <slug>`.
+- **No `devpath/<slug>/` directory** → **stop**, and say which slugs exist.
 
 **Not branch discovery, deliberately.** This is not one of the eight stage skills, and the parallel-session
 shape below means **the branch it runs on is not reliably the spec's** — an artifact may land on a
 throwaway branch or nowhere at all. Discovering the spec from the branch would find the wrong spec or no
 spec, on the ordinary route.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ## Read
 
@@ -40,10 +40,10 @@ one.** That is the only fallback needed.
 
 **Place the artifact by its reader.**
 
-- **Read by a later stage** → `dev-path/<slug>/sketches/`, at a relative path Build can open.
+- **Read by a later stage** → `devpath/<slug>/sketches/`, at a relative path Build can open.
 - **A throwaway spike** → a throwaway branch, or nowhere.
 
-**`dev-path/<slug>/sketches/` is the only place a non-text file exists anywhere in `dev-path`.** Every
+**`devpath/<slug>/sketches/` is the only place a non-text file exists anywhere in `devpath`.** Every
 other artifact is prose or YAML. Bounded to an image or a small HTML file; **never build output.**
 
 **Write a short decision note beside the artifact** — the question, the answer, the artifact path.
@@ -53,7 +53,7 @@ other artifact is prose or YAML. Bounded to an image or a small HTML file; **nev
 **Why not `spec.md`.** The primary shape is that the design session **stays open** and this runs in a
 **parallel** session. **Two live sessions, one file, is a straight collision.** So this skill's only writes
 are new files, and **the decision travels through the human** — which is also the right channel for a
-decision. `dev-path:technical-design` writes `## Design`, always.
+decision. `devpath:technical-design` writes `## Design`, always.
 
 **Why not the spec branch, and this is the rule worth having rather than a caution.** One branch per spec,
 and a parallel session runs with **the spec branch already checked out** — so committing a spike to it is
@@ -68,11 +68,11 @@ shipping it needs no rewrite at all, which is why this is stated rather than ass
 
 - **Session open, the primary route:** the human carries the decision back in conversation and Design
   writes `## Design`. The note is redundant in the moment and is what Build reads later.
-- **Session closed, the fallback, and it must work:** the human re-runs `dev-path:technical-design`, which
+- **Session closed, the fallback, and it must work:** the human re-runs `devpath:technical-design`, which
   reads the front matter, sees no `design_approved`, reads `## Open questions`, and **finds the note beside
   the spec answering it.** Without the note the decision would exist only in a dead transcript.
 
-That is why `dev-path:technical-design` reads its spec *directory* on start rather than only `spec.md`.
+That is why `devpath:technical-design` reads its spec *directory* on start rather than only `spec.md`.
 
 ## Stop
 

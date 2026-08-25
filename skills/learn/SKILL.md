@@ -1,12 +1,12 @@
 ---
-description: Propose codebase lessons from a finished dev-path spec. Use at the end of Integrate, or point it at a pull request to capture something review turned up.
+description: Propose codebase lessons from a finished devpath spec. Use at the end of Integrate, or point it at a pull request to capture something review turned up.
 ---
 
 # Learn
 
-**`dev-path:learn` is the only skill with two modes.**
+**`devpath:learn` is the only skill with two modes.**
 
-- **Inside `dev-path:integrate`, at step 7**, before it marks the pull request ready and arms auto-merge.
+- **Inside `devpath:integrate`, at step 7**, before it marks the pull request ready and arms auto-merge.
   It is not a step somebody can decline by doing nothing: it sits inside a command they have to run in
   order to ship.
 - **Human-invoked, pointed at a pull request** via `$ARGUMENTS`, naming what they want captured. This is
@@ -16,7 +16,7 @@ description: Propose codebase lessons from a finished dev-path spec. Use at the 
 `skills/integrate/SKILL.md` naming this skill, and **skill-to-skill invocation is model-driven** — Claude
 reads the instruction and normally follows it. There is no call syntax, no subroutine form and no event
 that fires on a skill finishing, so nothing in the harness makes it certain. **Do not write *cannot be
-forgotten*.** A repo that wants a guarantee adds a `Stop` hook of its own; `dev-path` ships none and
+forgotten*.** A repo that wants a guarantee adds a `Stop` hook of its own; `devpath` ships none and
 depends on none.
 
 **No credential is stored anywhere and there is no precondition.**
@@ -39,15 +39,15 @@ depends on none.
 
 **This skill has no gate.** It reads a pull request and proposes; nothing gates it and it adds no field.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ## What can actually be read here
 
 | Source | Available at Integrate |
 | --- | --- |
-| Critique's findings | **always** — `dev-path`'s own file |
-| The recorded deviations | **always** — `dev-path`'s own file |
-| The spec's traps | **always** — `dev-path`'s own file |
+| Critique's findings | **always** — `devpath`'s own file |
+| The recorded deviations | **always** — `devpath`'s own file |
+| The spec's traps | **always** — `devpath`'s own file |
 | CI bot findings | **never** |
 | Human review comments | **never** |
 
@@ -58,7 +58,7 @@ been a CI run on this pull request to read, and no reviewer has seen it either.
 
 **That is a real hole, stated rather than promised away.** The human-invoked re-run covers both empty rows
 by the same mechanism: once the pull request is ready, CI has run and a reviewer has commented, and an
-engineer runs `dev-path:learn` again pointed at it.
+engineer runs `devpath:learn` again pointed at it.
 
 **A trap arrives pre-sorted:** `## Traps` is already the generalisation this skill would otherwise have to
 make, written by the pass that was there while it was there. It enters the routing below as a candidate
@@ -82,7 +82,7 @@ all.**
 ## Where lessons live
 
 **`.claude/rules/<topic>.md` in the repo.** Codebase lessons only — things true about *that repo's code*.
-**Nothing about `dev-path` itself, ever.**
+**Nothing about `devpath` itself, ever.**
 
 Why the repo and not the plugin, in order of weight: the lesson is about that repo; a cross-repo pull
 request would need a token with write access to a personal repo held as a secret in someone else's CI; and
@@ -137,7 +137,7 @@ it is dropped at compaction and not re-injected until another matching read. So:
 every time. Two things soften it and neither removes it: Build reads existing code to orient, so any
 matching file it opens loads the scoped set; and coverage improves as the repo fills up, which means **the
 hole is worst on a young greenfield repo and closes as code accumulates** — the opposite of where
-`dev-path` aims.
+`devpath` aims.
 
 ## Routing: not everything found becomes a rule
 
@@ -146,12 +146,12 @@ hole is worst on a young greenfield repo and closes as code accumulates** — th
 | A coding convention | `.claude/rules/<topic>.md`, `paths:`-scoped. The bulk |
 | Something a machine can check | **a check** — below |
 | A cross-feature convention found inside one feature | a proposed edit to the repo's unscoped standards rule |
-| Something about `dev-path` | **an issue on the plugin's own repo** — never in this repo. Integrate runs that channel; this skill never touches it |
+| Something about `devpath` | **an issue on the plugin's own repo** — never in this repo. Integrate runs that channel; this skill never touches it |
 | A one-off | **dropped** |
 | Already covered by an existing rule | **dropped. Read the existing rules first.** Never copy the same rule into a rule, a skill and a document |
 
 **Read the existing rules before proposing anything.** The third row is what a cross-feature convention
-becomes, and it follows *that* file's shape rather than the grammar below — imposing `dev-path`'s grammar
+becomes, and it follows *that* file's shape rather than the grammar below — imposing `devpath`'s grammar
 on an artifact the repo owns is the line rule 2 draws.
 
 ## The entry grammar
@@ -258,7 +258,7 @@ writing something fine. Both conditions are aimed at that.
 > **A check is a diff-scoped step in the repo's own CI. Nothing else.**
 
 **Propose an edit to the repo's own CI configuration, at whatever path that repo already uses.**
-`dev-path` names no path of its own.
+`devpath` names no path of its own.
 
 **Three things a check is not, and each is a plausible wrong answer:**
 
@@ -267,7 +267,7 @@ writing something fine. Both conditions are aimed at that.
   rather than one the pull request carries.
 - **Not a `.claude/rules/` entry.** A rule is read by an agent; a check is run by a program. **A lesson
   that can be checked stops being a rule** — that is why the routing table has two rows and not one.
-- **Not an artifact under `dev-path/`.** The spec directory is what one piece of work left behind. A check
+- **Not an artifact under `devpath/`.** The spec directory is what one piece of work left behind. A check
   outlives it.
 
 ## Cutting the branch and opening the pull request
@@ -275,7 +275,7 @@ writing something fine. Both conditions are aimed at that.
 | | |
 | --- | --- |
 | **Cut from** | the repo's **base branch**, never the spec branch. Cut from the spec branch, the lessons ride into the spec's own pull request and **there is no second pull request at all** |
-| **Branch name** | `dev-path/lessons/<slug>`. **It contains a slash, so it can never be mistaken for a slug** — a slug is a flat directory name — and any `dev-path` skill run on it refuses, correctly, with *no spec on this branch* |
+| **Branch name** | `devpath/lessons/<slug>`. **It contains a slash, so it can never be mistaken for a slug** — a slug is a flat directory name — and any `devpath` skill run on it refuses, correctly, with *no spec on this branch* |
 | **Title** | *Lessons from `<slug>`*. **Nothing parses it** |
 | **Draft or ready** | **ready.** A draft would be slightly worse than pointless: CI does not run on drafts, and a proposed check's whole point is that its test case runs |
 | **Author** | the engineer. Run `gh` with **their** credentials, so the pull request is theirs and the repo's own branch protection governs who reviews it |
@@ -291,10 +291,10 @@ rather than working around. **A `git stash` dance is not the answer** — it is 
 its failure mode is losing the engineer's work silently.
 
 ```sh
-git checkout -b "dev-path/lessons/<slug>" "$base"
+git checkout -b "devpath/lessons/<slug>" "$base"
 # write the rule files and any CI edit
 git add .claude/rules/ && git commit && git push -u origin HEAD
-gh pr create --base "$base" --head "dev-path/lessons/<slug>" --title 'Lessons from <slug>' --body-file -
+gh pr create --base "$base" --head "devpath/lessons/<slug>" --title 'Lessons from <slug>' --body-file -
 git checkout "<slug>"
 ```
 
@@ -317,13 +317,13 @@ mechanism.
 
 ## What this skill must not claim
 
-A repo's testing standard typically has three parts, and **two attach to `dev-path` while the third does
-not.** Gates are repo shape, which `dev-path` requires and reimplements none of. Standards, the judgment
+A repo's testing standard typically has three parts, and **two attach to `devpath` while the third does
+not.** Gates are repo shape, which `devpath` requires and reimplements none of. Standards, the judgment
 half, are what Build builds to and Critique checks. **The code-health metrics attach to nothing here** —
 this skill sees one merged spec, those are a property of the whole repo's history, so it is not positioned
 to move one and cannot observe whether it did.
 
-> **The plugin must not claim the code-health metrics measure whether `dev-path` works.**
+> **The plugin must not claim the code-health metrics measure whether `devpath` works.**
 
 **And the standard itself is a starting point to be challenged, not an adopted standard.** Its content is
 provisional. **What is settled, and survives any change to its content, is where it attaches.**

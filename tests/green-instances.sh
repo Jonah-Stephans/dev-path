@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — three assertions on the pair of green warnings: that both instances
+# devpath — three assertions on the pair of green warnings: that both instances
 # sit under the deploy-tick-done heading, that they are two different failures
 # rather than one written twice, and that README's honesty list carries the
 # second one too.

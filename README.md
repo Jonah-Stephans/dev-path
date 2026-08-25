@@ -1,4 +1,4 @@
-# dev-path
+# devpath
 
 A Salesforce-shaped engineering workflow that takes a non-technical requirement through a structured process to merged code. The process includes eight skill-invoked stages requiring two human approvals and two optional skills.
 
@@ -6,22 +6,22 @@ A Salesforce-shaped engineering workflow that takes a non-technical requirement 
 
 > `git`, and the GitHub CLI logged in — check with `gh auth status`.
 
-**`dev-path` shells out to `gh` from its first stage, not its last.** Initiate opens the branch and the
+**`devpath` shells out to `gh` from its first stage, not its last.** Initiate opens the branch and the
 draft pull request, Integrate reads and files against them, and the hook blocks below call `gh pr list`.
-An unauthenticated `gh` therefore fails at stage one, where the failure looks like `dev-path` being
+An unauthenticated `gh` therefore fails at stage one, where the failure looks like `devpath` being
 broken rather than like a missing login. **Nothing else is needed** — no CI, no scratch org and no branch
 protection, which is the point of the first use below.
 
 ## Install
 
 ```
-claude plugin marketplace add Jonah-Stephans/dev-path
-claude plugin install dev-path@jonah-stephans
+claude plugin marketplace add Jonah-Stephans/devpath
+claude plugin install devpath@jonah-stephans
 ```
 
 ## Check it worked
 
-> Type `/dev-path:` and confirm the skills appear.
+> Type `/devpath:` and confirm the skills appear.
 
 **A plugin that failed to install cannot detect that it failed to install.** Any preflight or self-check
 shipped *inside* a plugin is unreachable in exactly the case it exists for. This line works because it
@@ -29,7 +29,7 @@ reaches only people who are already installing.
 
 ## First use
 
-> Run `dev-path:initiate` on a real requirement. Stop at the intent gate.
+> Run `devpath:initiate` on a real requirement. Stop at the intent gate.
 
 One command, a real requirement, and you have a spec file, a branch and a draft pull request in minutes.
 It needs no CI, no scratch org and no branch protection working yet — Initiate touches none of them.
@@ -39,22 +39,22 @@ full end-to-end run on a small real change is the right *second* use.
 
 ## Is this repo ready?
 
-> Run `dev-path:fit-check` when the repo is new, and again if `dev-path` hits issues with new repo infrastructure.
+> Run `devpath:fit-check` when the repo is new, and again if `devpath` hits issues with new repo infrastructure.
 
 ## What you can gate on
 
-**`dev-path` ships no hook enforcement and never depends on any, but it's meant to be tailored with the repo's own hooks.** A repo that enforces nothing gets identical
-behaviour from `dev-path`, just less attended. Everything below is a repo's own choice, pasted into the
+**`devpath` ships no hook enforcement and never depends on any, but it's meant to be tailored with the repo's own hooks.** A repo that enforces nothing gets identical
+behaviour from `devpath`, just less attended. Everything below is a repo's own choice, pasted into the
 repo's `.claude/settings.json`.
 
 **The recommended default is one check, not a suite** — the open-box grep, as a job on the pull request:
 
 ```bash
-SPEC="dev-path/${GITHUB_HEAD_REF:?not a pull request build}"; test -d "$SPEC" && ! grep -rn '^- \[ \]' "$SPEC/"
+SPEC="devpath/${GITHUB_HEAD_REF:?not a pull request build}"; test -d "$SPEC" && ! grep -rn '^- \[ \]' "$SPEC/"
 ```
 
 **The slug comes from the pull request's head ref, never from `git branch --show-current`** — this job
-runs on a detached HEAD, where that command returns empty and the path collapses to `dev-path/`, an
+runs on a detached HEAD, where that command returns empty and the path collapses to `devpath/`, an
 unscoped sweep that fails this spec on a neighbouring spec's open boxes. `GITHUB_HEAD_REF` is GitHub
 Actions' name for the source branch; substitute the one your CI sets. **`test -d` is what makes a wrong
 slug red:** `grep -r` on a missing directory exits 2, the leading `!` turns that into 0, and the job
@@ -90,7 +90,7 @@ hook **denies by exiting 2**, and its message goes to whoever made the call. A `
 deny**, because the write it is reacting to has already happened.
 
 **Merge the blocks rather than repeating the `hooks` key.** Two of the seven parse the dispatch first line
-`dev-path slice: <path>` and are silently inert on any other dispatch.
+`devpath slice: <path>` and are silently inert on any other dispatch.
 
 **Blocks 1, 6 and 7 find the spec with `git branch --show-current`, which is empty under a detached
 HEAD** — they go inert rather than wrong. They are hooks, running in a session where a branch is normally
@@ -114,7 +114,7 @@ open, an unrelated Bash call carrying a variable is denied too.
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); [ -d \"dev-path/$SLUG/slices\" ] || exit 0; for f in \"dev-path/$SLUG\"/slices/*.md; do [ -f \"$f\" ] || continue; grep -q '^done: true$' \"$f\" && D=0 || D=1; H=$(awk -v d=\"$D\" '/^## Deviations/{s=(d+0);h=\"## Deviations\";next} /^## Critique findings/{s=1;h=\"## Critique findings\";next} /^## /{s=0} s&&/^- \\[ \\]/{print h;n=1;exit} END{exit !n}' \"$f\") && { echo \"dev-path: $f carries an open - [ ] under $H\"; exit 2; }; done; exit 0",
+            "command": "SLUG=$(git branch --show-current); [ -d \"devpath/$SLUG/slices\" ] || exit 0; for f in \"devpath/$SLUG\"/slices/*.md; do [ -f \"$f\" ] || continue; grep -q '^done: true$' \"$f\" && D=0 || D=1; H=$(awk -v d=\"$D\" '/^## Deviations/{s=(d+0);h=\"## Deviations\";next} /^## Critique findings/{s=1;h=\"## Critique findings\";next} /^## /{s=0} s&&/^- \\[ \\]/{print h;n=1;exit} END{exit !n}' \"$f\") && { echo \"devpath: $f carries an open - [ ] under $H\"; exit 2; }; done; exit 0",
             "timeout": 10
           }
         ]
@@ -128,7 +128,7 @@ open, an unrelated Bash call carrying a variable is denied too.
 That grep runs on the pull request, where *Critique clean* — section-blind, whole spec directory — is the
 right test. This one runs on **every push during a build**, and Slice writes `## Acceptance criteria` as
 open boxes at creation, so section-blind here would deny the first push of every ordinary run. It is
-scoped to the two sections that mean stop, and to the spec on this branch rather than all of `dev-path/`.
+scoped to the two sections that mean stop, and to the spec on this branch rather than all of `devpath/`.
 
 **A third scoping, and it is Build's rule rather than this menu's.** **A done slice with an open box under
 `## Deviations` is not a pause and must not be read as one** — the commit-excess box lands inside the
@@ -159,7 +159,7 @@ word a run can forget. The tag is for the human reading the diff, where no join 
         "hooks": [
           {
             "type": "command",
-            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^dev-path slice: ||p'); [ -n \"$SLICE\" ] || exit 0; SPEC=\"${SLICE%/slices/*}/spec.md\"; grep -q '^design_approved: true$' \"$SPEC\" || { echo \"dev-path: $SPEC does not carry design_approved: true\"; exit 2; }",
+            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^devpath slice: ||p'); [ -n \"$SLICE\" ] || exit 0; SPEC=\"${SLICE%/slices/*}/spec.md\"; grep -q '^design_approved: true$' \"$SPEC\" || { echo \"devpath: $SPEC does not carry design_approved: true\"; exit 2; }",
             "timeout": 10
           }
         ]
@@ -182,7 +182,7 @@ word a run can forget. The tag is for the human reading the diff, where no join 
         "hooks": [
           {
             "type": "command",
-            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^dev-path slice: ||p'); [ -n \"$SLICE\" ] || exit 0; for f in \"${SLICE%/*}\"/*.md; do [ \"$f\" = \"$SLICE\" ] && continue; grep -q '^done: true$' \"$f\" && continue; awk '/^## Deviations/{d=1;next} /^## /{d=0} d&&/^- \\[ \\]/{n++} END{exit !n}' \"$f\" && { echo \"dev-path: $f is frozen and needs a human\"; exit 2; }; done; exit 0",
+            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^devpath slice: ||p'); [ -n \"$SLICE\" ] || exit 0; for f in \"${SLICE%/*}\"/*.md; do [ \"$f\" = \"$SLICE\" ] && continue; grep -q '^done: true$' \"$f\" && continue; awk '/^## Deviations/{d=1;next} /^## /{d=0} d&&/^- \\[ \\]/{n++} END{exit !n}' \"$f\" && { echo \"devpath: $f is frozen and needs a human\"; exit 2; }; done; exit 0",
             "timeout": 10
           }
         ]
@@ -203,7 +203,7 @@ dispatch of every ordinary run. What this block looks for is a stopped slice, an
 absence of `done: true` plus an open box under `## Deviations`.
 
 **That reading is wider than a pause, and once a pause is cleared it is wider than the truth.** The
-`dev-path:technical-design` session closes the pause box and **leaves the audit's tagged box open**, so
+`devpath:technical-design` session closes the pause box and **leaves the audit's tagged box open**, so
 until Build finishes that slice it carries no `done: true` and an open box, and this block calls it frozen.
 **Build's rule closes the window: the cleared slice is the next one it builds.** Dispatching it is never
 denied, because the block skips the slice it is being asked to dispatch, and `done: true` lands at the end
@@ -228,7 +228,7 @@ cannot deny. The blocking variant is the same script on `PreToolUse` reading `.t
         "hooks": [
           {
             "type": "command",
-            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *dev-path/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|dev-path feedback\";; *dev-path/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\" && echo \"dev-path: $F carries a heading outside the schema\"; exit 0",
+            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *devpath/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|devpath feedback\";; *devpath/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\" && echo \"devpath: $F carries a heading outside the schema\"; exit 0",
             "timeout": 10
           }
         ]
@@ -255,7 +255,7 @@ CI, where a network failure does not stop an engineer's edit.
         "hooks": [
           {
             "type": "command",
-            "command": "IN=$(cat); F=$(printf '%s' \"$IN\" | jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *.claude/rules/*.md) ;; *) exit 0;; esac; B=$(printf '%s' \"$IN\" | jq -r '.tool_input.content // .tool_input.new_string // \"\"' | grep '^- ' | grep -cv 'https://github.com/[^ ]*/pull/[0-9]*$'); [ \"$B\" -eq 0 ] || { echo \"dev-path: $B lesson entry line(s) in $F end in no pull request link\"; exit 2; }",
+            "command": "IN=$(cat); F=$(printf '%s' \"$IN\" | jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *.claude/rules/*.md) ;; *) exit 0;; esac; B=$(printf '%s' \"$IN\" | jq -r '.tool_input.content // .tool_input.new_string // \"\"' | grep '^- ' | grep -cv 'https://github.com/[^ ]*/pull/[0-9]*$'); [ \"$B\" -eq 0 ] || { echo \"devpath: $B lesson entry line(s) in $F end in no pull request link\"; exit 2; }",
             "timeout": 10
           }
         ]
@@ -271,7 +271,7 @@ CI, where a network failure does not stop an engineer's edit.
 guarantee, and the one with a cost: **Learn proposing nothing is a legal outcome**, and this block cannot
 tell that from Learn never running. Take it only if the repo accepts *Learn always opens a pull request*.
 
-**The detection is scoped to `dev-path/lessons/$SLUG`.** Unscoped, `gh pr list --state open` enumerates
+**The detection is scoped to `devpath/lessons/$SLUG`.** Unscoped, `gh pr list --state open` enumerates
 every open pull request in the repository and passes if any of them touches `.claude/rules/` — so a
 neighbouring spec's lessons pull request releases this spec's guard, silently.
 
@@ -295,7 +295,7 @@ touches the repo's CI configuration and no rules file, so these blocks do not se
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); S=\"dev-path/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"dev-path/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; jq -n '{decision:\"block\",reason:\"dev-path: the Outcomes pass has run on this spec and no lessons pull request is open. Run dev-path:learn before the merge.\"}'",
+            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; jq -n '{decision:\"block\",reason:\"devpath: the Outcomes pass has run on this spec and no lessons pull request is open. Run devpath:learn before the merge.\"}'",
             "timeout": 30
           }
         ]
@@ -318,7 +318,7 @@ denial: it puts the sentence in front of the engineer and stops there.
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); S=\"dev-path/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"dev-path/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; echo 'dev-path: the Outcomes pass has run on this spec and no lessons pull request is open.'",
+            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; echo 'devpath: the Outcomes pass has run on this spec and no lessons pull request is open.'",
             "timeout": 30
           }
         ]
@@ -352,12 +352,12 @@ fields and headings it reads or writes; this states all of them, once.
 
 ### Where a spec lives
 
-**`dev-path/` at the repository root. Fixed, not configurable.** Every spec is a directory holding
+**`devpath/` at the repository root. Fixed, not configurable.** Every spec is a directory holding
 `spec.md` and N ≥ 1 slice files. There is no collapsed single-file form: a one-slice spec gets a directory
 and two files, and that uniformity is what makes *has this been sliced?* into `ls slices/` in every case.
 
 ```
-dev-path/tolerance-config/
+devpath/tolerance-config/
 ├── spec.md
 ├── slices/
 │   ├── 01-schema.md
@@ -368,15 +368,15 @@ dev-path/tolerance-config/
 ```
 
 **How you refer to a spec: by the draft pull request's number or its title.** The pull request is opened at
-Initiate and lives exactly as long as the spec, and unlike anything `dev-path` could invent it is centrally
+Initiate and lives exactly as long as the spec, and unlike anything `devpath` could invent it is centrally
 allocated. `gh pr list --head <slug>` maps a number to a slug. **There is no `pr:` field** — it is
 derivable from the branch, and a field nothing reads is a field to delete.
 
 **The ref is the status.** In flight means the spec exists only on a branch; merged means it is on the base
-branch, where it stays in `dev-path/` with no move and no delete; abandoned means a closed pull request
+branch, where it stays in `devpath/` with no move and no delete; abandoned means a closed pull request
 whose file never got there. There is no `status:` field.
 
-### `dev-path/<slug>/spec.md`
+### `devpath/<slug>/spec.md`
 
 ```markdown
 ---
@@ -400,7 +400,7 @@ design_approved: true
 ## Design
 ## Traps
 ## Outcome checks
-## dev-path feedback
+## devpath feedback
 ```
 
 | Heading | Written by | Read by |
@@ -408,20 +408,20 @@ design_approved: true
 | `## Intent` | Initiate; **Design rewrites it when its conversation revises the problem, and narrows it when one spec turns out to be two** | the intent gate — **must be non-empty**; every later stage |
 | `## Outcomes` | Initiate; Design rewrites it when its conversation revises the problem | the intent gate — **must be non-empty**; Survey, which clusters them into areas to dispatch and keys its findings on them; the Outcomes pass |
 | `## Out of scope` | Initiate; **Design narrows it to one design** | Design, Build, to refuse creep. **Never gated** |
-| `## Open questions` | Initiate, verbatim with its owner; the Design conversation adds | Design; `dev-path:sketch`; a resumed Design |
+| `## Open questions` | Initiate, verbatim with its owner; the Design conversation adds | Design; `devpath:sketch`; a resumed Design |
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `dev-path:integrate` | Integrate's refusal; the human at merge |
-| `## dev-path feedback` | the engineer, **optional** | Integrate, which offers to file it |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate` | Integrate's refusal; the human at merge |
+| `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
 
-### `dev-path/<slug>/slices/<nn>-<name>.md`
+### `devpath/<slug>/slices/<nn>-<name>.md`
 
 ```markdown
 ---
 depends_on:
-  - dev-path/tolerance-config/slices/01-schema.md
+  - devpath/tolerance-config/slices/01-schema.md
 touches:
   - force-app/main/default/classes/ToleranceService.cls
 done: true
@@ -453,10 +453,10 @@ write them.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
 execution order;** `depends_on` owns execution order. **`depends_on` values are full paths** of the form
-`dev-path/<slug>/slices/<nn>-<name>.md`; any flat form is wrong.
+`devpath/<slug>/slices/<nn>-<name>.md`; any flat form is wrong.
 
-**`dev-path/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
-the only place a non-text file exists anywhere in `dev-path`.**
+**`devpath/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
+the only place a non-text file exists anywhere in `devpath`.**
 
 ### The front-matter block starts at byte zero
 
@@ -474,14 +474,14 @@ a gate appearing at the end of the block rather than in the middle of it.
 
 | Field | Lives on | Written at | Read by |
 | --- | --- | --- | --- |
-| `type` | spec | Initiate | **a human only.** `feature` \| `bug` \| `refactor` \| `config` \| `doc`. **Nothing in `dev-path` branches on it today** — it is kept because a human reading a spec is a reader |
+| `type` | spec | Initiate | **a human only.** `feature` \| `bug` \| `refactor` \| `config` \| `doc`. **Nothing in `devpath` branches on it today** — it is kept because a human reading a spec is a reader |
 | `upstream` | spec | Initiate | a human; the sibling report. A **list**; each entry carries `url`, `read_at`, `source_updated`. Normalised at write time |
-| `intent_accepted` | spec | Initiate | the router — `dev-path:technical-design` refuses without it, and so do `dev-path:survey` and `dev-path:integrate` |
-| `design_approved` | spec | Design | the router — `dev-path:build` refuses without it, and so do `dev-path:slice`, `dev-path:critique` and `dev-path:integrate` |
+| `intent_accepted` | spec | Initiate | the router — `devpath:technical-design` refuses without it, and so do `devpath:survey` and `devpath:integrate` |
+| `design_approved` | spec | Design | the router — `devpath:build` refuses without it, and so do `devpath:slice`, `devpath:critique` and `devpath:integrate` |
 | `depends_on` | each slice | Slice | the cited-paths check; Build's structural refusal; the order walk |
 | `touches` | each slice | Slice | the cited-paths check; the contention script; Build's mid-run-stop intersection — **three readers and no fourth** |
 | `done` | each slice | Build | the router; Build's `depends_on` refusal; derived spec progress |
-| `fix_cycles` | each slice | Critique | the two-cycle cap, read by `dev-path:build` at its start. **Its presence** is read by Integrate's step 3 — absent on a built slice, the slice pass never ran |
+| `fix_cycles` | each slice | Critique | the two-cycle cap, read by `devpath:build` at its start. **Its presence** is read by Integrate's step 3 — absent on a built slice, the slice pass never ran |
 
 > **Value is always `true`. Absence is how you say no. Nothing ever writes `false`.**
 
@@ -499,7 +499,7 @@ meaning, so it is stated here: *done according to what?*
 **The two gates.** Gate 1, intent accepted, stores `intent_accepted: true` at the end of Initiate. Gate 2,
 design approved, stores `design_approved: true` at the end of Design, before any code exists — and because
 Slice sits behind it, the human approves the design *and* the slice layout at one stop. Merge is a third
-human gate and `dev-path` does not own it: it is branch protection.
+human gate and `devpath` does not own it: it is branch protection.
 
 ### There is no `stage:` field, and no progress information is lost
 
@@ -567,7 +567,7 @@ it*. **Two readings of one test** — the grep answers *is anything open*, the s
 about this one*.
 
 **Inside `## Deviations` the tag says who clears it, and that is not a third reading.** An untagged box is
-the pause, closed by the `dev-path:technical-design` session that resolves it; `- [ ] excess` is the commit
+the pause, closed by the `devpath:technical-design` session that resolves it; `- [ ] excess` is the commit
 audit's, closed by the human at merge. Both hold every check open until they close.
 
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
@@ -576,11 +576,11 @@ it may not have been, and **only `fixed` and `met` mean the code changed.**
 **`- [x] won't fix — <reason>` is the way to ship something knowingly unresolved.** One line, loud, riding
 into the pull request body in front of the human who has to approve it. No flag, no date, no waiver
 machinery — a way out that costs more than compliance gets abused, and one that costs less gets used
-honestly. **It accumulates**, so on the base branch `grep -rn "won't fix" dev-path/` is the standing ledger
+honestly. **It accumulates**, so on the base branch `grep -rn "won't fix" devpath/` is the standing ledger
 of everything the team knowingly shipped unresolved. **Pin that apostrophe as ASCII** — a typographic one
 silently empties the ledger.
 
-**`dev-path` writes `fixed`, `met` and `false positive`. It never writes `won't fix`** — that one is the
+**`devpath` writes `fixed`, `met` and `false positive`. It never writes `won't fix`** — that one is the
 human's, by hand, under any heading.
 
 ### Nothing writes a placeholder
@@ -608,19 +608,19 @@ built plugin has found a defect in the plugin, not in the design.**
 
 ### The outcome claim is unavailable
 
-**`dev-path` does not claim to make the work better or faster.** That claim is unmeasurable at this scale,
+**`devpath` does not claim to make the work better or faster.** That claim is unmeasurable at this scale,
 and a design that promises an outcome it cannot observe is making a claim it can never be held to. Across
 1,650 sessions, no property of an instruction file — size, position, architecture, contradictions in
 adjacent files — produced any detectable effect. At two to three engineers a 4% change is undetectable.
 
-**Two claims are defensible, and they are what `dev-path` commits to:**
+**Two claims are defensible, and they are what `devpath` commits to:**
 
 - **Revealed preference** — an engineer who ran it once runs it again unprompted. Observable at N = 1, and
   the only claim that survives the maintainer not being in the room.
 - **A fresh reader can act on it** — a spec on the base branch is one a stranger could act on without
   asking its author. The only **checkable** claim.
 
-**Everything beyond those two is anecdote, and `dev-path` calls it that.**
+**Everything beyond those two is anecdote, and `devpath` calls it that.**
 
 ### What a solo run cannot test
 
@@ -628,13 +628,13 @@ adjacent files — produced any detectable effect. At two to three engineers a 4
 
 - **both gates and the merge approval** — no second human, so *the one gate roughly ninety systems all
   kept* is exactly the one a solo run cannot exercise;
-- **every repo precondition** on `dev-path:fit-check`'s list;
+- **every repo precondition** on `devpath:fit-check`'s list;
 - **the whole Salesforce half** — verticality, the deploy gate, the `Active`/`Obsolete` flow rule, the
   custom-metadata no-verification case, the LWC job, scratch orgs;
 - **cross-spec contention** — one operator, one spec at a time.
 
 **Two things even a scripted, coverage-driven pass cannot reach:** whether the slicing rule survives **real
-requirements**, and whether pull-request review of a `dev-path` spec produces **useful** review. Both need
+requirements**, and whether pull-request review of a `devpath` spec produces **useful** review. Both need
 a real spec from a real body of work, so both are **unvalidated by construction** until the first one runs.
 A synthetic repo claiming otherwise is the dishonest version.
 
@@ -642,10 +642,10 @@ A synthetic repo claiming otherwise is the dishonest version.
 
 > **The agent writes the field that gates the agent.**
 > `intent_accepted` and `design_approved` record that a human said yes; they do not enforce it.
-> **The front-matter check runs only when a `dev-path` skill
+> **The front-matter check runs only when a `devpath` skill
 > runs** — a hand-edited spec on a branch nobody re-enters reaches the base branch unchecked, and nothing
 > catches it but the human reviewer. **And a conversation the human refuses to have is a gate whose
-> mechanism is live and whose signal is dead, which `dev-path` cannot fix.**
+> mechanism is live and whose signal is dead, which `devpath` cannot fix.**
 >
 > The principle that **a trust boundary needs a trusted location** is acknowledged and consciously not
 > satisfied.
@@ -683,7 +683,7 @@ fluent behaviour line can dress a bad slice** — the template narrows the lie; 
 
 ### What is not bounded, and what is not observed
 
-**`dev-path`'s orchestrator is unbounded and cannot be bounded.** Both real token budgets found anywhere
+**`devpath`'s orchestrator is unbounded and cannot be bounded.** Both real token budgets found anywhere
 are enforced by programs; this orchestrator is a model running a skill, and no hook input carries token
 counts or context size. **Nobody in the coding-agent systems surveyed has such a bound either** — so it is
 an admission, not a gap to fill.
@@ -705,14 +705,14 @@ roughly 5%. **The evaluation is not**, because the router is the checker and tha
 means the cap silently never trips. **What bounds the damage: a missed increment causes more unattended
 fixing, not a bad merge.**
 
-**Nothing is built to observe.** No metrics script, no `dev-path:status`, no dashboard, zero new fields.
+**Nothing is built to observe.** No metrics script, no `devpath:status`, no dashboard, zero new fields.
 Observation has no remote channel by construction, and every scheduled measurement found anywhere in this
 environment is dead.
 
-**The plugin must not claim the code-health metrics measure whether `dev-path` works.**
+**The plugin must not claim the code-health metrics measure whether `devpath` works.**
 
 **Unattended is not opaque.** A human can navigate to a live worker from the orchestrating session, watch
-it run, and navigate back. That is why `dev-path` names no transcript read.
+it run, and navigate back. That is why `devpath` names no transcript read.
 
 **Nothing depends on worker lifecycle for correctness, only for cost.**
 
@@ -732,14 +732,14 @@ be dishonest.
 
 ### Softness that is stated rather than hidden
 
-**Skill-to-skill invocation is model-driven and is not guaranteed.** `dev-path:technical-design` reaching
-`dev-path:survey` and `dev-path:slice`, `dev-path:build` reaching `dev-path:critique`, and
-`dev-path:integrate` reaching `dev-path:learn`, are instructions naming a skill. There is no call syntax and
+**Skill-to-skill invocation is model-driven and is not guaranteed.** `devpath:technical-design` reaching
+`devpath:survey` and `devpath:slice`, `devpath:build` reaching `devpath:critique`, and
+`devpath:integrate` reaching `devpath:learn`, are instructions naming a skill. There is no call syntax and
 no event that fires on a skill finishing. Claude reads the instruction and normally follows it, and
 **nothing in the harness makes it certain.** Both ways it can fail are visible in the artifact.
 
 **The Build → Critique edge is the one with a demonstrated failure, and its detection test is
-`fix_cycles`.** For one release `dev-path:build` described a Build ↔ Critique loop and instructed nobody to
+`fix_cycles`.** For one release `devpath:build` described a Build ↔ Critique loop and instructed nobody to
 run one — three of the four compositions were imperatives, that one was implicit, and the first real spec
 built seven slices, six of them to `done: true`, with an empty `## Critique findings` on every one and a
 real correctness defect among them. The imperative exists now, and what catches a session skipping it is
@@ -747,7 +747,7 @@ that **`fix_cycles` absent on a slice that carries code is the slice pass never 
 Integrate refuses on. **That pairing is the answer everywhere in this design**: an instruction a session
 may skip is made visible in the artifact rather than shouted louder.
 
-**`dev-path` has no bypass, because it never blocked anything.** Non-use is always available and always
+**`devpath` has no bypass, because it never blocked anything.** Non-use is always available and always
 free — which is why choosing not to use it is an adoption question, not evidence against the design.
 
 **A plugin that failed to install cannot detect that it failed to install.**
@@ -755,7 +755,7 @@ free — which is why choosing not to use it is an adoption question, not eviden
 **The adoption mechanism is a person, and it stops working at engineer four and at the first reinstall.**
 
 **Abandonment must delete the branch, and this mandate has no mechanism.** Abandonment is a human closing a
-pull request on github.com; no `dev-path` skill is running, no hook event fires on one, and there is no
+pull request on github.com; no `devpath` skill is running, no hook event fires on one, and there is no
 block to paste. **What it costs when they forget:** a branch with no pull request open against it and no
 spec merged. *The ref is the status* still answers, but it stops distinguishing *abandoned* from *in flight
 and quiet* — and this is the command that still tells them apart:
@@ -767,8 +767,8 @@ gh pr list --state closed --search "is:unmerged"
 **A rejected design is findable but not surfaced, deliberately.** Nothing pushes it at you at the moment
 someone re-proposes the same idea.
 
-**`dev-path` cannot forbid migration onto an existing repo, and does not try.** The preconditions assume a
-first commit; three of them are one-time repo-wide jobs a running repo does outside `dev-path`, before it
+**`devpath` cannot forbid migration onto an existing repo, and does not try.** The preconditions assume a
+first commit; three of them are one-time repo-wide jobs a running repo does outside `devpath`, before it
 starts. A repo arriving with its own slicing rule has two rules until a human picks one.
 
 **A repo whose promotions run through DevOps Center is out of scope, and deliberately not a precondition.**
@@ -776,7 +776,7 @@ DevOps Center names the branch and opens the pull request itself from org-side c
 request merged outside it leaves the work item *partially promoted* — which blocks that stage for everyone,
 not only for its own work item. So one pull request per spec with auto-merge armed cannot coexist with it,
 and **Integrate genuinely breaks** on that class of repo. It is not on the precondition list because the
-governance is **entirely org-side** — there is no repo artifact anywhere to observe, so `dev-path:fit-check`
+governance is **entirely org-side** — there is no repo artifact anywhere to observe, so `devpath:fit-check`
 could never check it, and **an unenforceable entry on that list is the exact defect the list exists to
 prevent.**
 
@@ -828,9 +828,9 @@ there cannot be one** — detecting that upstream moved requires reading upstrea
 reader is architecturally unavailable rather than merely unbuilt — so the sibling report carries the
 normalisation alone.
 
-**`## dev-path feedback` leaving the repo does not reintroduce the tracker.** The settled constraint is
+**`## devpath feedback` leaving the repo does not reintroduce the tracker.** The settled constraint is
 about the **context store**; this channel is write-only, off-workflow, human-initiated and human-confirmed.
-**And `Jonah-Stephans/dev-path` must be public — a hard requirement, not a preference**, because that
+**And `Jonah-Stephans/devpath` must be public — a hard requirement, not a preference**, because that
 channel files issues with an engineer's own `gh` credentials and the install commands above must work
 without a token.
 
@@ -842,7 +842,7 @@ one.
 
 **You refer to a spec by its draft pull request's number or title**, and there is no `pr:` field.
 
-**Why `dev-path` puts file paths in specs when adjacent tooling forbids it** — three reasons that rule
+**Why `devpath` puts file paths in specs when adjacent tooling forbids it** — three reasons that rule
 could exist, and only one falls. **Rot** falls, because a spec in git moves with the code. **Altitude**
 survives: modules are stable, and which file a module lives in is Build's business. **Anchoring survives,
 and git does nothing about it** — tell an agent the change goes in a named file and it edits that file even
@@ -856,12 +856,12 @@ with no standards rule builds against nothing, which is the honest degradation a
 **Build's test-first line is a suggestion whose rationale names its own expiry** — it retires when Apex
 gets mutation testing.
 
-**Waivers split by gate kind** — none on `dev-path`'s two gates, because you cannot route around a human
+**Waivers split by gate kind** — none on `devpath`'s two gates, because you cannot route around a human
 refusing to approve something, and the first request for one means the gate is wrong. Every check
-`dev-path` performs is fixable on the spot. **CI gates are different and they are the repo's**, with a
+`devpath` performs is fixable on the spot. **CI gates are different and they are the repo's**, with a
 deliberate, dated exception route meeting four obligations.
 
-**`dev-path` ships its own conversation instructions rather than calling a third-party skill.** No
+**`devpath` ships its own conversation instructions rather than calling a third-party skill.** No
 third-party plugin dependency, and a general grilling skill ends when the questions run out while this
 conversation must end in an approval and a written artifact.
 
@@ -870,10 +870,10 @@ taste.** Colour carries the state — yellow is the question still waiting on th
 already on the table — so a round is scannable before a word of it is read, which is the complaint the
 format answers. And a byte-identical block invites the refactor the third-party-dependency rule
 forbids: an editor who finds an exact copy of grilling's format is one step from replacing it with a
-call to grilling, where a distinct pair makes `dev-path`'s copy self-evidently its own.
+call to grilling, where a distinct pair makes `devpath`'s copy self-evidently its own.
 
 **Branch-name discovery requires an attached HEAD.** `git branch --show-current` returns empty with exit
-code 0 under a detached HEAD, so `dev-path` says *you are not on a branch* rather than *no spec on this
+code 0 under a detached HEAD, so `devpath` says *you are not on a branch* rather than *no spec on this
 branch*. It fails safe and it fails confusingly.
 
 **The uniform-directory cost is real**, and the reason it is worth paying is that a file's cost is the extra
@@ -886,7 +886,7 @@ as a literal meaning something slightly different.
 **Build may re-cut unattended and records it**, and *stop and ask* was rejected because it would make the
 slice layout more sacred than the design itself.
 
-**`dev-path` names no tool bug and grants no exemption for one.**
+**`devpath` names no tool bug and grants no exemption for one.**
 
 **Nothing routes on `type` today.**
 
@@ -895,7 +895,7 @@ where it attaches.
 
 **Stage names are prose-facing, skill names are invocation-facing, and only the latter has to be unique.**
 
-**The evidence base is not the target list.** Every measurement above was taken from repos `dev-path` does
+**The evidence base is not the target list.** Every measurement above was taken from repos `devpath` does
 not run on — it is built for greenfield second-generation package repos. **Those measurements stand and
 none is retracted.**
 

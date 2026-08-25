@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — five assertions on the UX branch's new-surface default: that the
+# devpath — five assertions on the UX branch's new-surface default: that the
 # section states it, that it names the overhead argument it preserves and that
 # argument is still on the page, that it carries a stated limit for the case it
 # does not cover, that the insertion left the section it was inserted into
@@ -42,7 +42,7 @@
 # Assertion 5 is the guard on the blast radius rather than on the change. The
 # rule moves what the branch recommends, and the cheap way to make a
 # recommendation land is to stop it being refusable — a mandate in the section,
-# a field at the gate, or a model-invocable dev-path:sketch. All three are out
+# a field at the gate, or a model-invocable devpath:sketch. All three are out
 # of scope by name, and out of scope is not a thing a diff shows you later. Each
 # half is read where its subject lives, which for the field is neither this
 # section nor this file: it is README's field table and the skill that stores
@@ -180,7 +180,7 @@ want governs 'Suggest the route; never require the artifact' \
   'the never-require rule, which keeps a recommendation refusable in one line'
 want craft 'only the real runtime' \
   "the craft table's bottom row, which is where an arrangement question has to go"
-want craft 'dev-path:sketch' \
+want craft 'devpath:sketch' \
   'the handoff to the skill that owns the plumbing'
 
 # --- 5. No gate, no mandate, no model-invoked artifact. The first two are read

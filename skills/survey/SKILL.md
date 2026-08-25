@@ -1,11 +1,11 @@
 ---
-description: Find what already exists in a repo that bears on a dev-path spec's Outcomes. Use when a spec is accepted and its current state is not yet known.
+description: Find what already exists in a repo that bears on a devpath spec's Outcomes. Use when a spec is accepted and its current state is not yet known.
 ---
 
 # Survey
 
 Survey answers one question: **what exists today that bears on this?** It writes `## Current state` on
-`dev-path/<slug>/spec.md`.
+`devpath/<slug>/spec.md`.
 
 **It has no gate, it narrows nothing, and it adds no field.** Where Survey finds that a requirement spans
 two unrelated subsystems it writes the finding down and Design reaches the gate one stage later with a
@@ -14,25 +14,25 @@ accepted intent.
 
 ## Refuse first
 
-Read the front matter of `dev-path/<slug>/spec.md`. **That read is the validation** — there is no separate
-front-matter check anywhere in `dev-path`, because a read the router needs in order to route cannot be
+Read the front matter of `devpath/<slug>/spec.md`. **That read is the validation** — there is no separate
+front-matter check anywhere in `devpath`, because a read the router needs in order to route cannot be
 disconnected, and that is the only structural immunity available.
 
 - **`git branch --show-current` returns `main`, `<base>`, or a branch with no matching spec directory**
   → **stop.** Do not guess which spec this is. Say the next act: `git checkout <slug>` for the spec you
-  meant, or run `dev-path:initiate` if it does not exist yet.
+  meant, or run `devpath:initiate` if it does not exist yet.
 - **The command returns empty** → **stop, and say what is actually wrong.** `git branch --show-current`
   returns empty with exit code 0 under a detached HEAD, so the honest message is *you are not on a
   branch*, never *no spec on this branch*. The fix is one `git checkout -b <slug>`, and it is a human's:
   a pull-request job is supposed to be detached and nobody is going to check out a branch inside it.
 - **`intent_accepted` is not `true`** → **stop.** Survey runs behind gate 1. Say the next act: run
-  `dev-path:initiate` on this spec and take it through the intent gate.
+  `devpath:initiate` on this spec and take it through the intent gate.
 - **The front-matter block does not parse as YAML, or a field carries the wrong shape** → **stop and name
   the exact field.** A human is sitting here and the file is already open, so the fix is one line.
   *Malformed* and *absent* are two different failures: absence is a legal state for every field and means
   *not yet*, so route on it rather than refusing.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ## Read
 
@@ -85,7 +85,7 @@ reads as complete is not, and Survey is the only stage that can still tell the d
 handed four related Outcomes hands back four separate answers.
 
 **Why the Outcome keys the finding.** The per-item question is Survey's actual job, and it is the same key
-at both ends of `dev-path`: Survey asks *what exists that bears on this Outcome*, and the Outcomes pass at
+at both ends of `devpath`: Survey asks *what exists that bears on this Outcome*, and the Outcomes pass at
 Integrate asks *did we achieve it*.
 
 **The discard is the load-bearing half, and here is why it must not be edited into something tidier:
@@ -134,7 +134,7 @@ interval — which is exactly the reasoning that stops a later spec refactoring 
 
 So read the work around this spec, not only the code.
 
-**Merged specs — grep `dev-path/` the way you grep the codebase.** Bounded by the query, never a sweep:
+**Merged specs — grep `devpath/` the way you grep the codebase.** Bounded by the query, never a sweep:
 this is the grep that rule was written for first, and the reason it scales at five hundred specs.
 
 **In-flight specs — read the neighbour report from the contention checkpoint.** Grep sees only the working
@@ -161,7 +161,7 @@ Survey is the reader that makes the middle row real. Without Survey's instructio
 So a feature's object model and the reasoning behind it belong in the spec Survey is writing, attributed
 and dated — not in a rule file. A repo-wide standard is auto-loaded from `.claude/rules/` and there is
 nothing for Survey to find; a cross-feature convention discovered inside one feature is what
-`dev-path:learn` proposes later.
+`devpath:learn` proposes later.
 
 ## Write
 
@@ -194,5 +194,5 @@ commit is what the design decided to stop carrying. **Do not push here** — the
 gate, where a human is about to read a diff, and pushing earlier would put this spec's slices on the
 remote before the contention checkpoint reads it.
 
-Then show what was found and stop. When Survey was reached by `dev-path:technical-design`, the design
+Then show what was found and stop. When Survey was reached by `devpath:technical-design`, the design
 conversation continues in this session with the findings live.

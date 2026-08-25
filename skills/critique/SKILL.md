@@ -1,5 +1,5 @@
 ---
-description: Critique the code of a built dev-path slice. Use after a slice is built, or when a reviewer has requested changes on the spec's pull request.
+description: Critique the code of a built devpath slice. Use after a slice is built, or when a reviewer has requested changes on the spec's pull request.
 ---
 
 # Critique
@@ -8,13 +8,13 @@ Critique has **three passes with three subjects. Do not merge them.**
 
 | Pass | Subject | Runs | Writes |
 | --- | --- | --- | --- |
-| **The slice pass** | that slice's code | when a slice is built, inside `dev-path:build`, or `dev-path:critique` alone | `## Critique findings` on **that slice file**, and `## Traps` on **`spec.md`** |
-| **The Outcomes pass** | the spec's Outcomes | **once, at the start of `dev-path:integrate`** | `## Outcome checks` on **`spec.md`** |
-| **The change-request pass** | a human reviewer's comments on the pull request | when a reviewer requests changes and the engineer re-runs `dev-path:critique` | as the slice pass — triaged findings into the fix loop |
+| **The slice pass** | that slice's code | when a slice is built, inside `devpath:build`, or `devpath:critique` alone | `## Critique findings` on **that slice file**, and `## Traps` on **`spec.md`** |
+| **The Outcomes pass** | the spec's Outcomes | **once, at the start of `devpath:integrate`** | `## Outcome checks` on **`spec.md`** |
+| **The change-request pass** | a human reviewer's comments on the pull request | when a reviewer requests changes and the engineer re-runs `devpath:critique` | as the slice pass — triaged findings into the fix loop |
 
 ## Refuse first
 
-Read the front matter of `dev-path/<slug>/spec.md`. That read is the validation.
+Read the front matter of `devpath/<slug>/spec.md`. That read is the validation.
 
 - **`git branch --show-current` returns `main`, `<base>`, or a branch with no matching spec directory**
   → **stop.** Do not guess which spec this is. Say the next act: `git checkout <slug>`.
@@ -22,11 +22,11 @@ Read the front matter of `dev-path/<slug>/spec.md`. That read is the validation.
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
 - **`design_approved` is not `true`** → **stop.** This stage runs behind gate 2. Say the next act: run
-  `dev-path:technical-design` and take the design through its gate.
+  `devpath:technical-design` and take the design through its gate.
 - **The front-matter block does not parse, or a field carries the wrong shape** → **stop and name the
   exact field.** *Malformed* stops the stage; *absent* is a legal state meaning *not yet*.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ## Which pass is this?
 
@@ -34,8 +34,8 @@ Read the front matter of `dev-path/<slug>/spec.md`. That read is the validation.
 
 | Invocation | Which pass |
 | --- | --- |
-| dispatched by `dev-path:build` | **the slice pass**, on the slice the dispatch names |
-| `dev-path:integrate` | **the Outcomes pass.** This skill never runs it — it belongs to Integrate's first step |
+| dispatched by `devpath:build` | **the slice pass**, on the slice the dispatch names |
+| `devpath:integrate` | **the Outcomes pass.** This skill never runs it — it belongs to Integrate's first step |
 | typed by a human, and the spec's pull request carries a review requesting changes | **the change-request pass.** Show the triage list and wait |
 | typed by a human, and it does not | **the slice pass**, over the slices that carry code |
 
@@ -74,7 +74,7 @@ items onward.
 **Critique owns *false positive*** — a factual claim it can verify. ***Won't fix* needs the human** — a
 judgment about what is worth doing.
 
-> **`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `dev-path` writes
+> **`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `devpath` writes
 > `fixed`, `met` and `false positive`; it never writes this one.**
 
 That is one rule rather than three. A run admits no mid-run human input, so a run must end where a human
@@ -106,7 +106,7 @@ from it.
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
 it may not have been, and **only `fixed` and `met` mean the code changed.** Pin that apostrophe in
 `won't fix` as ASCII — a typographic one silently empties the standing ledger that
-`grep -rn "won't fix" dev-path/` gives you on the base branch.
+`grep -rn "won't fix" devpath/` gives you on the base branch.
 
 **Three writers, deliberately:** this skill writes `- [x] false positive`; **the fix-pass worker writes
 `- [x] fixed` in the pass that fixes it**; and `- [x] won't fix` needs the human. *Fixed* is a claim about
@@ -169,7 +169,7 @@ them.** An entry that is a copy of the finding it came from is the duplication t
 everywhere else, and Integrate carries the finding into the pull request body anyway.
 
 **Two bounds, and both are the price of the section rather than a footnote to it.** Every entry loads into
-every later worker and every later critic — the multiplier `dev-path:learn` states about unscoped rules,
+every later worker and every later critic — the multiplier `devpath:learn` states about unscoped rules,
 paid **per worker** rather than per session. So: the section is per-spec and **dies with the spec**, where
 no other spec's workers ever load it; and an entry that **restates a default** — *write thorough tests* —
 pays that per-worker cost to change nothing, **as does a second copy of a trap already there.**
@@ -183,7 +183,7 @@ there was no round trip. The sequence is build → review → **fix → review �
 fix attempts before it asks.** That also makes `fix_cycles: 0` mean something true — *reviewed once,
 needed nothing.*
 
-**`fix_cycles` is read by `dev-path:build`, at its start.** At `>= 2` on that slice, Build may not open
+**`fix_cycles` is read by `devpath:build`, at its start.** At `>= 2` on that slice, Build may not open
 another fix pass unasked.
 
 **The trigger is an undispositioned `- [ ]`**, identical to *Critique clean*. A finding already marked
@@ -200,7 +200,7 @@ another fix pass unasked.
 | a `fix_cycles:` line, and `## Critique findings` holds at least one `- [x] fixed` | **one more than you read.** A fix happened and this pass is its re-review |
 | a `fix_cycles:` line and nothing fixed since | **nothing.** Re-reading a slice no fix touched is not a cycle |
 
-**The third row is what makes `dev-path:critique` safe to run alone.** Without it an engineer re-running
+**The third row is what makes `devpath:critique` safe to run alone.** Without it an engineer re-running
 Critique to look again spends a lap of the cap on a pass in which nothing was fixed, and the cap starts
 counting attention rather than fix attempts.
 
@@ -217,14 +217,14 @@ to three more times*. Storing it would be a new field and, worse, a standing per
 long after the conversation that granted it. It lives in the session and dies with it.
 
 **Only *keep going* needs no write at all.** Every other answer is the human editing the line by hand,
-between this run and the next one — and the next `dev-path:critique` run then opens a slice whose finding
+between this run and the next one — and the next `devpath:critique` run then opens a slice whose finding
 is already dispositioned.
 
 **`fix_cycles` keeps counting through granted laps**, so a slice that ends at 7 is honestly recorded as one
 that fought. **Nothing caps how many times a human may grant** — any limit there would be the first thing
 in this design constraining what a human may choose.
 
-**A cap trip stops the whole `dev-path:build` run.** It is not a gate: a gate is three things at once —
+**A cap trip stops the whole `devpath:build` run.** It is not a gate: a gate is three things at once —
 the run stops, a stored field records that a human said yes, and the router refuses the next stage without
 it. A cap trip is the first only.
 
@@ -268,7 +268,7 @@ cases above, and return.
 
 **Who commits that write is your role and never which skill called this one.** **A dispatched critic
 writes and returns; the session that dispatched it commits on that return.** **The session holding this
-skill commits** — whether `dev-path:build` loaded it here or a human typed it, that session is the one that
+skill commits** — whether `devpath:build` loaded it here or a human typed it, that session is the one that
 can.
 
 **One rule and not two paths**, because a critic is a subagent in every pass above: *write and return* is

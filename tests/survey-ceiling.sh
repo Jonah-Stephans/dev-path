@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — four assertions on Survey's dispatch ceiling: that the number is
+# devpath — four assertions on Survey's dispatch ceiling: that the number is
 # mirrored everywhere it is quoted, that the split it is made of still adds up
 # to the number, that the cheaper-tier rule is stated at both stages that fan
 # out, and that the no-sweep rule still carries a reason on each of its halves.

@@ -7,7 +7,7 @@
   "description": "Jonah Stephans' Claude Code plugins.",
   "plugins": [
     {
-      "name": "dev-path",
+      "name": "devpath",
       "source": "./",
       "description": "One engineering workflow: requirement to merged code."
     }
