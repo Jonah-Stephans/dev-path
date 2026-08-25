@@ -28,7 +28,10 @@
 # directions: the default alone reopens the tension the issue fenced off — a
 # section recommending an artifact by default beside a paragraph promising the
 # branch cannot create overhead — and the overhead argument alone is the change
-# reverted. Neither half is worth pinning without the other.
+# reverted. Neither half is worth pinning without the other. It pins the order
+# of the two as well, because the default cites the overhead argument by
+# position: co-presence in either order satisfies every phrase anchor above and
+# still leaves *the overhead argument above* pointing downward.
 #
 # Assertion 3 is anchored on the shape of the never-reached case rather than on
 # the phrase *never reaches the branch*, which the overhead paragraph has said
@@ -40,7 +43,10 @@
 # rule moves what the branch recommends, and the cheap way to make a
 # recommendation land is to stop it being refusable — a mandate in the section,
 # a field at the gate, or a model-invocable dev-path:sketch. All three are out
-# of scope by name, and out of scope is not a thing a diff shows you later.
+# of scope by name, and out of scope is not a thing a diff shows you later. Each
+# half is read where its subject lives, which for the field is neither this
+# section nor this file: it is README's field table and the skill that stores
+# the field.
 #
 # Two calls, both raised in review and neither taken. **A mandate worded
 # without the word.** *The artifact is required for a new surface* carries no
@@ -63,9 +69,10 @@ cd "$(dirname "$0")/.." || exit 1
 
 T=skills/technical-design/SKILL.md
 S=skills/sketch/SKILL.md
+R=README.md
 FAIL=0
 
-for f in "$T" "$S"; do
+for f in "$T" "$S" "$R"; do
   if [ ! -f "$f" ]; then
     echo "FAIL subject: $f does not exist"
     exit 1
@@ -118,16 +125,30 @@ want default 'A new surface has no anchor' \
 want default 'so recommend the artifact' \
   'what the branch does on that case: it recommends the artifact rather than skipping it'
 
-# --- 2. The defence it preserves, and the paragraph being preserved. One
-#        assertion, because they are one claim in two places: the new sentence
-#        says the overhead argument survives, and the overhead argument is what
-#        has to be there for that to be true.
+# --- 2. The defence it preserves, the paragraph being preserved, and the order
+#        the two sit in. One assertion, because they are one claim in three
+#        places: the new sentence says the overhead argument survives, the
+#        overhead argument is what has to be there for that to be true, and the
+#        new sentence points at it as *above*.
 want defence 'never how often the branch is reached' \
   'the scope of the new default: it moves the recommendation, not the firing frequency'
 want defence 'overhead argument' \
   'the defence named rather than gestured at, so a reader can go and check it'
 want defence 'This cannot create overhead' \
   'the overhead argument itself, which the sentence above claims is left standing'
+
+# The order, because both back-references in the new paragraph are positional —
+# *Both worked examples above* and *the overhead argument above* — and a
+# reordering pass leaves each anchor above satisfied while pointing both phrases
+# at prose that now sits below them. Matched on the flattened section so the
+# subject stays the sequence rather than the line numbers.
+case "$FLAT" in
+  *'This cannot create overhead'*'A new surface has no anchor'*) ;;
+  *)
+    echo "FAIL [defence] $T's ### The UX branch states the default before the overhead argument"
+    echo '      the default refers to that paragraph as above; it has to follow it to say so'
+    FAIL=1 ;;
+esac
 
 # --- 3. The stated limit, in the idiom the altitude stop above it already uses.
 #        Anchored on the never-reached case as this rule states it, for the
@@ -180,15 +201,18 @@ for banned in 'Mandated' 'design_approved'; do
   fi
 done
 
-# A field is the other way a recommendation stops being refusable, and it would
-# not land in this section — it would land at the gate, which is a `## ` heading
-# away and outside every span above. So the field half is read off the whole
-# file: two gate fields exist in this plugin, and a third named anywhere here is
-# a gate this change was not allowed to introduce.
-FIELDS=$(grep -oE '[a-z_]+_(approved|accepted)' "$T" | sort -u | grep -vxE 'design_approved|intent_accepted')
+# A field is the other way a recommendation stops being refusable, and it lands
+# nowhere near this section. It lands where a gate is registered: README's field
+# table names every field and what refuses without it, and the skill that owns
+# the plumbing stores it. So the field half is read off both trees rather than
+# off `$T` — scoped to `$T` this assertion passes on `sketch_approved` added to
+# README and to `$S`, which is the same new gate wearing the same name, and the
+# section it would be justifying is this one. Two fields exist in this plugin
+# and a third named anywhere is one this change was not allowed to introduce.
+FIELDS=$(grep -rhoE '[a-z_]+_(approved|accepted)' skills/ "$R" | sort -u | grep -vxE 'design_approved|intent_accepted')
 
 if [ -n "$FIELDS" ]; then
-  echo "FAIL [no new gate] $T names a gate field beyond the two that exist"
+  echo "FAIL [no new gate] a gate field beyond the two that exist is named under skills/ or in $R"
   echo '      design_approved and intent_accepted are the whole list; a third is a new gate'
   printf '%s\n' "$FIELDS" | sed 's/^/      found: /'
   FAIL=1
