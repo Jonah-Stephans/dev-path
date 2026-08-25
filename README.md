@@ -218,7 +218,7 @@ cannot deny. The blocking variant is the same script on `PreToolUse` reading `.t
         "hooks": [
           {
             "type": "command",
-            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *dev-path/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Outcome checks|dev-path feedback\";; *dev-path/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\" && echo \"dev-path: $F carries a heading outside the schema\"; exit 0",
+            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *dev-path/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|dev-path feedback\";; *dev-path/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\" && echo \"dev-path: $F carries a heading outside the schema\"; exit 0",
             "timeout": 10
           }
         ]
@@ -388,6 +388,7 @@ design_approved: true
 ## Evidence
 ## Current state
 ## Design
+## Traps
 ## Outcome checks
 ## dev-path feedback
 ```
@@ -401,6 +402,7 @@ design_approved: true
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
+| `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
 | `## Outcome checks` | the Outcomes pass, run by `dev-path:integrate` | Integrate's refusal; the human at merge |
 | `## dev-path feedback` | the engineer, **optional** | Integrate, which offers to file it |
 

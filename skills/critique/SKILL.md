@@ -8,7 +8,7 @@ Critique has **three passes with three subjects. Do not merge them.**
 
 | Pass | Subject | Runs | Writes |
 | --- | --- | --- | --- |
-| **The slice pass** | that slice's code | when a slice is built, inside `dev-path:build`, or `dev-path:critique` alone | `## Critique findings` on **that slice file** |
+| **The slice pass** | that slice's code | when a slice is built, inside `dev-path:build`, or `dev-path:critique` alone | `## Critique findings` on **that slice file**, and `## Traps` on **`spec.md`** |
 | **The Outcomes pass** | the spec's Outcomes | **once, at the start of `dev-path:integrate`** | `## Outcome checks` on **`spec.md`** |
 | **The change-request pass** | a human reviewer's comments on the pull request | when a reviewer requests changes and the engineer re-runs `dev-path:critique` | as the slice pass — triaged findings into the fix loop |
 
@@ -128,6 +128,52 @@ audit's note on files a commit swept in past the slice's `touches`, and review i
 closed. **Leave it as you found it**: not a finding to fix, and not yours to close. The human closes it at
 review.
 
+### Traps
+
+**Mandated: read `## Traps` on `spec.md` before you review the tests, and go to the heading by name.**
+Every entry is one mutation a test on this spec has to be able to fail on. **A test that cannot fail on
+what an entry names is a finding**, and it is the ordinary kind — you are checking the code against
+something this spec wrote down, exactly as you check it against the repo's standards rule.
+
+**Mandated: write a trap when a confirmed finding's cause is a test that passed while the code was
+wrong.** That is the whole trigger and it is binary: the finding survived triage, and the test covering
+that code was green when you found it. **That defect is the one a fresh critic on the next slice cannot
+see** — the test passes, it covers the code, and nothing in that slice states what it must be able to
+fail on. So the pass holding the finding is the only pass that can write the trap, which is the rule that
+puts `- [x] fixed` on the worker that fixed it.
+
+**A trap is written off a finding, never hunted for.** The trigger is a fact about a finding you already
+confirmed, and nothing here sends you looking for a class of defect. That would be this skill writing a
+check instead of reading the repo's standard, which is the line the section above draws.
+
+**Write the mutation, as a target.** An entry states what a test here must be able to fail on, which is
+something the next worker can go and write. A prohibition — *fixtures should not all look alike* — hands
+that worker the shape to avoid and nothing to build.
+
+```markdown
+## Traps
+- A test over which item a write lands on must be able to fail on an inaccessible item sitting earlier in
+  the list. Every fixture here grants access to every id, so a test that finds the right item and a test
+  that takes the first one are the same green.
+```
+
+**No box.** Every `- [ ]` in a spec directory is *Critique clean*'s subject and Integrate's refusal, and a
+trap has nothing to close. **A plain bullet, one per trap.**
+
+**An entry is about the code and its tests, and never names a slice.** A design can be withdrawn and
+re-sliced under a `## Traps` section that survives both, so an entry keyed to slice 05 outlives the
+numbering it was written against — where the code and the tests it names are still there.
+
+**One meaning, one place: `## Critique findings` holds the instances, `## Traps` holds what outlives
+them.** An entry that is a copy of the finding it came from is the duplication this schema avoids
+everywhere else, and Integrate carries the finding into the pull request body anyway.
+
+**Two bounds, and both are the price of the section rather than a footnote to it.** Every entry loads into
+every later worker and every later critic — the multiplier `dev-path:learn` states about unscoped rules,
+paid **per worker** rather than per session. So: the section is per-spec and **dies with the spec**, where
+no other spec's workers ever load it; and an entry that **restates a default** — *write thorough tests* —
+pays that per-worker cost to change nothing, **as does a second copy of a trap already there.**
+
 ## The two-cycle cap
 
 > **The cap does not stop the work. It stops the work being unattended.**
@@ -217,7 +263,8 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 
 ## Stop
 
-Write the findings, write `fix_cycles` if this pass is one of the three cases above, and return.
+Write the findings, write any trap this pass earned, write `fix_cycles` if this pass is one of the three
+cases above, and return.
 
 **Who commits that write is your role and never which skill called this one.** **A dispatched critic
 writes and returns; the session that dispatched it commits on that return.** **The session holding this

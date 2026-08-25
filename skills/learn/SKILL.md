@@ -47,10 +47,11 @@ depends on none.
 | --- | --- |
 | Critique's findings | **always** — `dev-path`'s own file |
 | The recorded deviations | **always** — `dev-path`'s own file |
+| The spec's traps | **always** — `dev-path`'s own file |
 | CI bot findings | **never** |
 | Human review comments | **never** |
 
-**Two of the four are never available, and it is the same reason both times: this runs while the pull
+**Two of the five are never available, and it is the same reason both times: this runs while the pull
 request is still a draft.** CI does not run on draft pull requests, and the spec's pull request is a draft
 for its whole life until Integrate marks it ready — which happens *after* this step. So there has never
 been a CI run on this pull request to read, and no reviewer has seen it either.
@@ -58,6 +59,10 @@ been a CI run on this pull request to read, and no reviewer has seen it either.
 **That is a real hole, stated rather than promised away.** The human-invoked re-run covers both empty rows
 by the same mechanism: once the pull request is ready, CI has run and a reviewer has commented, and an
 engineer runs `dev-path:learn` again pointed at it.
+
+**A trap arrives pre-sorted:** `## Traps` is already the generalisation this skill would otherwise have to
+make, written by the pass that was there while it was there. It enters the routing below as a candidate
+like any other.
 
 ## What this produces
 

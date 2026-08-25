@@ -37,8 +37,8 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 2. Run the contention script again.
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
    Name all three exits on an unmet Outcome.
-4. Carry `## Critique findings` and `## Deviations` into the pull request body — **plus every
-   `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
+4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
+   every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
 5. Offer to file `## dev-path feedback` as an issue. **If it is empty, say the heading exists and file
    nothing.**
 6. Name a signal back to the engineer, if anything written down shows one. **If step 5 is also filing, it
@@ -221,9 +221,9 @@ Runaway automation has nowhere to live. **No spec-level counter, no aggregation,
 
 ## 4 · Carry the findings into the pull request body
 
-So the human reviewer is not re-finding what was already caught. Carry `## Critique findings` and
-`## Deviations`, **plus every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec
-directory.**
+So the human reviewer is not re-finding what was already caught. Carry `## Critique findings`,
+`## Deviations` and `## Traps`, **plus every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the
+spec directory.**
 
 **Two extra lines by grammar, not two whole sections.** A criterion can close as `won't fix` under
 `## Acceptance criteria`, and exit 2 puts one under `## Outcome checks` — but carrying
@@ -231,6 +231,13 @@ directory.**
 noise this step exists to reduce. **`- [ ] unmet` rides with it because it is the same line's other
 half:** the reviewer needs the shortfall next to the decision to ship without it. **`- [ ] excess` needs no
 line of its own** — its sibling in the grammar sits under `## Deviations`, which rides whole.
+
+**`## Traps` rides whole as well, and it is the section that tells a reviewer what to read the tests
+for.** Each entry names a mutation the tests on this spec had to be able to fail on, which is the question
+a reviewer cannot answer from a green suite. It is also step 7's input: `dev-path:learn` generalises
+`## Critique findings` at the end, and a trap is that generalisation already done by the pass that was
+there. **Empty is the ordinary case** — say the heading is empty and carry nothing, as with the feedback
+offer below.
 
 ## 5 · Offer to file `## dev-path feedback`
 

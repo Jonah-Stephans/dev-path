@@ -46,7 +46,7 @@ moves the design back to unapproved — you will approve the new version when we
 
 | Deleted | Survives untouched |
 | --- | --- |
-| `design_approved` only | everything else, including `intent_accepted`, the slice files, `## Critique findings` and `## Deviations` |
+| `design_approved` only | everything else, including `intent_accepted`, the slice files, `## Critique findings`, `## Deviations` and `## Traps` |
 
 **The slices survive on purpose.** They are work, `design_approved` is absent so nothing acts on them, and
 this skill re-slices when the design settles. Deleting them would be throwing away an artifact the human
