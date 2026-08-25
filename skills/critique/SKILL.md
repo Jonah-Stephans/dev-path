@@ -172,8 +172,7 @@ everywhere else, and Integrate carries the finding into the pull request body an
 every later worker and every later critic — the multiplier `dev-path:learn` states about unscoped rules,
 paid **per worker** rather than per session. So: the section is per-spec and **dies with the spec**, where
 no other spec's workers ever load it; and an entry that **restates a default** — *write thorough tests* —
-pays that per-worker cost to change nothing. **Read the section before you add to it**, because a trap
-already written is written.
+pays that per-worker cost to change nothing, **as does a second copy of a trap already there.**
 
 ## The two-cycle cap
 

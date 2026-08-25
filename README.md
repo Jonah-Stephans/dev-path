@@ -402,7 +402,7 @@ design_approved: true
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
-| `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
+| `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
 | `## Outcome checks` | the Outcomes pass, run by `dev-path:integrate` | Integrate's refusal; the human at merge |
 | `## dev-path feedback` | the engineer, **optional** | Integrate, which offers to file it |
 

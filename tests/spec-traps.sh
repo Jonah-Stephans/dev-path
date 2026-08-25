@@ -1,10 +1,11 @@
 #!/bin/sh
-# dev-path — seven assertions on `## Traps`: that the section is in the schema at
-# all three of README's sites and in neither slice schema, that Critique writes
-# it on a trigger an agent can check, that both readers reach it by heading name
-# rather than by file, that an entry is a plain bullet, that the grammar keeps an
-# entry alive across a re-cut, that its load is bounded on the page, and that
-# Integrate carries it to the reviewer.
+# dev-path — eight assertions on `## Traps`: that the section is in the schema at
+# all three of README's sites and in neither half of the slice layout, that
+# Critique writes it on a trigger an agent can check and to a grammar written as
+# a mandate, that both readers reach it by heading name rather than by file, that
+# an entry is a plain bullet by rule and not only by example, that the grammar
+# keeps an entry alive across a re-cut, that its load is bounded on the page,
+# that Learn can reach it, and that Integrate carries it to the reviewer.
 #
 # The reason this file exists is that the thing being fixed is a route, and a
 # route has no artifact. What #39 observed was a generalisation over two slices —
@@ -22,10 +23,10 @@
 # 4 warns on a heading outside the schema, so a plugin that documents `## Traps`
 # in prose and leaves it out of that `P=` list ships a section whose every write
 # trips the repo's own hook — the section would be born non-compliant, and the
-# fix would look like deleting it. The slice half of the same line is pinned
-# unchanged in the same assertion, because `## Traps` is a spec-level section:
-# permitted on a slice file it becomes a per-slice note, which is the thing that
-# already exists and is called `## Critique findings`.
+# fix would look like deleting it. The slice layout is pinned against the section
+# in both places it could be granted — the hook's own slice list and README's
+# slice skeleton — because `## Traps` is spec-level: on a slice file it is a
+# per-slice note, which already exists and is called `## Critique findings`.
 #
 # Assertion 3 is the one the issue predicted would fail, and it is scoped to the
 # two halves that have to carry it rather than to the files. *Read the spec file*
@@ -44,7 +45,9 @@
 # better: every checked box carries a disposition tag as its first word, and a
 # trap has no disposition — nothing closes it, because nothing about it is open.
 # The scan reads the lines under a `## Traps` heading in every prose file, so the
-# shape is pinned wherever the plugin shows one.
+# shape is pinned wherever the plugin shows one — and the mandate is pinned
+# beside the scan, because an example can stay plain while the sentence ruling
+# the box out is deleted, and it is the mandate that is the rule.
 #
 # Assertion 5 pins the sentence that makes the two withdrawal tables true.
 # `skills/initiate/SKILL.md` and `skills/technical-design/SKILL.md` both say
@@ -58,6 +61,12 @@
 # the finding and by nobody afterwards: a finding whose test was green is a fact
 # about the moment it was confirmed, and the slice file does not keep it.
 #
+# Three passages are deliberately unpinned, each rationale rather than rule:
+# Build's clarifying clause under the dispatch contract, the sentence putting a
+# trap in the critic's findings commit, and the pairing with the test-first line.
+# Deleting any of them leaves every mechanism above standing, which is the test
+# for whether a passage is a rule or an argument for one.
+#
 # Exit code is the build's.
 
 cd "$(dirname "$0")/.." || exit 1
@@ -65,12 +74,13 @@ cd "$(dirname "$0")/.." || exit 1
 R=README.md
 B=skills/build/SKILL.md
 C=skills/critique/SKILL.md
-I=skills/integrate/SKILL.md
-N=skills/initiate/SKILL.md
-D=skills/technical-design/SKILL.md
+IG=skills/integrate/SKILL.md
+IN=skills/initiate/SKILL.md
+TD=skills/technical-design/SKILL.md
+L=skills/learn/SKILL.md
 FAIL=0
 
-for f in "$R" "$B" "$C" "$I" "$N" "$D"; do
+for f in "$R" "$B" "$C" "$IG" "$IN" "$TD" "$L"; do
   if [ ! -f "$f" ]; then
     echo "FAIL subject: $f does not exist"
     exit 1
@@ -138,6 +148,20 @@ if ! printf '%s\n' "$SKELETON" | grep -qF '| `## Traps` |'; then
   FAIL=1
 fi
 
+# The slice half of the schema, read off the prose the hook line cannot reach.
+# The header claims the section is spec-level and the hook pins that for the one
+# list that fires; README's slice skeleton is the other place it can be granted,
+# and a `## Traps` there is a per-slice note, which already exists and is called
+# `## Critique findings`.
+SLICES=$(section "$R" '^### .dev-path/<slug>/slices/' '^### ')
+
+if printf '%s\n' "$SLICES" | grep -qF 'Traps'; then
+  echo "FAIL [schema] $R's slice layout has gained Traps"
+  echo '      a trap is a statement over slices; per-slice notes are ## Critique findings'
+  printf '%s\n' "$SLICES" | grep -nF 'Traps' | sed 's/^/      /'
+  FAIL=1
+fi
+
 # --- 2. One writer, on a trigger an agent can check. Both halves, because they
 #        fail in opposite directions: the pass table is where a reader learns the
 #        slice pass writes on spec.md at all, and the trigger is what stops
@@ -151,8 +175,10 @@ want writer "$C's pass table" "$(grep -F '| **The slice pass** |' "$C")" '## Tra
   'the slice pass row naming ## Traps beside ## Critique findings, since it writes both'
 want writer "$C" "$CFLAT" 'a test that passed while the code was wrong' \
   'the trigger stated as a fact about a confirmed finding, checkable by the pass holding it'
-want writer "$C" "$CFLAT" 'must be able to fail on' \
-  'the entry grammar as a positive target — the mutation to go and write, not a habit to avoid'
+want writer "$C" "$CFLAT" 'Write the mutation, as a target' \
+  'the entry grammar as a mandate of its own, which is the half a run acts on'
+want writer "$C" "$CFLAT" 'a test here must be able to fail on' \
+  'the positive target itself — the mutation to go and write, not a habit to avoid'
 
 # --- 3. Both readers, by heading name, each read off the half that has to carry
 #        it. Scoped because the orchestrator half of $B is where the clarifying
@@ -209,15 +235,26 @@ if [ -z "$EXAMPLE" ]; then
   FAIL=1
 fi
 
+# The mandate and the example fail independently and the mandate is the rule: the
+# example can stay plain while the sentence forbidding a box is deleted, and the
+# next entry written without the example in front of it is a box. Same order
+# tests/deviation-tags.sh puts them in, and for the same reason.
+want 'no box' "$C" "$CFLAT" '**No box.**' \
+  'the box ruled out as a mandate, not left implied by an example being plain'
+want 'no box' "$C" "$CFLAT" 'A plain bullet, one per trap' \
+  'the positive shape beside it, so the rule says what to write and not only what not to'
+want 'no box' "$R's heading table" "$(grep -F '| `## Traps` |' "$R")" 'never a box' \
+  'the shape in README too, which is authoritative where a skill body disagrees'
+
 # --- 5. The entry outlives the slice numbering, and the two withdrawal tables
 #        say so. The grammar rule is what makes the tables true: both already
 #        promise everything else survives, and a re-cut renumbers the slices
 #        underneath that promise.
 want survives "$C" "$CFLAT" 'never names a slice' \
   'the grammar rule that keeps an entry meaningful after a re-cut renumbers the slices'
-want survives "$N's withdrawal table" "$(grep -F '| `intent_accepted`' "$N")" '## Traps' \
+want survives "$IN's withdrawal table" "$(grep -F '| `intent_accepted`' "$IN")" '## Traps' \
   'Traps named in the survives-untouched column, beside the two sections it sits with'
-want survives "$D's withdrawal table" "$(grep -F '| `design_approved` only |' "$D")" '## Traps' \
+want survives "$TD's withdrawal table" "$(grep -F '| `design_approved` only |' "$TD")" '## Traps' \
   'Traps named in the survives-untouched column, beside the two sections it sits with'
 
 # --- 6. The load is bounded on the page, in both of the forms the argument
@@ -230,20 +267,35 @@ want bounded "$C" "$CFLAT" 'dies with the spec' \
 want bounded "$C" "$CFLAT" 'restates a default' \
   'the per-entry bound: an entry changing nothing still pays the per-worker cost'
 
-# --- 7. Integrate carries it, in the step list and in the step itself. Both,
+# --- 7. Learn can reach it, because README's heading table names Learn among the
+#        readers. Pinned on the source table rather than on prose: that table is
+#        what this skill states is available at Integrate, and a reader named in
+#        one file and absent from the other is the shape tests/compositions.sh
+#        exists for.
+want reachable "$L's source table" "$(grep -F "| The spec's traps |" "$L")" '**always**' \
+  'traps named available at Integrate, which is what README claims by naming Learn a reader'
+
+# --- 8. Integrate carries it, in the step list and in the step itself. Both,
 #        because the numbered list is what a run follows and the section is what
 #        a builder wiring the step reads.
-want carried "$I's step list" "$(grep -F '4. Carry' "$I")" '## Traps' \
+want carried "$IG's step list" "$(grep -F '4. Carry' "$IG")" '## Traps' \
   'step 4 naming Traps beside the two sections it already carries'
 
-STEP4=$(section "$I" '^## 4 · ' '^## ' | flatten)
+STEP4=$(section "$IG" '^## 4 · ' '^## ' | flatten)
 
 if [ -z "$STEP4" ]; then
-  echo "FAIL [carried] $I carries no step 4 section to read"
+  echo "FAIL [carried] $IG carries no step 4 section to read"
   FAIL=1
 else
-  want carried "$I's step 4" "$STEP4" '## Traps' \
-    'the step saying what a trap gives the reviewer, so the carry is not a bare list entry'
+  # Two halves of one section, held apart because the section holds both and they
+  # fail in opposite directions: the carry sentence is the instruction a run
+  # follows, the paragraph is what a builder wiring the step reads. Scoped to
+  # $STEP4 the bare heading is satisfied by the carry sentence alone, so the
+  # paragraph is anchored on wording only it has.
+  want carried "$IG's step 4 carry sentence" "$STEP4" '`## Deviations` and `## Traps`' \
+    'Traps in the carry itself, beside the two sections that already ride whole'
+  want carried "$IG's step 4 paragraph" "$STEP4" 'rides whole as well' \
+    'the paragraph saying what a trap gives the reviewer, so the carry is not a bare list entry'
 fi
 
 if [ "$FAIL" -eq 0 ]; then
