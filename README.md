@@ -2,6 +2,16 @@
 
 A Salesforce-shaped engineering workflow that takes a non-technical requirement through a structured process to merged code. The process includes eight skill-invoked stages requiring two human approvals and two optional skills.
 
+## Before you install
+
+> `git`, and the GitHub CLI logged in — check with `gh auth status`.
+
+**`dev-path` shells out to `gh` from its first stage, not its last.** Initiate opens the branch and the
+draft pull request, Integrate reads and files against them, and the hook blocks below call `gh pr list`.
+An unauthenticated `gh` therefore fails at stage one, where the failure looks like `dev-path` being
+broken rather than like a missing login. **Nothing else is needed** — no CI, no scratch org and no branch
+protection, which is the point of the first use below.
+
 ## Install
 
 ```
