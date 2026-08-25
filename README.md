@@ -1,7 +1,6 @@
 # dev-path
 
-One engineering workflow, from a non-technical requirement through to merged code. Eight stages, two
-human gates, ten skills. Salesforce-shaped and program-agnostic.
+A Salesforce-shaped engineering workflow that takes a non-technical requirement through a structured process to merged code. The process includes eight skill-invoked stages requiring two human approvals and two optional skills.
 
 ## Install
 
@@ -30,12 +29,11 @@ full end-to-end run on a small real change is the right *second* use.
 
 ## Is this repo ready?
 
-> Run `dev-path:fit-check` when the repo is new, and again if `dev-path` stops feeling like it buys
-> anything.
+> Run `dev-path:fit-check` when the repo is new, and again if `dev-path` hits issues with new repo infrastructure.
 
 ## What you can gate on
 
-**`dev-path` ships no enforcement and never depends on any.** A repo that enforces nothing gets identical
+**`dev-path` ships no hook enforcement and never depends on any, but it's meant to be tailored with the repo's own hooks.** A repo that enforces nothing gets identical
 behaviour from `dev-path`, just less attended. Everything below is a repo's own choice, pasted into the
 repo's `.claude/settings.json`.
 
