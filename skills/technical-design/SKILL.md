@@ -246,6 +246,15 @@ the branch. *Take a payment from a sales order header* — modal or subtab, one 
 amount or after — that divergence **is** a question, unavoidably, because the design cannot be written
 without resolving it.
 
+**A new surface has no anchor, so recommend the artifact.** Both worked examples above anchor to a screen
+that already exists, and the anchor is what makes *yes, two competent engineers picture the same screen*
+checkable at all; asserted about a page nobody has seen it costs nothing to say, and it is rarely true.
+**This moves what the branch recommends, never how often the branch is reached, so the overhead argument
+above stands whole.**
+
+**Stated limit: a Design that raises no question about the screen never reaches the branch, and so never
+consults this default.**
+
 **Nothing about this can block the gate.** If the engineer says *I know what I want, here it is*, write
 the answer down and proceed to approval. **Suggest the route; never require the artifact.**
 
