@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — one assertion per element of a printed design round: the question
+# devpath — one assertion per element of a printed design round: the question
 # marker, the recommendation marker, and the round's header.
 #
 # The reason this file exists is the hole it closes. skills/technical-design

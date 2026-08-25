@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — six assertions on the commit audit when the commit is a pause's:
+# devpath — six assertions on the commit audit when the commit is a pause's:
 # that the audit slot is still unconditional, that no statement of the retired
 # `done: true` precondition survives in any prose file, that the tag alone now
 # carries the distinction at each site that used to name it, that the shape a
@@ -197,7 +197,7 @@ done
 #        Build are the ambiguity argument, the closing rule and the pause test,
 #        and they fail independently because a run acting on any one of them
 #        never reads the other two. The three in the stage skills are the ones
-#        with teeth — a `dev-path:technical-design` session clearing a pause is
+#        with teeth — a `devpath:technical-design` session clearing a pause is
 #        the actor that meets both boxes on one slice, a critic is the actor that
 #        must leave the tagged one alone, and Integrate is what carries the
 #        section onto the pull request.

@@ -1,10 +1,10 @@
 #!/bin/sh
-# dev-path — one assertion per skill-to-skill composition, asserting the call is
+# devpath — one assertion per skill-to-skill composition, asserting the call is
 # still written as an imperative naming the skill.
 #
 # The reason this file exists is a shipped failure. Three of the four
-# compositions were imperatives and were followed; the fourth, dev-path:build
-# reaching dev-path:critique, was described and never called, and the first real
+# compositions were imperatives and were followed; the fourth, devpath:build
+# reaching devpath:critique, was described and never called, and the first real
 # spec built seven slices with no critic having read any of them. Nothing in the
 # plugin noticed, because the only thing asserting a composition existed was the
 # prose that failed to hold one.
@@ -42,9 +42,9 @@ for c in $COMPOSITIONS; do
   fi
   # The imperative, in either voice: "run the skill" mid-sentence, "Run the
   # skill" opening one. Anything softer than a verb is not a call.
-  if ! grep -qE "[Rr]un the skill \`dev-path:$skill\`" "$f"; then
-    echo "FAIL [$skill] $f holds no imperative naming dev-path:$skill"
-    echo "      expected a line matching: [Rr]un the skill \`dev-path:$skill\`"
+  if ! grep -qE "[Rr]un the skill \`devpath:$skill\`" "$f"; then
+    echo "FAIL [$skill] $f holds no imperative naming devpath:$skill"
+    echo "      expected a line matching: [Rr]un the skill \`devpath:$skill\`"
     FAIL=1
   fi
 done
@@ -52,7 +52,7 @@ done
 # Every call site carries the softness callout, so per file the two counts match.
 for f in skills/technical-design/SKILL.md skills/build/SKILL.md skills/integrate/SKILL.md; do
   [ -f "$f" ] || continue
-  CALLS=$(grep -cE '[Rr]un the skill `dev-path:' "$f")
+  CALLS=$(grep -cE '[Rr]un the skill `devpath:' "$f")
   SOFT=$(grep -c 'model-driven and is not guaranteed' "$f")
   if [ "$CALLS" -ne "$SOFT" ]; then
     echo "FAIL [callout] $f: $CALLS call site(s), $SOFT softness callout(s)"

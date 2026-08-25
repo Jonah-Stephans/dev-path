@@ -1,18 +1,18 @@
 ---
-description: Run the design conversation on an accepted dev-path spec. Use once a spec's intent is accepted and before any code exists.
+description: Run the design conversation on an accepted devpath spec. Use once a spec's intent is accepted and before any code exists.
 ---
 
 # Design
 
-`dev-path:technical-design` runs three stages in one session: Survey if it is needed, then the design
+`devpath:technical-design` runs three stages in one session: Survey if it is needed, then the design
 conversation, then Slice. It ends at the design gate.
 
 > **Stage names are prose-facing, skill names are invocation-facing, and only the latter has to be
 > unique.**
 
-The stage is **Design**. The invocation is **`dev-path:technical-design`**. That is not a mistake:
+The stage is **Design**. The invocation is **`devpath:technical-design`**. That is not a mistake:
 *design* in this ecosystem means visual design, so the bare skill name was retired while the stage name,
-the `## Design` heading and the `design_approved` field all stand. `dev-path:fit-check` is the existing
+the `## Design` heading and the `design_approved` field all stand. `devpath:fit-check` is the existing
 precedent for a hyphenated skill name with no stage behind it.
 
 **This skill is a thin composer.** Survey's logic lives in `skills/survey/SKILL.md` and the cutting rules
@@ -21,20 +21,20 @@ put two copies of each in the tree and one of the two would rot.
 
 ## Refuse first
 
-Read the front matter of `dev-path/<slug>/spec.md`. That read is the validation.
+Read the front matter of `devpath/<slug>/spec.md`. That read is the validation.
 
 - **`git branch --show-current` returns `main`, `<base>`, or a branch with no matching spec directory**
   → **stop.** Do not guess which spec this is. Say the next act: `git checkout <slug>`, or run
-  `dev-path:initiate` if the spec does not exist yet.
+  `devpath:initiate` if the spec does not exist yet.
 - **The command returns empty** → **stop, and say what is actually wrong:** it returns empty with exit
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
 - **`intent_accepted` is not `true`** → **stop.** This stage runs behind gate 1. Say the next act: run
-  `dev-path:initiate` and take the spec through the intent gate.
+  `devpath:initiate` and take the spec through the intent gate.
 - **The front-matter block does not parse, or a field carries the wrong shape** → **stop and name the
   exact field.** *Malformed* stops the stage; *absent* is a legal state meaning *not yet*.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
 ### Re-entry on an approved design withdraws the gate, and says so
 
@@ -54,7 +54,7 @@ never asked to have thrown away. **The draft pull request survives, always.**
 
 Why the deletion happens at all: *value is always `true`, absence is how you say no*, and stages overwrite
 superseded sections. Without the withdrawal, a second run rewrites `## Design` under an approval a human
-gave to a **different** design, and `dev-path:build` proceeds on it. The design gate has no downstream
+gave to a **different** design, and `devpath:build` proceeds on it. The design gate has no downstream
 cover — the next human is at merge, after the code is written.
 
 **One accepted cost, stated now rather than discovered later: a no-op design conversation costs one
@@ -72,13 +72,13 @@ decision note that a resumed session needs.
 
 ## 1 · Survey
 
-**If `## Current state` is empty, run the skill `dev-path:survey` against this spec.** It clusters the
+**If `## Current state` is empty, run the skill `devpath:survey` against this spec.** It clusters the
 Outcomes into areas, fans out one subagent per area to a ceiling of five, discards them, and writes
 `## Current state`.
 
 > **This is model-driven and is not guaranteed.** There is no call syntax and no event that fires on a
 > skill finishing. Claude reads this instruction and normally follows it, and nothing in the harness makes
-> it certain. A repo that wants certainty adds a hook of its own; `dev-path` ships none and depends on
+> it certain. A repo that wants certainty adds a hook of its own; `devpath` ships none and depends on
 > none.
 
 **What the softness costs, stated rather than left to be discovered:** a run that skips this call produces
@@ -95,7 +95,7 @@ five for the whole stage, which Survey itself mandates. Nothing else here fans o
 
 ## 2 · The design conversation
 
-**This is the only conversation in `dev-path`.** These instructions are inlined here on purpose: a file
+**This is the only conversation in `devpath`.** These instructions are inlined here on purpose: a file
 the skill is *told* to read is a link that can be dropped, and inlined they have the same immunity the
 front-matter read has — the skill body is what the stage runs, so there is nothing to disconnect. Do not
 call a third-party conversation skill; a general skill of that kind ends when the questions run out, and
@@ -130,7 +130,7 @@ between Survey's findings and Q1 so a reader never takes one for the other:
 ## Technical design questions
 ```
 
-**A `dev-path: ` prefix opens its own line above that header.** Prefixed inline, `##` stops being a
+**A `devpath: ` prefix opens its own line above that header.** Prefixed inline, `##` stops being a
 heading and the round loses its only divider from what came before.
 
 Nothing goes between that header and Q1, and only blocks go between Q1 and the last question —
@@ -189,7 +189,7 @@ words surface here or nowhere.
 
 **Design narrows `## Intent` and `## Out of scope` to one design.** That is the whole of the answer:
 **there is no *split* operation and no new noun.** It is an ordinary edit on the spec branch, and somebody
-runs `dev-path:initiate` again for the remainder — new slug, new branch, new draft pull request, **its own
+runs `devpath:initiate` again for the remainder — new slug, new branch, new draft pull request, **its own
 intent gate.** Because the remainder is a fresh Initiate, no spec ever inherits a copied gate field.
 
 **The second Initiate carries the same `upstream` entry when there is one.** Mandated. Both specs came
@@ -258,7 +258,7 @@ consults this default.**
 **Nothing about this can block the gate.** If the engineer says *I know what I want, here it is*, write
 the answer down and proceed to approval. **Suggest the route; never require the artifact.**
 
-**Match the artifact to the question.** This is the whole of what `dev-path` says about craft:
+**Match the artifact to the question.** This is the whole of what `devpath` says about craft:
 
 | The question | What answers it |
 | --- | --- |
@@ -270,7 +270,7 @@ the answer down and proceed to approval. **Suggest the route; never require the 
 platform's chrome, the less a facsimile is worth.** Its failure mode is worse than nothing — feedback
 lands on the facsimile's inaccuracies instead of on the design.
 
-`dev-path:sketch` owns the plumbing when something physical is wanted; it is pointed at this slug and runs
+`devpath:sketch` owns the plumbing when something physical is wanted; it is pointed at this slug and runs
 in a parallel session.
 
 ### When it stops
@@ -295,13 +295,13 @@ flush condition:** write before anything that could lose the thread.
 3. **The human approves the design.**
 4. **`design_approved: true` is written.** Value is always `true`; absence is how you say no; nothing ever
    writes `false`.
-5. **Run the skill `dev-path:slice` against this spec** — which now finds the field, so its refusal is
+5. **Run the skill `devpath:slice` against this spec** — which now finds the field, so its refusal is
    satisfied by the route rather than excepted from it.
 6. The layout is shown. The human may reject it, and it is re-cut in this session.
 
 > **This is model-driven and is not guaranteed.** Same softness as the Survey call above, for the same
 > reason. A run that skips this call reaches the design gate with zero slice files, which
-> `dev-path:build` refuses on — visible in the spec directory rather than silent.
+> `devpath:build` refuses on — visible in the spec directory rather than silent.
 
 **Slice runs in this session and is never a subagent**, which is what leaves it able to be
 conversational when the layout comes back for a re-cut.
@@ -319,7 +319,7 @@ conversational when the layout comes back for a re-cut.
 **Every conversation ends in *approved* or *not yet, come back*.** No waiver, no override, no *approve
 anyway*. A run ending unapproved is the design working.
 
-**How the yes is captured: plain prose, and then the turn ends.** `dev-path` names no question tool at
+**How the yes is captured: plain prose, and then the turn ends.** `devpath` names no question tool at
 either gate. Every question already carries a recommended answer, and the cheap response this gate wants
 is **disagreement in the engineer's own words**, which an option list is the wrong shape for. A gate that
 works by ending the turn works in every harness that can run a skill at all.
@@ -333,10 +333,10 @@ whether a change was *wanted*. Verticality has no mechanical gate in this design
 
 ## Clearing a pause
 
-**A pause box under a slice's `## Deviations` is cleared by the `dev-path:technical-design` session that
+**A pause box under a slice's `## Deviations` is cleared by the `devpath:technical-design` session that
 resolves it, before that session ends.** Build writes the box and stops; this is where it gets closed.
 Resolve the question, tick the box in the disposition grammar, and say which slice it unblocks — leaving
-it open means `dev-path:build` will refuse the slice again on the next run.
+it open means `devpath:build` will refuse the slice again on the next run.
 
 **The pause is the untagged box, and it is the only one here that is yours.** A `- [ ] excess` box under
 the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
@@ -345,7 +345,7 @@ whatever was on disk: close the untagged one, and **leave a tagged box open.**
 
 **A tagged box left open still reads as *frozen*, so name the slice as the next one to build.** The frozen
 test joins the absence of `done: true` to an open box under `## Deviations` and never reads the tag, so the
-slice you just unblocked keeps answering *frozen* until `dev-path:build` finishes it. Building it is never
+slice you just unblocked keeps answering *frozen* until `devpath:build` finishes it. Building it is never
 denied. Building a sibling ahead of it is.
 
 ## Stop
@@ -357,4 +357,4 @@ pull request.
 was rejected, and the design is not what was rejected — re-cut here, in this session, with everything
 still in context.
 
-Then stop. The next act is `dev-path:build`.
+Then stop. The next act is `devpath:build`.

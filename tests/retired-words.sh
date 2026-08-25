@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — one assertion per retired word, each asserting that word's own scope
+# devpath — one assertion per retired word, each asserting that word's own scope
 # rather than the bare string. Several retirements are scoped, and the scoped-out
 # forms are mandated literals: ## Design, design_approved, the stage name Design,
 # and "Build records" under ## Deviations. A flat "this word does not appear"
@@ -11,7 +11,7 @@
 # are deliberate: no test under tests/ is a subject — this one carries every
 # retired word as a literal, compositions.sh carries the call strings it asserts,
 # and round-format.sh carries the markers it asserts — and ci.yml, the two
-# manifests, LICENSE and .gitignore carry no prose of dev-path's authoring.
+# manifests, LICENSE and .gitignore carry no prose of devpath's authoring.
 #
 # Ten assertions, not seven: "unit of work", "unit" and "task" share a row on the
 # retired list and do not share a scope, and neither do "Research" and "Review".
@@ -106,28 +106,28 @@ for f in $FILES; do
   #        ban on a position, so it asserts the positions.
   report 'program-as-level' "$f" "$(
     sed -e 's/program-agnostic/AGNOSTIC/g' "$f" \
-      | grep -niE "(^[[:space:]]*programs?:|programs?/|dev-path/programs?|program[_-]prefix|group(ing)? key.*program|program.*group(ing)? key)"
+      | grep -niE "(^[[:space:]]*programs?:|programs?/|devpath/programs?|program[_-]prefix|group(ing)? key.*program|program.*group(ing)? key)"
   )"
 
   # --- 8. design — banned as a BARE SKILL NAME. In this ecosystem "design"
   #        means visual design. Permitted: the stage name Design, the heading
-  #        ## Design, the field design_approved, and dev-path:technical-design.
+  #        ## Design, the field design_approved, and devpath:technical-design.
   report 'design-as-skill-name' "$f" "$(
-    grep -nE "(dev-path:design([^a-zA-Z0-9_-]|$)|skills/design/)" "$f"
+    grep -nE "(devpath:design([^a-zA-Z0-9_-]|$)|skills/design/)" "$f"
   )"
 
   # --- 9. Research — banned as a stage name, a heading or a field name. It
   #        collides several ways with skills that mean something else. Ordinary
   #        English, lower case, is permitted; Survey is the stage name.
   report Research "$f" "$(
-    grep -nE "(^##+[[:space:]]+Research|^[[:space:]]*research:|dev-path:research|${L}Research${R})" "$f"
+    grep -nE "(^##+[[:space:]]+Research|^[[:space:]]*research:|devpath:research|${L}Research${R})" "$f"
   )"
 
   # --- 10. Review — same scope, same reason. Ordinary English, lower case, is
   #         permitted: "one per review pass", "pull-request review". Critique is
   #         the stage name.
   report Review "$f" "$(
-    grep -nE "(^##+[[:space:]]+Review|^[[:space:]]*review:|dev-path:review|${L}Review${R})" "$f"
+    grep -nE "(^##+[[:space:]]+Review|^[[:space:]]*review:|devpath:review|${L}Review${R})" "$f"
   )"
 
 done

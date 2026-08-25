@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — eight assertions on `## Traps`: that the section is in the schema at
+# devpath — eight assertions on `## Traps`: that the section is in the schema at
 # all three of README's sites and in neither half of the slice layout, that
 # Critique writes it on a trigger an agent can check and to a grammar written as
 # a mandate, that both readers reach it by heading name rather than by file, that
@@ -118,7 +118,7 @@ want() {
 #        half of the one that fires. The three fail independently and only the
 #        third is mechanical: the skeleton is what a human copies, the table is
 #        what names the writer and the readers, and the hook is what warns.
-HOOK=$(grep -F 'dev-path/*/spec.md) P=' "$R")
+HOOK=$(grep -F 'devpath/*/spec.md) P=' "$R")
 
 if [ -z "$HOOK" ]; then
   echo "FAIL [schema] $R carries no hook block 4 heading list to read"
@@ -134,7 +134,7 @@ fi
 # The skeleton, scoped to the spec.md subsection so a heading in the slice
 # skeleton below it cannot satisfy this. Ranged on the two `### ` headings rather
 # than on line numbers, so the span survives the section growing.
-SKELETON=$(section "$R" '^### .dev-path/<slug>/spec.md.' '^### ')
+SKELETON=$(section "$R" '^### .devpath/<slug>/spec.md.' '^### ')
 
 if ! printf '%s\n' "$SKELETON" | grep -qx '## Traps'; then
   echo "FAIL [schema] $R's spec.md skeleton carries no ## Traps line"
@@ -153,7 +153,7 @@ fi
 # list that fires; README's slice skeleton is the other place it can be granted,
 # and a `## Traps` there is a per-slice note, which already exists and is called
 # `## Critique findings`.
-SLICES=$(section "$R" '^### .dev-path/<slug>/slices/' '^### ')
+SLICES=$(section "$R" '^### .devpath/<slug>/slices/' '^### ')
 
 if printf '%s\n' "$SLICES" | grep -qF 'Traps'; then
   echo "FAIL [schema] $R's slice layout has gained Traps"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev-path — three assertions on the commit-excess tag: that Build writes it, as
+# devpath — three assertions on the commit-excess tag: that Build writes it, as
 # an instruction and as a shape a run can copy, that README's grammar table
 # defines it, and that nothing mechanical reads it.
 #

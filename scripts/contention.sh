@@ -1,8 +1,8 @@
 #!/bin/sh
-# dev-path — cross-spec contention. A checkpoint: stores nothing, stops nothing,
+# devpath — cross-spec contention. A checkpoint: stores nothing, stops nothing,
 # and exits 0 unconditionally, on every route: collisions found, no collisions,
 # no remote, a failed fetch, not a git repository at all. Every other check in
-# dev-path is an exit 1; this one is not, because a contention report that can
+# devpath is an exit 1; this one is not, because a contention report that can
 # fail is a gate nobody decided to add. Collisions go to stdout, errors to
 # stderr, so "prints only collisions" stays true when the fetch fails.
 #
@@ -40,16 +40,16 @@ emit() {          # emit <slug> <kind> <value> <ref>
 # --- rule 4: a merged spec is never a neighbour. A spec is merged when its
 # directory exists on the base branch, and that is the test — an unmerged branch
 # still carries every spec that was on base when it was cut.
-git ls-tree -r --name-only "$REMOTE/$BASE" -- dev-path/ \
+git ls-tree -r --name-only "$REMOTE/$BASE" -- devpath/ \
   | awk -F/ 'NF>1{print $2}' | sort -u > "$T/merged"
 
 # --- the working tree, for the spec being cut right now (it may not be pushed) ---
 # This branch's own spec only. Every other spec in the working tree is merged,
 # and rule 4 is enumerate by unmerged, not by all.
-if [ -n "$HERE" ] && [ -f "dev-path/$HERE/spec.md" ]; then
-  fm < "dev-path/$HERE/spec.md" | upstreams \
+if [ -n "$HERE" ] && [ -f "devpath/$HERE/spec.md" ]; then
+  fm < "devpath/$HERE/spec.md" | upstreams \
     | while read -r u; do emit "$HERE" upstream "$u" ""; done >> "$T/rows"
-  for sl in "dev-path/$HERE/slices"/*.md; do
+  for sl in "devpath/$HERE/slices"/*.md; do
     [ -f "$sl" ] || continue
     fm < "$sl" | listkey touches | while read -r p; do emit "$HERE" touches "$p" ""; done >> "$T/rows"
   done
@@ -58,7 +58,7 @@ fi
 # --- every unmerged spec branch on the remote ---
 for b in $(git branch -r --no-merged "$REMOTE/$BASE" --format='%(refname:short)' | grep -v HEAD); do
   [ "$b" = "$REMOTE/$HERE" ] && continue
-  for f in $(git ls-tree -r --name-only "$b" -- dev-path/); do
+  for f in $(git ls-tree -r --name-only "$b" -- devpath/); do
     slug=$(printf '%s' "$f" | awk -F/ '{print $2}')   # rule 5: from the path
     grep -qx "$slug" "$T/merged" && continue
     case "$f" in
@@ -101,7 +101,7 @@ if [ -s "$T/neigh" ]; then
       ref=$(awk -F'\t' -v s="$slug" '$1==s&&$4!=""{print $4; exit}' "$T/rows")
       # the first SENTENCE of ## Intent, which is one hard-wrapped paragraph
       # (section 05) — never the first line, which cuts mid-sentence.
-      intent=$(git show "$ref:dev-path/$slug/spec.md" \
+      intent=$(git show "$ref:devpath/$slug/spec.md" \
         | awk '/^## Intent/{t=1;next} /^## /{if(t)exit} t&&NF{printf "%s ",$0;g=1;next} g{exit}' \
         | sed 's/\. .*$/./; s/  *$//')
       printf '  %s — %s\n' "$slug" "${intent:-(no intent recorded)}"

@@ -1,11 +1,11 @@
 ---
-description: Cut an approved dev-path design into slice files. Use to run the slice stage on its own, or to re-cut a layout that was rejected.
+description: Cut an approved devpath design into slice files. Use to run the slice stage on its own, or to re-cut a layout that was rejected.
 ---
 
 # Slice
 
-Slice cuts an approved design into N ≥ 1 slice files under `dev-path/<slug>/slices/`. It runs inside
-`dev-path:technical-design`, in the same session that just wrote the design, and it runs alone against an
+Slice cuts an approved design into N ≥ 1 slice files under `devpath/<slug>/slices/`. It runs inside
+`devpath:technical-design`, in the same session that just wrote the design, and it runs alone against an
 approved design.
 
 **Slice is never a subagent.** It would have to be handed the spec file, which recreates the problem that
@@ -15,27 +15,27 @@ what leaves Slice in the session that can talk.
 
 ## Refuse first
 
-Read the front matter of `dev-path/<slug>/spec.md`. That read is the validation; there is no separate
-front-matter check anywhere in `dev-path`.
+Read the front matter of `devpath/<slug>/spec.md`. That read is the validation; there is no separate
+front-matter check anywhere in `devpath`.
 
 - **`git branch --show-current` returns `main`, `<base>`, or a branch with no matching spec directory**
   → **stop.** Do not guess which spec this is. Say the next act: `git checkout <slug>`, or run
-  `dev-path:initiate` if the spec does not exist yet.
+  `devpath:initiate` if the spec does not exist yet.
 - **The command returns empty** → **stop, and say what is actually wrong:** it returns empty with exit
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
 - **`design_approved` is not `true`** → **stop and say so.** Do not slice. Say the next act: run
-  `dev-path:technical-design` and take the design through its gate.
+  `devpath:technical-design` and take the design through its gate.
 - **`## Design` is empty** → **stop.** There is nothing to cut.
 - **The front-matter block does not parse, or a field carries the wrong shape** → **stop and name the
   exact field.** *Malformed* stops the stage; *absent* is a legal state meaning *not yet*.
 
-**Prefix every message this skill prints when it stops with `dev-path: `.** Suggested.
+**Prefix every message this skill prints when it stops with `devpath: `.** Suggested.
 
-**Reaching this skill from `dev-path:technical-design` satisfies the gate by route rather than by
+**Reaching this skill from `devpath:technical-design` satisfies the gate by route rather than by
 exception.** The command writes `design_approved: true` when the human approves, and only then calls
 Slice — so the field is there and this refusal never fires. It fires on the route that needs it: a human
-typing `/dev-path:slice` on a spec whose design was never approved.
+typing `/devpath:slice` on a spec whose design was never approved.
 
 ## Read
 
@@ -111,7 +111,7 @@ A once-per-repo format conversion is repo work rather than a spec: it fits no co
 
 ## Write
 
-**One file per slice at `dev-path/<slug>/slices/<nn>-<name>.md`, zero-padded.** Zero-padding is not
+**One file per slice at `devpath/<slug>/slices/<nn>-<name>.md`, zero-padded.** Zero-padding is not
 decoration — `ls` sorts `10-` before `2-`. **The number is authoring order, never execution order;**
 `depends_on` owns execution order, and a reader who takes the number as an ordering claim has two sources
 of truth for one fact.
@@ -138,7 +138,7 @@ touches:
 heading, so it adds no `## ` heading and leaves a schema check that flags headings outside the schema
 unaffected. It is one copy per slice file — a five-slice spec carries it five times — which is the cost of
 a template that is generated rather than referenced. It is **Build's suggestion living in Slice's
-output**: Slice writes it, and `dev-path:build` names it as the thing the slice file carries.
+output**: Slice writes it, and `devpath:build` names it as the thing the slice file carries.
 
 **`done` and `fix_cycles` are absent at creation.** Mandated. `done: true` is Build's, written when the
 acceptance criteria are ticked; `fix_cycles` is Critique's, written on its first pass over the slice. A
@@ -175,7 +175,7 @@ the cut being wrong rather than the heading being empty.
 ### `depends_on` and `touches`
 
 **`depends_on` holds full paths to other slice files**, of the form
-`dev-path/<slug>/slices/<nn>-<name>.md`. Not ordinals, not slugs, and no flat form. It means *this slice
+`devpath/<slug>/slices/<nn>-<name>.md`. Not ordinals, not slugs, and no flat form. It means *this slice
 cannot start until that slice is done*, which is a statement about slices. Slice writes every slice file
 in one pass, so they all exist and the cited-paths check genuinely validates the whole graph with no new
 machinery.
@@ -198,7 +198,7 @@ the edge case resolves without it: if slice 2 modifies a file slice 1 *creates*,
 
 **Two consequences of `touches` being pre-existing-only.** On a greenfield repo, whose dominant act is
 creating metadata, `touches` is often empty — so any future trigger derived from it is blind exactly where
-`dev-path` runs. And two specs inventing the same new object appear in no field anywhere.
+`devpath` runs. And two specs inventing the same new object appear in no field anywhere.
 
 **The cited-paths check runs here, as you write, and it refuses.** A `depends_on` path that does not
 resolve is Slice's own error — Slice wrote every slice file in one pass — and is fixable in the same
@@ -230,16 +230,16 @@ slugs, and what a reader does about it is talk to the other engineer.
 **Show the layout and stop.** The slice list, each slice's one-sentence behaviour line, and the
 `depends_on` edges between them.
 
-**Commit the slice files.** When Slice was reached by `dev-path:technical-design`, that command pushes
+**Commit the slice files.** When Slice was reached by `devpath:technical-design`, that command pushes
 once the layout settles, so the human sees the design and the layout together on the draft pull request.
 Run alone, commit and push here.
 
 **The human may reject the layout, and that does not withdraw the design approval.** One verdict sending
 the whole thing back was rejected, and the design is not what was rejected. **Re-cut conversationally in
-this same session**, with everything still in context. The cold fallback is `dev-path:slice` alone against
+this same session**, with everything still in context. The cold fallback is `devpath:slice` alone against
 the approved design.
 
-**A `dev-path:technical-design` run never ends with `design_approved: true` and zero slice files.** That
+**A `devpath:technical-design` run never ends with `design_approved: true` and zero slice files.** That
 is a postcondition on the command, and it is why this skill is separately invocable: a session that dies
 after the approval and before the cut leaves an approved design with no slices, and running
-`dev-path:slice` recovers it.
+`devpath:slice` recovers it.
