@@ -126,6 +126,57 @@ Choosing one would be Build deciding which dependency the model did not mean.
 
 **No new field.** A cycle is a property of `depends_on`, computed from `depends_on`.
 
+**The walk is also where a finished spec gets its second look. Sorted, and with every slice carrying
+`done: true`, open `## Outcome checks` on `spec.md` by name before reporting there is nothing to do.**
+The section below is what to do with what is in it.
+
+## Cut for an unmet Outcome
+
+**Mandated, and it is a heading you open by name.** Nothing else in `devpath` reads `## Outcome checks`.
+Integrate writes it and Integrate refuses on it, and the shortfall then sits on the spec with no reader at
+all. A cold `devpath:build` after that refusal sorts the slices, finds every one `done: true`, and reports
+there is no work — which is the run the engineer typed to clear the refusal. A worker reading `spec.md`
+for Intent and Outcomes skims straight past a heading nobody sent it to.
+
+**The trigger — cut only when every slice carries `done: true`, and only for a `- [ ] unmet` line.** With
+any slice outstanding there is work already, and the walk never reaches this test. And between the cut and
+the build the new slice carries no `done`, so a second cold run finds work waiting and builds it rather
+than cutting again.
+
+**Before cutting, open `## Deviations` on every slice and look for an entry naming an unmet Outcome.
+Found → do not cut.** Say every slice is done, name the Outcome the existing slice was cut for, and give
+the next act: `devpath:integrate`. **That read is what stops the duplicate after the build**, when every
+slice is `done: true` once more and the unmet line is still on the spec — only Integrate's next run
+rewrites it.
+
+**The cut writes that entry, in the same act that writes the slice.** A plain bullet under the new slice's
+`## Deviations`, naming the Outcome and quoting the shortfall:
+
+```markdown
+## Deviations
+- Cut for Outcome 7, unmet at Integrate: throws above 200 rows; batching is fixed at 200 and nothing
+  chunks past it.
+```
+
+**That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
+plain untagged sentence under `## Deviations`, nothing deleted, carried whole into the pull request body
+by Integrate's step 4. One convention, two writers.
+
+> **A plain bullet, never `- [ ]`.** Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole spec
+> directory, so a box here holds this spec's merge open forever. This entry exists to be read by the next
+> `devpath:build`, not answered by a human. **No new tag either** — the closed set is `fixed`, `met`,
+> `false positive`, `won't fix` and `excess`, and this is not a disposition.
+
+**This is the orchestrator's act, and no new authority is built for it.** Build already re-cuts the slice
+layout unattended and writes the change down as a deviation; cutting one more slice for an unmet Outcome
+is that same authority read over the spec rather than over one slice, and it is a decision about the whole
+slice list, taken before anything is dispatched. What follows is an ordinary dispatch of an ordinary
+slice: the next number, `depends_on` by the normal rule, `done` absent — so Integrate refuses again for
+the reason it already refuses until that slice is built and critiqued.
+
+**Integrate cuts nothing.** It produces a verdict, and this section is the one route from that verdict
+back into work.
+
 ## Read `fix_cycles` before opening a fix pass
 
 **At `fix_cycles >= 2` on that slice, do not open another fix pass unasked.** Ask the engineer already in
@@ -522,9 +573,10 @@ you graded rather than met.
 cannot satisfy is not edited into one you can: either resolving it changes only *how*, in which case
 re-cut and note the deviation, or it changes *what*, in which case **pause**.
 
-**`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `devpath` writes
-`fixed`, `met` and `false positive`; it never writes this one.** So it is never your unilateral way past a
-criterion you could not meet.
+**`- [x] won't fix — <reason>` is the human's decision, in the human's words, and there is no human in
+this context.** You are a subagent: write `fixed` and `met`, name the criterion you could not meet, and
+return. The session holding the engineer writes that line when they say it — so it is never your
+unilateral way past a criterion you could not meet.
 
 **Then write `done: true`, then return.** A slice is done when its acceptance criteria are ticked — that is
 the predicate the field carries. Value is always `true`; absence is how you say no; nothing ever writes
@@ -609,8 +661,8 @@ disposition, in that session, before it ends. A stage that could clear the box i
 already names the findings and carries them, so you have the list you are dispositioning.
 
 ***Fixed* is a claim about work just done, which only the pass that did it can make** — the same rule as
-ticking a criterion as you satisfy it and never before. Critique owns `false positive`; the human owns
-`won't fix`.
+ticking a criterion as you satisfy it and never before. Critique owns `false positive`; `won't fix` is
+the human's decision, written in the seat where they are.
 
 ## How you reach a human
 

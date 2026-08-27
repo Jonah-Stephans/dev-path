@@ -36,7 +36,7 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 1. Run the Outcomes pass; write `## Outcome checks`.
 2. Run the contention script again.
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
-   Name all three exits on an unmet Outcome.
+   **Per unmet Outcome, print the shortfall and all three exits as literal commands.**
 4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
    every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
 5. Offer to file `## devpath feedback` as an issue. **If it is empty, say the heading exists and file
@@ -72,11 +72,21 @@ every line is a real per-Outcome verdict.
 ```markdown
 ## Outcome checks
 - [x] met — Tolerances configurable per quantity, unit price and total
-- [ ] unmet — Bulk update over 200 rows completes without error
+- [ ] unmet — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
 ```
 
 **`- [ ] unmet` is not a sixth state.** It is a bare `- [ ]` with the shortfall spelled out, so every
 check that greps `^[[:space:]]*- \[ \]` matches it.
+
+**Mandated: what follows `unmet — ` is what the checker observed.** Never the Outcome restated, never a
+proposed fix. The Outcome is already on the page under `## Outcomes`, so a line that repeats it carries
+nothing about what fell short, and step 3 then hands the engineer a refusal with nothing in it to act on.
+A live run wrote exactly that line and the engineer read *the outcome failed*.
+
+**That is step 6's fourth bound arriving five steps early — *report the observation, never the
+diagnosis*.** One rule, cited rather than a second one invented. *Throws above 200 rows; batching is fixed
+at 200 and nothing chunks past it* is the observation. *Add chunking* is Design's, and a checker holding
+one diff and one sentence is the last agent in this workflow qualified to write it.
 
 **Why one checker per Outcome, where Survey groups.** An Integrate checker reads a known diff against a
 known statement, so it is cheap per agent — it has no breadth problem to bound. And grouping here would
@@ -171,17 +181,55 @@ than a false positive.**
 
 **A tagged box under `## Deviations` holds this refusal exactly as a pause does**, and the tag names the
 decision rather than whether one is owed. `- [ ] excess` is the commit audit's note on files a commit
-swept in, closed by hand at merge: `- [x] false positive` where the files were in scope and `touches` was
-incomplete, or `- [x] won't fix — <reason>` where they were not.
+swept in, closed on the human's decision at merge: `- [x] false positive` where the files were in scope
+and `touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
 
-**On an unmet Outcome, name all three exits.** The question that separates them is **did we fall short of
-the target, or was the target wrong?**
+**On an unmet Outcome, print the shortfall and three literal commands, one block per Outcome.** A table of
+meanings is not a handover — the engineer in the seat needs a next act, and for two of these three exits
+there was nowhere to go. The question that separates them is **did we fall short of the target, or was the
+target wrong?**
 
-| Exit | Means | Where it lands |
-| --- | --- | --- |
-| **Run `devpath:build`** | there is work left | Build **cuts a new slice** for the unmet Outcome, builds it, and the deviation is written down |
-| **`- [x] won't fix`** | **the Outcome was right. We are shipping without it.** | the ledger — `grep -rn "won't fix" devpath/`, forever |
-| **Rework** | **the Outcome was never what we wanted.** | nowhere. Nothing was shipped short |
+The shape, rather than wording to copy:
+
+```
+devpath: 11 of 15 Outcomes met. 4 unmet — this run stops here.
+
+  Outcome 7 · Bulk update over 200 rows completes without error
+    Fell short: throws above 200 rows. Batching is fixed at 200 and nothing
+    chunks past it.
+
+  Did we fall short of the target, or was the target wrong?
+    work left             → /devpath:build       cuts a new slice for this Outcome
+    target was wrong      → /devpath:initiate    rewrites the Outcome; both gates drop
+    right, shipping short → tell me: won't fix 7 — <your reason>
+```
+
+**Neither line is composed here. Both are quoted.** The Outcome comes from `## Outcomes` and *Fell short*
+is the `- [ ] unmet` line's own words, which is why the grammar above mandates an observation — a line
+restating the Outcome makes this block say the Outcome twice and the shortfall never.
+
+**Exit 1 — `/devpath:build`.** There is work left. Build cuts a new slice for that Outcome, builds it, and
+writes down which Outcome it was cut for.
+
+**Exit 2 — the ledger.** The Outcome was right and the spec ships without it: `grep -rn "won't fix"
+devpath/`, forever. How that line gets written is below.
+
+**Exit 3 — `/devpath:initiate`.** The Outcome was never what we wanted. Its text lives in `## Outcomes`,
+which Initiate owns and overwrites, and Initiate's re-entry table already handles this exact re-run.
+**Say the consequence in one blunt sentence: rework sends the spec back behind both gates, and the slices
+survive on purpose.** **The expense is the point** — it is what stops rework being the cheap way past a
+hard Outcome. Same rule as *a criterion you cannot satisfy is not edited into one you can* in
+`devpath:build`, one level up and about an Outcome instead.
+
+**The next act belongs in a fresh session. Say that, and say why.** Everything a next run needs is on the
+branch — `## Outcome checks`, the slice files, `## Deviations` — so a fresh session pays full price and
+loses nothing. A session still holding eleven `met` verdicts talking itself into carrying on past this
+refusal is conversation-held state deciding it knows where it is, which is the failure `devpath:build`
+opens by naming as measured.
+
+**Say what that fresh run costs, as a property rather than an apology.** One sentence, here at the
+refusal: every line cleared as `won't fix` carries forward verbatim and every other Outcome is checked
+again, so no verdict is ever older than the run that printed it.
 
 **Naming all three is load-bearing:** without it, the way to ship something knowingly unresolved is
 invisible to anyone who has not read the design. **And the third exit exists to protect the ledger** —
@@ -195,17 +243,28 @@ routing trap — routing a finding to one of five existing slices is attribution
 judgment about code the model did not write. **Cutting a new slice asks *is there work left*: one
 destination, no attribution.**
 
-### Exit 2's line is the human's, by hand
+### Exit 2's line is the human's decision, written by the session they tell
 
-> **`- [x] won't fix — <reason>` on an unmet Outcome is written by the human, by hand, between the
-> refused run and the next one. `devpath` has no other route to it.**
+> **`- [x] won't fix — <reason>` on an unmet Outcome is the human's decision, in the human's words. The
+> session they say it to writes the line, between the refused run and the next one. No agent drafts the
+> reason, and no reason means no write.**
 
-**Say it, because a builder who does not read it will wire a step 3 that tries to write it.** A run admits
-no mid-run human input, so a run must end where a human is needed — Integrate cannot name the three
-exits, wait, and write the one the human picks, because the run is over at the naming. And re-running
-`devpath:integrate` cannot produce the line either, because step 1 rewrites `## Outcome checks` and
-would write the same Outcome unmet again. **Step 1's carry-forward rule is the other half of the
-mechanism**, and it only makes sense against a line something else wrote.
+**Say it, because a builder who does not read it will wire a step 3 that waits.** A run admits no mid-run
+human input, so Integrate cannot name the exits, hold, and write the one the human picks — the run is over
+at the naming. What arrives instead is a turn: the human answers *won't fix 7 — their reason*, and the
+session writes that line onto `## Outcome checks`. **That is the intent gate's own shape** —
+`devpath:initiate` ends its turn on a question, and a yes on the next turn writes `intent_accepted: true`.
+Approval plus an agent write is the same act as the human opening the file, and this plugin already runs
+on it at the gate that matters most.
+
+**Re-running `devpath:integrate` cannot produce the line**, because step 1 rewrites `## Outcome checks`
+and would write the same Outcome unmet again. **Step 1's carry-forward rule is the other half of the
+mechanism**, and it only makes sense against a line written between the two runs.
+
+**What must not change, because it is the whole deterrent.** The reason is the human's own words, it rides
+into the pull-request body at step 4 in front of the approver, and the line accumulates in
+`grep -rn "won't fix" devpath/` forever. **No reason, no write** — a blank after the dash is the waiver
+machinery this grammar refuses, reached by omission.
 
 **Do not close this with a field.** The three exits are deliberately unstored: a stored exit would put
 the ledger's loudest entry behind a flag rather than in front of the reviewer.
