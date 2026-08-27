@@ -288,6 +288,11 @@ branch that never reached Initiate, and a spec whose pull request has already me
 quietly as a branch carrying no `spec.md`. Both blocks are `Stop` hooks, so that read runs at the end of
 every turn on the branch.
 
+**A `gh` that fails answers the same way.** Unauthenticated, offline or rate-limited, the read comes back
+empty, and empty is not `false` — so the block releases rather than trapping the turn. That is the right
+direction for a hook that denies, and it means **a repo where `gh` carries no credential gets no guard
+rather than an inescapable one**.
+
 **The detection is scoped to `devpath/lessons/$SLUG`.** Unscoped, `gh pr list --state open` enumerates
 every open pull request in the repository and passes if any of them touches `.claude/rules/` — so a
 neighbouring spec's lessons pull request releases this spec's guard, silently.

@@ -5,6 +5,8 @@
 # neither reads `## Outcome checks`, that each one is silent on every state where
 # Learn is not owed, that each one fires on a pull request out of draft with no
 # lessons pull request open, and that block 6 emits the JSON the harness reads.
+# Every run also counts the `gh` calls, because a second draft read is paid at
+# the end of every turn rather than once.
 #
 # Both blocks are Stop hooks, so they run at the end of every turn on the branch.
 # Detecting Integrate's completion by anything written into `spec.md` puts that
@@ -32,6 +34,14 @@ fail() {  # fail <rule> <subject> [detail]
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "FAIL subject: python3 is not on PATH, and the extraction needs it"
+  exit 1
+fi
+
+# Block 6 builds its denial with `jq -n`, so jq is the thing under test's
+# dependency rather than this file's. Without it check 3 still passes on jq's
+# own error text and check 4 reports no JSON, which reads as a README defect.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "FAIL subject: jq is not on PATH, and block 6 builds its denial with it"
   exit 1
 fi
 
@@ -127,7 +137,8 @@ run() {  # run <block> <fires: yes|no> <gh calls> <what state this is>
   GOT=no
   [ -n "$OUT" ] && GOT=yes
   if [ "$GOT" != "$2" ]; then
-    fail 'hook blocks' "block $1 on $4" "it ${GOT}s, and on this state it should ${2}: ${OUT:-(silent)}"
+    if [ "$2" = yes ]; then WANT="fire here"; else WANT="stay silent here"; fi
+    fail 'hook blocks' "block $1 on $4" "it should $WANT, and it did not: ${OUT:-(silent)}"
   elif [ "$N" != "$3" ]; then
     fail 'hook blocks' "block $1 on $4" "$N gh call(s), not $3:
 $(cat "$GH_LOG")"
@@ -158,6 +169,12 @@ DRAFT_STUB=false LESSONS_PRS=77 DIFF_STUB=.claude/rules/things.md \
 DRAFT_STUB=false LESSONS_PRS= DIFF_STUB=.claude/rules/things.md \
   run 6 yes 2 "a rules pull request that is not this spec's"
 
+# Nor does a lessons pull request touching no rules file. This is the limit
+# README states about what a lessons pull request contains: Learn proposing
+# only a check reads here as Learn never having run.
+DRAFT_STUB=false LESSONS_PRS=77 DIFF_STUB=.github/workflows/tests.yml \
+  run 6 yes 3 "a lessons pull request touching only CI configuration"
+
 LESSONS_PRS=
 DIFF_STUB=
 
@@ -166,7 +183,10 @@ DIFF_STUB=
 # The wrapper is what the harness reads. A block emitting prose where the Stop
 # event wants `{"decision":"block"}` is a block that prints and never denies,
 # and nothing else here would tell the two apart.
-GH_LOG=$W/log DRAFT_STUB=false sh "$W/b6.sh" > "$W/payload" 2>&1
+GH_LOG=$W/log DRAFT_STUB=false sh "$W/b6.sh" > "$W/payload" 2>"$W/payload.err"
+[ -s "$W/payload.err" ] && fail 'hook blocks' 'README.md block 6' \
+  "block 6 wrote to stderr, which is not where the harness reads:
+$(cat "$W/payload.err")"
 ERR=$(python3 -c 'import json, sys
 try: d = json.load(open(sys.argv[1]))
 except Exception as e: sys.exit("block 6 emitted no JSON to deny with: %s" % e)
