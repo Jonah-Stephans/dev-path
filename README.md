@@ -446,9 +446,11 @@ write them.
   it. One `- [ ]` per criterion, closed as `- [x] met`. They count toward *Critique clean* like every other
   box in the directory.
 - **`## Deviations`** — Build records; Integrate carries into the pull request body; the human sees it at
-  merge. Recording is mandatory; whether to stop is the engineer's call. **Two kinds of open box live here
-  and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is the commit audit's
-  note on files a commit swept in past this slice's `touches`. **Both can be open on one slice.**
+  merge. Recording is mandatory; whether to stop is the engineer's call. Slice appends one plain sentence
+  here, with no tag and no box, when a re-cut changes the behaviour a built slice deployed. **Two kinds of
+  open box live here and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is
+  the commit audit's note on files a commit swept in past this slice's `touches`. **Both can be open on
+  one slice.**
 - **`## Critique findings`** — Critique's slice pass. Appends across cycles.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
