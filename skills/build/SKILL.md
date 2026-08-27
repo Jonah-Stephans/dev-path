@@ -522,9 +522,10 @@ you graded rather than met.
 cannot satisfy is not edited into one you can: either resolving it changes only *how*, in which case
 re-cut and note the deviation, or it changes *what*, in which case **pause**.
 
-**`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `devpath` writes
-`fixed`, `met` and `false positive`; it never writes this one.** So it is never your unilateral way past a
-criterion you could not meet.
+**`- [x] won't fix — <reason>` is the human's decision, in the human's words, and there is no human in
+this context.** You are a subagent: write `fixed` and `met`, name the criterion you could not meet, and
+return. The session holding the engineer writes that line when they say it — so it is never your
+unilateral way past a criterion you could not meet.
 
 **Then write `done: true`, then return.** A slice is done when its acceptance criteria are ticked — that is
 the predicate the field carries. Value is always `true`; absence is how you say no; nothing ever writes
@@ -609,8 +610,8 @@ disposition, in that session, before it ends. A stage that could clear the box i
 already names the findings and carries them, so you have the list you are dispositioning.
 
 ***Fixed* is a claim about work just done, which only the pass that did it can make** — the same rule as
-ticking a criterion as you satisfy it and never before. Critique owns `false positive`; the human owns
-`won't fix`.
+ticking a criterion as you satisfy it and never before. Critique owns `false positive`; `won't fix` is
+the human's decision, written in the seat where they are.
 
 ## How you reach a human
 

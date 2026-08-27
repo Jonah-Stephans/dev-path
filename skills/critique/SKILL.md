@@ -74,16 +74,22 @@ items onward.
 **Critique owns *false positive*** — a factual claim it can verify. ***Won't fix* needs the human** — a
 judgment about what is worth doing.
 
-> **`- [x] won't fix — <reason>` is written by the human, by hand, under any heading. `devpath` writes
-> `fixed`, `met` and `false positive`; it never writes this one.**
+> **`- [x] won't fix — <reason>` is the human's decision, in the human's words, under any heading. The
+> session they say it to writes the line. `devpath` writes `fixed`, `met` and `false positive` off its own
+> judgment; this one it writes only on an instruction, and only with the reason it was handed.**
 
-That is one rule rather than three. A run admits no mid-run human input, so a run must end where a human
-is needed — and this disposition needs the human by definition, so **no running skill can be the one that
-writes it.** It is a hand edit everywhere it appears.
+That is one rule rather than three, and **the seat is what it turns on rather than the run.** A worker
+subagent has no human in its context, so it never writes this line — it hands the finding back
+undispositioned and returns. The orchestrator is where a human is, and it is the same seat the fix cap
+below already sends you to.
 
-**What that costs, said plainly: the one route past a real-but-not-done finding is a human opening the
-file.** The alternative needs mid-run human input, which is ruled out, or a stored permission, which the
-cap below refuses.
+**No agent drafts the reason, and no reason means no write.** The reason is the whole deterrent: it rides
+into the pull-request body in front of the approver and lands in `grep -rn "won't fix" devpath/` forever.
+A reason an agent wrote is a waiver signed by the applicant.
+
+**What that costs, said plainly: the one route past a real-but-not-done finding is the human saying so, in
+their own words, in the session.** The alternatives are mid-run human input, which is ruled out, or a
+stored permission, which the cap below refuses.
 
 **Critique does not fix its own findings** — the reviewer becoming the author is the thing a fresh critic
 exists to prevent. **And no per-finding fixer subagents:** each has no view of the whole change, and the
@@ -109,8 +115,9 @@ it may not have been, and **only `fixed` and `met` mean the code changed.** Pin 
 `grep -rn "won't fix" devpath/` gives you on the base branch.
 
 **Three writers, deliberately:** this skill writes `- [x] false positive`; **the fix-pass worker writes
-`- [x] fixed` in the pass that fixes it**; and `- [x] won't fix` needs the human. *Fixed* is a claim about
-work just done, so only the pass that did it can make it.
+`- [x] fixed` in the pass that fixes it**; and `- [x] won't fix` is the human's decision, spoken into the
+orchestrator seat and written there. *Fixed* is a claim about work just done, so only the pass that did it
+can make it.
 
 **A box entry is one line beginning `- [` at column zero**, with nothing nested under it. The grep matches
 an indented box anyway, so a formatter that renests the list cannot make a dirty spec read clean.
@@ -219,9 +226,9 @@ grammar, plus *keep going*.
 to three more times*. Storing it would be a new field and, worse, a standing permission sitting on disk
 long after the conversation that granted it. It lives in the session and dies with it.
 
-**Only *keep going* needs no write at all.** Every other answer is the human editing the line by hand,
-between this run and the next one — and the next `devpath:critique` run then opens a slice whose finding
-is already dispositioned.
+**Only *keep going* needs no write at all.** Every other answer is a disposition the human states and
+this session writes onto the line, between this run and the next one — and the next `devpath:critique` run
+then opens a slice whose finding is already dispositioned.
 
 **`fix_cycles` keeps counting through granted laps**, so a slice that ends at 7 is honestly recorded as one
 that fought. **Nothing caps how many times a human may grant** — any limit there would be the first thing
