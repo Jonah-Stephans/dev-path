@@ -177,8 +177,8 @@ the cut being wrong rather than the heading being empty.
 **`depends_on` holds full paths to other slice files**, of the form
 `devpath/<slug>/slices/<nn>-<name>.md`. Not ordinals, not slugs, and no flat form. It means *this slice
 cannot start until that slice is done*, which is a statement about slices. Slice writes every slice file
-in one pass, so they all exist and the cited-paths check genuinely validates the whole graph with no new
-machinery.
+it cuts in one pass, and on a re-cut the slices it cuts around are already on disk, so every cited path
+resolves and the check validates the whole graph with no new machinery.
 
 **`touches` holds paths to pre-existing files the slice will modify.** Two readers: the cited-paths check
 and the contention checkpoint.
@@ -210,10 +210,13 @@ breath. A `touches` path that does not resolve at the moment it is written is wr
 Everything above cuts an empty directory. This is the run where the directory is not empty, and what is
 already on disk decides what you may do to it.
 
-**It is reachable today, by three routes.** `devpath:technical-design` re-entered on an approved design
-withdraws the gate and **keeps the slice files on purpose**, then re-slices once the design settles. A
-human can type `/devpath:initiate` on a spec that has been building for a week. And `/devpath:slice`
-alone, on a spec whose design is still approved, lands here with every slice on disk.
+**It is reachable today, by two routes.** `devpath:technical-design` re-entered on an approved design
+withdraws the gate and **keeps the slice files on purpose**, then re-slices once the design settles. And
+`/devpath:slice` alone, on a spec whose design is still approved, lands here with every slice on disk.
+
+`/devpath:initiate` on a spec that has been building for a week is the first route one step back. It
+deletes both gates, so this skill's own refusal fires until Design re-approves, and Design is what
+re-slices.
 
 **Read `devpath/<slug>/slices/` before you cut, front matter included.** `done: true` is the whole test.
 It is Build's write and Build writes it only once the slice's acceptance criteria are ticked against code
@@ -243,8 +246,8 @@ devpath: 6 slices on this spec already carry done: true. Not touching them.
     06-layout-render           done
 
   Cut for the reworked design
-    07-chunked-bulk-writer     depends_on: 04
-    08-chunk-failure-reporting depends_on: 07
+    07-chunked-bulk-writer     depends on 04-bulk-batcher
+    08-chunk-failure-reporting depends on 07-chunked-bulk-writer
 
 Layout is 2 new slices. Nothing built is re-cut.
 ```
@@ -255,10 +258,20 @@ Layout is 2 new slices. Nothing built is re-cut.
 zero. Writing a new file beside it instead leaves two slices describing one behaviour, and the second one
 builds it again.
 
-**A slice carrying no `done: true` is re-cut in place, normally.** Nothing was deployed, so a rewrite
-orphans nothing: rewrite `## What to build`, restructure the criteria, and the file keeps its number and
-its name. The guard above is about deployed work rather than about slice files. At N = 1 there is no delta
-to cut and in place is the only cut there is.
+**A slice carrying no `done: true` is re-cut in place, normally.** Rewrite `## What to build`, restructure
+the criteria, and the file keeps its number and its name. The guard above is about deployed work rather
+than about slice files. At N = 1 there is no delta to cut and in place is the only cut there is.
+
+**The re-cut rewrites `## What to build` and `## Acceptance criteria`, and leaves the rest of the file
+alone.** `## Deviations`, `## Critique findings` and every front-matter field another stage wrote ride
+through untouched, because a slice carrying no `done: true` is not the same thing as an untouched slice.
+`devpath:build` pauses by writing an open box under `## Deviations` and committing what is on disk, so the
+file can hold a pause and a `- [ ] excess` note from the commit audit, with committed code behind them.
+
+**The pause box is closed by the `devpath:technical-design` session that resolves it, ticked in the
+disposition grammar.** The frozen test joins no `done: true` to an open box there. Drop that box in a
+rewrite and the slice reads *not started* to the next `devpath:build`, with the question that stopped it
+gone. A `- [ ] excess` box stays open for the human at merge.
 
 ### A design that contradicts a built slice stops and asks
 
@@ -292,17 +305,18 @@ that behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` s
 did deploy. Integrate's step 4 carries `## Deviations` whole into the pull request body, so the human at
 merge reads both slices.
 
-**Keep 04** → the design is what went too far, and it goes back through Design's own withdrawal:
-**announce that the design gate is returning to unapproved, delete `design_approved` and nothing else**,
-have the conversation, re-approve, and cut again. Editing `## Design` with the gate still set is the
-failure withdrawal exists to stop, which is *a second run rewriting `## Design` under an approval a human
-gave to a different design*.
+**Keep 04** → the design is what went too far, and it goes back to `devpath:technical-design`, whose
+re-entry on an approved design **withdraws the gate as its own mandated act** and re-slices once the new
+design settles. Inside a design session, that withdrawal is this session applying its own rule. Run alone,
+**say the next act and stop**. `design_approved` is Design's field in both directions. Editing
+`## Design` with the gate still set is the failure withdrawal exists to stop, which is *a second run
+rewriting `## Design` under an approval a human gave to a different design*.
 
 **Why the conflict goes to Design rather than resolving here.** Slice partitions and never invents, and
 `devpath:build` re-cuts but never redesigns. A built slice contradicting the new design is a design
 question wearing a slicing hat, and Design is the stage with a human in the room.
 
-### A tick Build wrote, on a re-cut
+### A tick Build wrote is cleared on one ground only
 
 `- [x] met` is Build's write and it lands only after a deploy: *a criterion ticked against code that has
 not deployed is a criterion you graded rather than met.* Slice writes criteria and Build ticks them, and a
