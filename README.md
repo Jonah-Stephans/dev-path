@@ -276,16 +276,21 @@ CI, where a network failure does not stop an engineer's edit.
 guarantee, and the one with a cost: **Learn proposing nothing is a legal outcome**, and this block cannot
 tell that from Learn never running. Take it only if the repo accepts *Learn always opens a pull request*.
 
+**The trigger is the pull request leaving draft.** Initiate opens it as a draft and Integrate marks it
+ready at **step 8**, one step after Learn runs at step 7 — so *out of draft* means *Integrate ran to the
+end*. A spec Integrate refused at step 3 is still a draft, and ends its turns silently. **A human who
+marks the pull request ready without running Integrate trips the block too**, and should: the merge is one
+approval away either way.
+
+**A branch with no pull request exits on that same read**, which is also the only `gh` call these blocks
+make before they leave. `.[0].isDraft` over an empty list is `null`, and `null` is not `false` — so a
+branch that never reached Initiate, and a spec whose pull request has already merged, end their turns as
+quietly as a branch carrying no `spec.md`. Both blocks are `Stop` hooks, so that read runs at the end of
+every turn on the branch.
+
 **The detection is scoped to `devpath/lessons/$SLUG`.** Unscoped, `gh pr list --state open` enumerates
 every open pull request in the repository and passes if any of them touches `.claude/rules/` — so a
 neighbouring spec's lessons pull request releases this spec's guard, silently.
-
-**A second limit, stated rather than mechanised.** The condition becomes true at Integrate **step 1** and
-Learn runs at **step 7** — and between them sits step 3, which is a hard exit. **After a legitimate
-refusal at step 3 this block blocks the end of every turn on the branch**, demanding a Learn run that must
-not happen. It cannot tell *Integrate finished* from *Integrate refused*, because those exits are
-deliberately unstored. **A repo that takes block 6 accepts that an unmet Outcome means removing the block
-or clearing the Outcome before the turn can end.** Block 7 costs nothing here, because it only prints.
 
 **One more limit, and it is about what a lessons pull request contains.** Blocks 6 and 7 detect one by
 `gh pr diff --name-only | grep '^\.claude/rules/'`. **A lessons pull request proposing only a check
@@ -300,7 +305,7 @@ touches the repo's CI configuration and no rules file, so these blocks do not se
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; jq -n '{decision:\"block\",reason:\"devpath: the Outcomes pass has run on this spec and no lessons pull request is open. Run devpath:learn before the merge.\"}'",
+            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; [ \"$(gh pr list --head \"$SLUG\" --json isDraft --jq '.[0].isDraft')\" = false ] || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; jq -n '{decision:\"block\",reason:\"devpath: the pull request for this spec is out of draft and no lessons pull request is open. Run devpath:learn before the merge.\"}'",
             "timeout": 30
           }
         ]
@@ -323,7 +328,7 @@ denial: it puts the sentence in front of the engineer and stops there.
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; awk '/^## Outcome checks/{f=1;next} /^## /{f=0} f&&NF{n++} END{exit !n}' \"$S\" || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; echo 'devpath: the Outcomes pass has run on this spec and no lessons pull request is open.'",
+            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; [ \"$(gh pr list --head \"$SLUG\" --json isDraft --jq '.[0].isDraft')\" = false ] || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; echo 'devpath: the pull request for this spec is out of draft and no lessons pull request is open.'",
             "timeout": 30
           }
         ]
@@ -338,7 +343,7 @@ denial: it puts the sentence in front of the engineer and stops there.
 **Two things are unverified, and which rather than a count.** Running shell cannot test whether the
 harness honours a block's wrapper: the `if` key is settled against the official hooks reference, the
 `Stop` event's `{"decision":"block"}` shape is not. And blocks 6 and 7 were exercised against a **stubbed**
-`gh` — the enumeration, the scoping and the release were tested, the live API was not.
+`gh` — the draft read, the enumeration, the scoping and the release were tested, the live API was not.
 
 **The post-merge Learn runner is not on this menu.** A workflow file plus a stored credential plus a
 decision to run an agent in CI is a procedure, not a paste. It is named here and not specified.
