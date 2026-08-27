@@ -245,8 +245,8 @@ That is the whole of the section below, and printing it as a fourth command is t
 exists to prevent.
 
 **Say what the next run costs, as a property rather than an apology.** One sentence, here at the refusal:
-every line cleared as `won't fix` carries forward verbatim, every other Outcome is checked again, and
-`devpath:build` clears this section before it changes any code — so no verdict is ever older than the run
+every line closed as `won't fix` carries forward verbatim, every other Outcome is checked again, and
+`devpath:build` expires this section before it changes any code — so no verdict is ever older than the run
 that printed it.
 
 **Naming all three is load-bearing:** without it, the way to ship something knowingly unresolved is

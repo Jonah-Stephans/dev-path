@@ -126,11 +126,14 @@ Choosing one would be Build deciding which dependency the model did not mean.
 
 **No new field.** A cycle is a property of `depends_on`, computed from `depends_on`.
 
+**One rule binds every run of this skill, whatever the walk finds: `## Outcome checks` is expired before
+the first dispatch of any run that will change code.** A fix pass invalidates those verdicts exactly as a
+new slice does. `### The verdicts expire when the code moves` below states it once, and nothing about it
+is conditional on what the walk found.
+
 **The walk is also where a finished spec gets its second look. Sorted, and with every slice carrying
 `done: true`, open `## Outcome checks` on `spec.md` by name before reporting there is nothing to do.** The
-section below is what to do with what is in it, and it carries one rule that binds every run rather than
-only that one: **`## Outcome checks` is cleared before the first dispatch of any run that will change
-code.**
+section below is what to do with what is in it.
 
 ## Cut for an unmet Outcome, then expire the section
 
@@ -142,27 +145,29 @@ for Intent and Outcomes skims straight past a heading nobody sent it to.
 
 ### The verdicts expire when the code moves
 
-**Before the first dispatch of any run that will change code, clear `## Outcome checks` and say what went.
-Every line except `- [x] won't fix`, which carries forward verbatim.** The section is a verdict on the
-diff that existed when Integrate ran, and you are about to make that diff wrong. Keeping it is how a later
-cold run reads a stale shortfall as a live one.
+**Before the first dispatch of any run that will change code, expire `## Outcome checks` and say what
+went. Every line except `- [x] won't fix`, which carries forward verbatim.** **The heading stays; the
+lines under it go** — an expired section reads as *the pass has not run against this code*, which is what
+README's placeholder exception already says an empty one means. The section is a verdict on the diff that
+existed when Integrate ran, and you are about to make that diff wrong. Keeping it is how a later cold run
+reads a stale shortfall as a live one.
 
-**That is `skills/integrate/SKILL.md`'s carry-forward rule with a second user rather than a new rule.**
-Integrate rewrites every line but `won't fix` when it runs the pass, for the reason stated there — the
-machine does not relitigate a human's decision. Clearing before a build is the same sentence read from the
-other end of the loop.
+**The carve-out is `skills/integrate/SKILL.md`'s, and it holds here for the reason stated there** — the
+machine does not relitigate a human's decision. **The acts differ.** Integrate rewrites every line but
+`won't fix` when it runs the pass; this run deletes every line but that one. One replaces a verdict and
+one leaves none, and the same line survives both.
 
 **It hangs on *any run that will change code*, not on the cut below.** A fix pass three weeks after the
 refusal invalidates those verdicts exactly as a new slice does. One instruction, at one point in the run,
 covering both.
 
-**Read the section before you clear it.** The cut below is its one reader, so a run that clears first has
-thrown away the shortfall it was typed to act on.
+**Read the section before you expire it.** The cut below is its one reader, so a run that expires first
+has thrown away the shortfall it was typed to act on.
 
-> **Never clear a `- [x] won't fix` line.** That is the ledger, and a machine deleting a human's decision
+> **Never expire a `- [x] won't fix` line.** That is the ledger, and a machine deleting a human's decision
 > silently is the failure the announcement exists to prevent.
 
-**Announcing is mandatory.** Name every Outcome whose line you cleared, in this run's output. A verdict
+**Announcing is mandatory.** Name every Outcome whose line you expired, in this run's output. A verdict
 that goes without a sentence is one the engineer still believes is on the page, and no field makes an old
 one look old.
 
@@ -172,13 +177,16 @@ one look old.
 With any slice outstanding there is work already and the walk never reaches this test. Between the cut and
 the build the new slice carries no `done`, so a run arriving mid-flight finds work waiting and builds it.
 
-**No `- [ ] unmet` line, or an empty section — say so and stop.** Every slice done with no live shortfall is
-either a spec whose verdicts are current, or one an earlier run already cut for and cleared. Report that
-every slice is done and give the next act: `devpath:integrate`. **Cutting on an empty section is cutting
-with no shortfall to cut against**, which is a slice nobody can write `## What to build` for.
+**No `- [ ] unmet` line, an empty section, or no section at all — say so and stop.** Three ways to arrive
+here and one act out of all of them: the pass ran and every verdict is current; the pass ran, an earlier
+Build expired it, and the slices that run cut are now done; or **the pass has never run**, which is every
+spec's first trip past this point. **Absent and empty are the same state and always have been**, so the
+second and third are not worth telling apart. Report that every slice is done and give the next act:
+`devpath:integrate`. **Cutting on an empty section is cutting with no shortfall to cut against**, which is
+a slice nobody can write `## What to build` for.
 
 **Cut one slice per `- [ ] unmet` line**, never one slice for the first one found. Four unmet Outcomes are
-four shortfalls, and a run that cuts for one leaves three on a section it is about to clear.
+four shortfalls, and a run that cuts for one leaves three on a section it is about to expire.
 
 **The slice file is `skills/slice/SKILL.md`'s `## Write`, followed exactly** — front matter carrying
 `depends_on` and `touches`, the test-first block, and exactly the four headings that section prints, with
@@ -198,6 +206,9 @@ shortfall:**
   above 200 rows; batching is fixed at 200 and nothing chunks past it.
 ```
 
+**The shortfall is reproduced rather than paraphrased**, exactly as `devpath:integrate` reproduces it at
+its refusal — the trailing period closes this bullet's sentence and is the only thing added to the line.
+
 **That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
 plain untagged sentence under `## Deviations`, nothing deleted, carried whole into the pull request body
 by Integrate's step 4. One convention, two writers.
@@ -206,7 +217,7 @@ by Integrate's step 4. One convention, two writers.
 > directory, so a box here holds this spec's merge open forever. **No new tag either** — the closed set is
 > `fixed`, `met`, `false positive`, `won't fix` and `excess`, and this is not a disposition.
 
-**Then clear the section and announce, in the commit that carries the cut.** A commit holding new slices
+**Then expire the section and announce, in the commit that carries the cut.** A commit holding new slices
 and the old verdicts is a branch that reads as refused and rebuilt at the same time.
 
 **Writing `spec.md` from a Build run is not new authority.** Inside this same run, Critique's slice pass

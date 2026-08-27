@@ -428,17 +428,21 @@ design_approved: true
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which clears it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
 
 **`## Outcome checks` is a verdict on a code state, and it expires when that state changes.** Any run that
-will change code clears it before its first dispatch — **every line except `- [x] won't fix`, which carries
-forward verbatim, because the machine does not relitigate a human's decision.** **Say what was cleared.** A
-verdict nobody expired is one a later run reads as current, and no field makes an old one look old.
+will change code expires it before its first dispatch — **every line except `- [x] won't fix`, which
+carries forward verbatim, because the machine does not relitigate a human's decision.** **Say what was
+expired.** A verdict nobody expired is one a later run reads as current, and no field makes an old one look
+old. **The heading stays and the lines under it go**, which is *Nothing writes a placeholder* below, read
+at the other end.
 
-**That is one rule with two users rather than two rules.** `devpath:integrate` already rewrites every line
-but `won't fix` when it runs the Outcomes pass, for that same reason; `devpath:build` clearing the section
-before it changes code is the same sentence read from the other end of the loop.
+**Both writers carve out the same line, and that is the part they share.** `devpath:integrate` rewrites
+every line but `won't fix` when it runs the Outcomes pass; `devpath:build` deletes every line but that one
+before it changes code. **The acts differ — Integrate replaces a verdict, Build leaves none** — and the
+carve-out holds across both for the reason stated at each: the machine does not relitigate a human's
+decision.
 
 ### `devpath/<slug>/slices/<nn>-<name>.md`
 
@@ -637,6 +641,13 @@ the write adds a hook of its own — `devpath` ships none and depends on none.
 Gating a section's presence yields the word `none` typed to satisfy a check, which is worse than nothing.
 **`## Outcome checks` is the one deliberate exception** — always written, one line per Outcome, because
 otherwise *nothing was wrong* and *the pass never ran* are indistinguishable.
+
+**The exception binds the pass that writes it, not the section forever.** `devpath:build` expires those
+verdicts before it changes code, and an expired section reads as *the pass has not run against this code*
+— which is then the true state, and the one the next `devpath:integrate` run exists to replace. **The
+heading stays and the lines under it go.** Deleting the heading would put `spec.md` outside the skeleton
+above with nothing to catch it: the schema hook flags a heading that should not be there and is silent on
+one that should.
 
 **The slice pass needs no such exception, which is why the list has one entry and not two.** Its trace is
 the `fix_cycles:` line on the slice, so an empty `## Critique findings` is already distinguishable from a
