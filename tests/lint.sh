@@ -198,7 +198,23 @@ if [ -n "$MECH" ]; then
 $MECH"
 fi
 
+# --------------------------------------------- 5. an Outcome is never numbered
+#
+# `devpath:integrate` states it where it prints an unmet Outcome: a positional
+# index is a convention nothing in `devpath` defines, and #69 owns the question
+# of what would. This scans devpath's own prose rather than a spec on disk, so
+# what it catches is an illustration teaching the convention by example — which
+# is how the last one survived a rule that already forbade it.
+#
+# Stable under #69. An ID line reads `- O2 — <statement>` and a reference reads
+# `O2`, neither of which is the word Outcome followed by a digit, so the ban on
+# positions outlives the arrival of handles.
+for f in $PROSE; do
+  [ -f "$f" ] || continue
+  report 'never numbered' "$f" "$(grep -nE "${L}Outcome[[:space:]]+[0-9]" "$f")"
+done
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, no numbered Outcome — clean"
 fi
 exit "$FAIL"

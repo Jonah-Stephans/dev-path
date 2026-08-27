@@ -300,10 +300,12 @@ subagent.
 **Neither exit is yours to pick.** The ask is the instruction; the answer is the human's.
 
 **Rework it** → cut a new slice whose `touches` covers the same files, and append one plain sentence to
-the built slice's `## Deviations`: *04 built a fixed 200-row cap; Outcome 7 was reworked and 07 changes
-that behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` stays, because 04 genuinely
-did deploy. Integrate's step 4 carries `## Deviations` whole into the pull request body, so the human at
-merge reads both slices.
+the built slice's `## Deviations`: *04 built a fixed 200-row cap; the Outcome "Bulk update over 200 rows
+completes without error" was reworked and 07 changes that behaviour.* No tag and no box, and nothing on 04
+is deleted. **The Outcome is quoted, never numbered** — a positional index is a convention nothing in
+`devpath` defines, and `devpath:integrate` states the same rule where it prints an unmet Outcome.
+`done: true` stays, because 04 genuinely did deploy. Integrate's step 4 carries `## Deviations` whole
+into the pull request body, so the human at merge reads both slices.
 
 **Keep 04** → the design is what went too far, and it goes back to `devpath:technical-design`, whose
 re-entry on an approved design **withdraws the gate as its own mandated act** and re-slices once the new

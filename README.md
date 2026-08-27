@@ -428,8 +428,21 @@ design_approved: true
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate` | Integrate's refusal; the human at merge |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
+
+**`## Outcome checks` is a verdict on a code state, and it expires when that state changes.** Any run that
+will change code expires it before its first dispatch — **every line except `- [x] won't fix`, which
+carries forward verbatim, because the machine does not relitigate a human's decision.** **Say what was
+expired.** A verdict nobody expired is one a later run reads as current, and no field makes an old one look
+old. **The heading stays and the lines under it go**, which is *Nothing writes a placeholder* below, read
+at the other end.
+
+**Both writers carve out the same line, and that is the part they share.** `devpath:integrate` rewrites
+every line but `won't fix` when it runs the Outcomes pass; `devpath:build` deletes every line but that one
+before it changes code. **The acts differ — Integrate replaces a verdict, Build leaves none** — and the
+carve-out holds across both for the reason stated at each: the machine does not relitigate a human's
+decision.
 
 ### `devpath/<slug>/slices/<nn>-<name>.md`
 
@@ -474,6 +487,14 @@ execution order;** `depends_on` owns execution order. **`depends_on` values are 
 
 **`devpath/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
 the only place a non-text file exists anywhere in `devpath`.**
+
+**Every section above is a signal or a written trace, and the tables say which.** A signal names each
+reader that branches on its contents and states the grammar those readers match — `## Traps` does both,
+and so does `## Outcome checks`. A written trace names who *carries* it and states a grammar for a human's
+benefit only: `## Deviations` and `## Critique findings` ride into the pull request body and are read at
+merge, and **no run branches on what they say.** The box markers in them are a signal, and the words after
+a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing reads a
+`## Deviations` entry to decide what to do next.
 
 ### The front-matter block starts at byte zero
 
@@ -620,6 +641,13 @@ the write adds a hook of its own — `devpath` ships none and depends on none.
 Gating a section's presence yields the word `none` typed to satisfy a check, which is worse than nothing.
 **`## Outcome checks` is the one deliberate exception** — always written, one line per Outcome, because
 otherwise *nothing was wrong* and *the pass never ran* are indistinguishable.
+
+**The exception binds the pass that writes it, not the section forever.** `devpath:build` expires those
+verdicts before it changes code, and an expired section reads as *the pass has not run against this code*
+— which is then the true state, and the one the next `devpath:integrate` run exists to replace. **The
+heading stays and the lines under it go.** Deleting the heading would put `spec.md` outside the skeleton
+above with nothing to catch it: the schema hook flags a heading that should not be there and is silent on
+one that should.
 
 **The slice pass needs no such exception, which is why the list has one entry and not two.** Its trace is
 the `fix_cycles:` line on the slice, so an empty `## Critique findings` is already distinguishable from a

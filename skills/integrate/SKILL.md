@@ -36,7 +36,7 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 1. Run the Outcomes pass; write `## Outcome checks`.
 2. Run the contention script again.
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
-   Name all three exits on an unmet Outcome.
+   **Per unmet Outcome, print the shortfall and where each of the three exits goes.**
 4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
    every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
 5. Offer to file `## devpath feedback` as an issue. **If it is empty, say the heading exists and file
@@ -184,14 +184,70 @@ decision rather than whether one is owed. `- [ ] excess` is the commit audit's n
 swept in, closed on the human's decision at merge: `- [x] false positive` where the files were in scope
 and `touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
 
-**On an unmet Outcome, name all three exits.** The question that separates them is **did we fall short of
-the target, or was the target wrong?**
+**On an unmet Outcome, print the shortfall and all three exits, one block per Outcome.** A table of
+meanings is not a handover — the engineer in the seat needs a next act, and for two of these three exits
+there was nowhere to go. **Two of the three are commands and the third is not**, so the block names the act
+each exit takes rather than printing three commands. The question that separates them is **did we fall
+short of the target, or was the target wrong?**
 
-| Exit | Means | Where it lands |
-| --- | --- | --- |
-| **Run `devpath:build`** | there is work left | Build **cuts a new slice** for the unmet Outcome, builds it, and the deviation is written down |
-| **`- [x] won't fix`** | **the Outcome was right. We are shipping without it.** | the ledger — `grep -rn "won't fix" devpath/`, forever |
-| **Rework** | **the Outcome was never what we wanted.** | nowhere. Nothing was shipped short |
+The shape, rather than wording to copy:
+
+```
+devpath: 11 of 15 Outcomes met. 4 unmet — this run stops here.
+
+  Unmet · Bulk update over 200 rows completes without error
+    Fell short: throws above 200 rows; batching is fixed at 200 and nothing
+    chunks past it
+
+  Did we fall short of the target, or was the target wrong?
+    work left             → /devpath:build       cuts a slice for this Outcome
+    target was wrong      → /devpath:initiate    rewrites the Outcome; both gates drop
+    right, shipping short → tell me: won't fix, quoting this Outcome — <your reason>
+
+Settle every won't fix and every rewrite first. /devpath:build cuts a slice for
+each Outcome still marked unmet when it runs.
+```
+
+**Neither line is composed here. Both are quoted, punctuation included.** The Outcome comes from
+`## Outcomes` and *Fell short* reproduces the `- [ ] unmet` line's own words, which is why the grammar
+above mandates an observation — a line restating the Outcome makes this block say the Outcome twice and
+the shortfall never. **Reproducing it means reproducing it:** the illustration above wraps the line to fit
+and changes nothing else about it, semicolon included.
+
+**The Outcome is quoted, never numbered.** A positional index is a convention nothing in `devpath` defines,
+and the human's `won't fix` answer quotes the same text back.
+
+**The ordering sentence is not optional, because `devpath:build` cannot know which exit you chose for
+which Outcome.** It cuts a slice for every Outcome still marked unmet at the moment it runs, so a
+`won't fix` or a rewrite settled afterwards arrives too late and the spec carries a slice nobody wanted.
+
+**Exit 1 — `/devpath:build`.** There is work left. Build cuts a slice for that Outcome, builds it, and
+writes down which Outcome it was cut for.
+
+**Exit 2 — the ledger.** The Outcome was right and the spec ships without it: `grep -rn "won't fix"
+devpath/`, forever. How that line gets written is below.
+
+**Exit 3 — `/devpath:initiate`.** The Outcome was never what we wanted. Its text lives in `## Outcomes`,
+which Initiate owns and overwrites, and Initiate's re-entry table already handles this exact re-run.
+**Say the consequence in one blunt sentence: rework sends the spec back behind both gates, and the slices
+survive on purpose.** **The expense is the point** — it is what stops rework being the cheap way past a
+hard Outcome. Same rule as *a criterion you cannot satisfy is not edited into one you can* in
+`devpath:build`, one level up and about an Outcome instead.
+
+**Exits 1 and 3 belong in a fresh session. Exit 2 is this session's next turn.** Say both, because they
+are not the same shape. `/devpath:build` and `/devpath:initiate` are commands and a command starts a run,
+and everything either one needs is on the branch — `## Outcome checks`, the slice files, `## Deviations` —
+so a fresh session pays full price and loses nothing. A session still holding eleven `met` verdicts talking
+itself into carrying on past this refusal is conversation-held state deciding it knows where it is, which
+is the failure `devpath:build` opens by naming as measured. **A `won't fix` line is not a command and does
+not start a run**: the engineer says it to the session they are already talking to, which writes the line.
+That is the whole of the section below, and printing it as a fourth command is the mistake this paragraph
+exists to prevent.
+
+**Say what the next run costs, as a property rather than an apology.** One sentence, here at the refusal:
+every line closed as `won't fix` carries forward verbatim, every other Outcome is checked again, and
+`devpath:build` expires this section before it changes any code — so no verdict is ever older than the run
+that printed it.
 
 **Naming all three is load-bearing:** without it, the way to ship something knowingly unresolved is
 invisible to anyone who has not read the design. **And the third exit exists to protect the ledger** —
