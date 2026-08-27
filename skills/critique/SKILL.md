@@ -112,6 +112,9 @@ it may not have been, and **only `fixed` and `met` mean the code changed.** Pin 
 `- [x] fixed` in the pass that fixes it**; and `- [x] won't fix` needs the human. *Fixed* is a claim about
 work just done, so only the pass that did it can make it.
 
+**A box entry is one line beginning `- [` at column zero**, with nothing nested under it. The grep matches
+an indented box anyway, so a formatter that renests the list cannot make a dirty spec read clean.
+
 > ***Critique clean* ⇔ no `- [ ]` remains anywhere in the spec directory.**
 
 One grep, zero judgment, every cycle. It names no heading, deliberately — a box put somewhere the design

@@ -76,7 +76,7 @@ every line is a real per-Outcome verdict.
 ```
 
 **`- [ ] unmet` is not a sixth state.** It is a bare `- [ ]` with the shortfall spelled out, so every
-check that greps `^- \[ \]` matches it.
+check that greps `^[[:space:]]*- \[ \]` matches it.
 
 **Why one checker per Outcome, where Survey groups.** An Integrate checker reads a known diff against a
 known statement, so it is cheap per agent — it has no breadth problem to bound. And grouping here would
@@ -117,6 +117,15 @@ grep; the other is a walk over the slice files.
 **Test 1 — refuse while any `- [ ]` remains anywhere in the spec directory.** Same test as *Critique
 clean* — one grep, section-blind, zero judgment.
 
+```sh
+grep -rn '^[[:space:]]*- \[ \]' devpath/<slug>/
+```
+
+**Leading whitespace is part of the pattern, because a formatter can indent a box.** Anchored at `^` alone
+this test misses `  - [ ] excess`, and a box it misses is a merge armed on a spec it should have refused.
+The widened pattern also matches a box nested under another list item. The grammar writes none, and one
+written anyway is still open.
+
 **Test 2 — refuse while any slice carrying `done: true` has no `fix_cycles:` line.** Slice writes no such
 line at creation and Critique writes `fix_cycles: 0` on its first pass over a slice that has none, so the
 line's presence is the slice pass's own trace: **absent on a built slice, the pass never ran on it.**
@@ -129,8 +138,8 @@ for f in devpath/<slug>/slices/*.md; do
 done
 ```
 
-**Both patterns are anchored at line start, and that is the whole precision here.** Front matter sits at
-byte zero and its fields start their lines, so an anchored match reads the field and never the same string
+**Test 2's two patterns are anchored at line start, and that is the whole precision here.** Front matter
+sits at byte zero and its fields start their lines, so an anchored match reads the field and never the same string
 in a slice's prose — a slice that discusses `fix_cycles:` in its notes must not pass this test on the
 mention.
 

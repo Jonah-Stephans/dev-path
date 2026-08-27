@@ -241,7 +241,7 @@ seven slice files on a pull request is joining anything anyway. **`excess` names
 itself**, exactly as `- [ ] unmet` names it on an Outcome check.
 
 **It adds no state, and nothing over a spec directory reads it.** Every existing test matches
-`^- \[ \]` and still matches this one:
+`^[[:space:]]*- \[ \]` and still matches this one:
 *Critique clean* stays section-blind, Integrate still refuses on it, and **the frozen test below still
 joins on `done` rather than reading the tag** — a tag is prose a run can forget to write, `done: true` is
 mechanical, and the test deciding whether a push is denied reads the mechanical one.

@@ -50,7 +50,7 @@ repo's `.claude/settings.json`.
 **The recommended default is one check, not a suite** — the open-box grep, as a job on the pull request:
 
 ```bash
-SPEC="devpath/${GITHUB_HEAD_REF:?not a pull request build}"; test -d "$SPEC" && ! grep -rn '^- \[ \]' "$SPEC/"
+SPEC="devpath/${GITHUB_HEAD_REF:?not a pull request build}"; test -d "$SPEC" && ! grep -rn '^[[:space:]]*- \[ \]' "$SPEC/"
 ```
 
 **The slug comes from the pull request's head ref, never from `git branch --show-current`** — this job
@@ -59,6 +59,11 @@ unscoped sweep that fails this spec on a neighbouring spec's open boxes. `GITHUB
 Actions' name for the source branch; substitute the one your CI sets. **`test -d` is what makes a wrong
 slug red:** `grep -r` on a missing directory exits 2, the leading `!` turns that into 0, and the job
 passes having tested nothing.
+
+**`[[:space:]]*` is what makes an indented box red.** Anchored at `^` alone, this job goes green on a spec
+holding `  - [ ] excess`, because a formatter that renests a list indents the box and the anchor stops
+matching. Widened, the pattern also matches a box nested under another list item. That is the intended
+reading. A nested open box is still an open box, and the box grammar never writes one.
 
 <details>
 <summary><b>The menu — seven blocks over six properties</b></summary>
@@ -114,7 +119,7 @@ open, an unrelated Bash call carrying a variable is denied too.
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); [ -d \"devpath/$SLUG/slices\" ] || exit 0; for f in \"devpath/$SLUG\"/slices/*.md; do [ -f \"$f\" ] || continue; grep -q '^done: true$' \"$f\" && D=0 || D=1; H=$(awk -v d=\"$D\" '/^## Deviations/{s=(d+0);h=\"## Deviations\";next} /^## Critique findings/{s=1;h=\"## Critique findings\";next} /^## /{s=0} s&&/^- \\[ \\]/{print h;n=1;exit} END{exit !n}' \"$f\") && { echo \"devpath: $f carries an open - [ ] under $H\"; exit 2; }; done; exit 0",
+            "command": "SLUG=$(git branch --show-current); [ -d \"devpath/$SLUG/slices\" ] || exit 0; for f in \"devpath/$SLUG\"/slices/*.md; do [ -f \"$f\" ] || continue; grep -q '^done: true$' \"$f\" && D=0 || D=1; H=$(awk -v d=\"$D\" '/^## Deviations/{s=(d+0);h=\"## Deviations\";next} /^## Critique findings/{s=1;h=\"## Critique findings\";next} /^## /{s=0} s&&/^[[:space:]]*- \\[ \\]/{print h;n=1;exit} END{exit !n}' \"$f\") && { echo \"devpath: $f carries an open - [ ] under $H\"; exit 2; }; done; exit 0",
             "timeout": 10
           }
         ]
@@ -182,7 +187,7 @@ word a run can forget. The tag is for the human reading the diff, where no join 
         "hooks": [
           {
             "type": "command",
-            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^devpath slice: ||p'); [ -n \"$SLICE\" ] || exit 0; for f in \"${SLICE%/*}\"/*.md; do [ \"$f\" = \"$SLICE\" ] && continue; grep -q '^done: true$' \"$f\" && continue; awk '/^## Deviations/{d=1;next} /^## /{d=0} d&&/^- \\[ \\]/{n++} END{exit !n}' \"$f\" && { echo \"devpath: $f is frozen and needs a human\"; exit 2; }; done; exit 0",
+            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^devpath slice: ||p'); [ -n \"$SLICE\" ] || exit 0; for f in \"${SLICE%/*}\"/*.md; do [ \"$f\" = \"$SLICE\" ] && continue; grep -q '^done: true$' \"$f\" && continue; awk '/^## Deviations/{d=1;next} /^## /{d=0} d&&/^[[:space:]]*- \\[ \\]/{n++} END{exit !n}' \"$f\" && { echo \"devpath: $f is frozen and needs a human\"; exit 2; }; done; exit 0",
             "timeout": 10
           }
         ]
@@ -552,10 +557,15 @@ on it now, and **no ninth field was needed** — which is why the row's third co
 | Marker | Means |
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
-| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **Not new states** — every check greps `^- \[ \]`, which matches both |
+| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
 | `- [x] fixed` / `- [x] met` | the code does it |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway** |
+
+**A box entry is one line beginning `- [` at column zero.** Nothing nests under it and nothing indents it.
+That is the shape a lesson entry in `.claude/rules/` already has, and a flat line is what a per-line grep
+reads. **The checks match an indented box anyway.** A formatter that renests the list would otherwise turn
+a red gate green without anyone editing a spec.
 
 > **Critique clean ⇔ no `- [ ]` remains anywhere in the spec directory.**
 
