@@ -126,6 +126,125 @@ Choosing one would be Build deciding which dependency the model did not mean.
 
 **No new field.** A cycle is a property of `depends_on`, computed from `depends_on`.
 
+**The walk is also where a finished spec gets its second look. Sorted, and with every slice carrying
+`done: true`, open `## Outcome checks` on `spec.md` by name before reporting there is nothing to do.** The
+section below is what to do with what is in it, and it carries one rule that binds every run rather than
+only that one: **`## Outcome checks` is cleared before the first dispatch of any run that will change
+code.**
+
+## Cut for an unmet Outcome, then expire the section
+
+**Mandated, and it is a heading you open by name.** Nothing else in `devpath` reads `## Outcome checks`.
+Integrate writes it and Integrate refuses on it, and the shortfall then sits on the spec with no reader at
+all. A cold `devpath:build` after that refusal sorts the slices, finds every one `done: true`, and reports
+there is no work — which is the run the engineer typed to clear the refusal. A worker reading `spec.md`
+for Intent and Outcomes skims straight past a heading nobody sent it to.
+
+### The verdicts expire when the code moves
+
+**Before the first dispatch of any run that will change code, clear `## Outcome checks` and say what went.
+Every line except `- [x] won't fix`, which carries forward verbatim.** The section is a verdict on the
+diff that existed when Integrate ran, and you are about to make that diff wrong. Keeping it is how a later
+cold run reads a stale shortfall as a live one.
+
+**That is `skills/integrate/SKILL.md`'s carry-forward rule with a second user rather than a new rule.**
+Integrate rewrites every line but `won't fix` when it runs the pass, for the reason stated there — the
+machine does not relitigate a human's decision. Clearing before a build is the same sentence read from the
+other end of the loop.
+
+**It hangs on *any run that will change code*, not on the cut below.** A fix pass three weeks after the
+refusal invalidates those verdicts exactly as a new slice does. One instruction, at one point in the run,
+covering both.
+
+**Read the section before you clear it.** The cut below is its one reader, so a run that clears first has
+thrown away the shortfall it was typed to act on.
+
+> **Never clear a `- [x] won't fix` line.** That is the ledger, and a machine deleting a human's decision
+> silently is the failure the announcement exists to prevent.
+
+**Announcing is mandatory.** Name every Outcome whose line you cleared, in this run's output. A verdict
+that goes without a sentence is one the engineer still believes is on the page, and no field makes an old
+one look old.
+
+### The cut
+
+**The trigger — every slice carries `done: true`, and `## Outcome checks` holds a `- [ ] unmet` line.**
+With any slice outstanding there is work already and the walk never reaches this test. Between the cut and
+the build the new slice carries no `done`, so a run arriving mid-flight finds work waiting and builds it.
+
+**No `- [ ] unmet` line, or an empty section — say so and stop.** Every slice done with no live shortfall is
+either a spec whose verdicts are current, or one an earlier run already cut for and cleared. Report that
+every slice is done and give the next act: `devpath:integrate`. **Cutting on an empty section is cutting
+with no shortfall to cut against**, which is a slice nobody can write `## What to build` for.
+
+**Cut one slice per `- [ ] unmet` line**, never one slice for the first one found. Four unmet Outcomes are
+four shortfalls, and a run that cuts for one leaves three on a section it is about to clear.
+
+**The slice file is `skills/slice/SKILL.md`'s `## Write`, followed exactly** — front matter carrying
+`depends_on` and `touches`, the test-first block, and exactly the four headings that section prints, with
+`done` and `fix_cycles` absent. The schema hook in README's own hook list flags any heading outside those
+four. **Go to that section by name** rather than writing the shape from memory; it is the same argument
+this section makes for `## Outcome checks`.
+
+**`## What to build` comes from the shortfall, which is the only source you have.** The `- [ ] unmet` line
+says what was observed, `## Outcomes` says the target, and `## Design` says how this spec builds things.
+
+**The written entry — a plain bullet under the new slice's `## Deviations`, quoting the Outcome and the
+shortfall:**
+
+```markdown
+## Deviations
+- Cut for the Outcome *Bulk update over 200 rows completes without error*, unmet at Integrate: throws
+  above 200 rows; batching is fixed at 200 and nothing chunks past it.
+```
+
+**That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
+plain untagged sentence under `## Deviations`, nothing deleted, carried whole into the pull request body
+by Integrate's step 4. One convention, two writers.
+
+> **A plain bullet, never `- [ ]`.** Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole spec
+> directory, so a box here holds this spec's merge open forever. **No new tag either** — the closed set is
+> `fixed`, `met`, `false positive`, `won't fix` and `excess`, and this is not a disposition.
+
+**Then clear the section and announce, in the commit that carries the cut.** A commit holding new slices
+and the old verdicts is a branch that reads as refused and rebuilt at the same time.
+
+**Writing `spec.md` from a Build run is not new authority.** Inside this same run, Critique's slice pass
+already writes `## Traps` there and the orchestrator commits it alongside the slice. This is that division
+read over one more section.
+
+**This is the orchestrator's act.** Build already re-cuts the slice layout unattended and writes the
+change down as a deviation; cutting for an unmet Outcome is that authority read over the spec rather than
+over one slice, and it is a decision about the whole slice list, taken before anything is dispatched. What
+follows is an ordinary dispatch of an ordinary slice — so Integrate refuses again for the reason it
+already refuses, until that slice is built and critiqued.
+
+### Nothing reads the written entry to decide whether to cut
+
+**No run branches on `## Deviations`.** The entry above is there for the human at merge, and that is the
+whole of its job.
+
+**A guard there does not work, which is why none is built.** Entries under `## Deviations` are permanent,
+so a guard reading them answers *did I ever cut for this Outcome* rather than *is this unmet line stale* —
+and after the first attempt those two diverge. Integrate re-runs, the Outcome is still unmet, step 3
+refuses, the engineer runs Build, and Build refuses. **The outer loop would then work exactly once per
+Outcome**, against this plugin's own bound: that loop is bounded by a human typing the command, every
+single lap. **Expiring the verdict is what a stale verdict needs**, and a second refusal on the same
+Outcome sends the engineer back here and this section cuts again.
+
+### The limit: this cuts a slice, it never redesigns the spec
+
+**Apply the test this skill already states — does resolving it change *what* the slice builds, or only
+*how*?** Chunking a fixed 200-row batch is *how*: cut the slice. *Meeting this Outcome means going
+Queueable* is *what* — an architecture decision nobody approved, and **not this exit at all.** It routes
+to `devpath:technical-design`, which owns `## Design` and takes that decision behind the gate covering it.
+
+**Say so and stop**, rather than cutting a slice that quietly redesigns the spec. Same rule as *a
+criterion you cannot satisfy is not edited into one you can*, read over an Outcome instead of a criterion.
+
+**Integrate cuts nothing.** It produces a verdict, and this section is the one route from that verdict
+back into work.
+
 ## Read `fix_cycles` before opening a fix pass
 
 **At `fix_cycles >= 2` on that slice, do not open another fix pass unasked.** Ask the engineer already in

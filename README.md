@@ -428,8 +428,17 @@ design_approved: true
 | `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
 | `## Design` | Design | Slice, Build. **Design done ⇔ non-empty** |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate` | Integrate's refusal; the human at merge |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which clears it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
+
+**`## Outcome checks` is a verdict on a code state, and it expires when that state changes.** Any run that
+will change code clears it before its first dispatch — **every line except `- [x] won't fix`, which carries
+forward verbatim, because the machine does not relitigate a human's decision.** **Say what was cleared.** A
+verdict nobody expired is one a later run reads as current, and no field makes an old one look old.
+
+**That is one rule with two users rather than two rules.** `devpath:integrate` already rewrites every line
+but `won't fix` when it runs the Outcomes pass, for that same reason; `devpath:build` clearing the section
+before it changes code is the same sentence read from the other end of the loop.
 
 ### `devpath/<slug>/slices/<nn>-<name>.md`
 
@@ -474,6 +483,14 @@ execution order;** `depends_on` owns execution order. **`depends_on` values are 
 
 **`devpath/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
 the only place a non-text file exists anywhere in `devpath`.**
+
+**Every section above is a signal or a written trace, and the tables say which.** A signal names each
+reader that branches on its contents and states the grammar those readers match — `## Traps` does both,
+and so does `## Outcome checks`. A written trace names who *carries* it and states a grammar for a human's
+benefit only: `## Deviations` and `## Critique findings` ride into the pull request body and are read at
+merge, and **no run branches on what they say.** The box markers in them are a signal, and the words after
+a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing reads a
+`## Deviations` entry to decide what to do next.
 
 ### The front-matter block starts at byte zero
 
