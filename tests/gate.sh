@@ -1,10 +1,10 @@
 #!/bin/sh
 # devpath — the open-box gate, run rather than read.
 #
-# Four checks. That README still ships a gate to extract, that the gate it ships
-# is red on an indented open box and on a flat one, that it stays green on a
-# directory whose boxes are all closed, and that both copies of the pattern are
-# still present and neither has been narrowed back to a bare ^.
+# Four checks. That README still ships exactly one gate to extract, that the
+# gate it ships is red on an indented open box and on a flat one, that it stays
+# green on a directory whose boxes are all closed, and that no copy of the
+# pattern has been narrowed back to a bare ^.
 #
 # The gate is one anchored grep, written in README's recommended default, in the
 # two hook blocks a repo pastes, in Integrate's step 3 test 1, and in the prose
@@ -44,11 +44,22 @@ if [ -z "$GATE" ]; then
   exit 1
 fi
 
+# Exactly one, or the extraction is ambiguous rather than wrong. Two fences
+# quoting the pattern get concatenated into one sh -c, where the last line's
+# status becomes the whole run's and the three checks below silently assert
+# against something other than the gate.
+if [ "$(printf '%s\n' "$GATE" | grep -c .)" -ne 1 ]; then
+  fail gate README.md "more than one fenced bash line greps for a box, so which one is the
+recommended gate is ambiguous:
+$GATE"
+  exit 1
+fi
+
 # ------------------------------------------- 2 & 3. run it against a fixture
 #
 # One spec directory per case, laid out the way a real one is, and the gate run
 # from the repo root above it with the slug in the environment variable the
-# block reads. Exit status is the whole assertion. Non-zero is a red job.
+# block reads.
 FIX=$(mktemp -d) || exit 1
 SLUG=fixture-spec
 
@@ -62,34 +73,52 @@ spec() {  # spec <the boxes, as a heredoc on stdin>
   } > "$FIX/devpath/$SLUG/spec.md"
 }
 
-rungate() {  # the gate's own exit status, output discarded
-  ( cd "$FIX" && GITHUB_HEAD_REF="$SLUG" sh -c "$GATE" ) >/dev/null 2>&1
+rungate() {  # the gate's stdout, and its exit status as the caller's
+  ( cd "$FIX" && GITHUB_HEAD_REF="$SLUG" sh -c "$GATE" ) 2>/dev/null
+}
+
+# Status alone does not say why a run was red. A gate that never found its
+# directory is red too: test -d fails and the chain stops before the grep. So a
+# red read from the status alone is a red a broken fixture can fake, and the
+# case passes having tested nothing, which is this file committing the bug it
+# exists to catch. grep prints what it matched, so the printed box is the proof.
+catches() {  # catches <case> <detail> — red, with the box it matched as the proof
+  OUT=$(rungate) && { fail gate "$1" "$2
+$GATE"; return; }
+  case $OUT in
+    *'- [ ]'*) ;;
+    *) fail gate "$1" "the gate was red without matching a box, so this case asserted nothing.
+A fixture directory the gate never found is red the same way:
+$GATE" ;;
+  esac
+}
+
+passes() {  # passes <case> <detail> — green, on a directory with nothing to catch
+  rungate >/dev/null || fail gate "$1" "$2
+$GATE"
 }
 
 spec <<'EOF'
 - [x] fixed — the null guard the critic wanted
   - [ ] bulk path still throws above 200 rows
 EOF
-rungate && fail gate 'an indented open box' \
-  "the recommended gate passed on a box a formatter had indented:
-$GATE"
+catches 'an indented open box' \
+  "the recommended gate passed on a box a formatter had indented:"
 
 spec <<'EOF'
 - [x] fixed — the null guard the critic wanted
 - [ ] bulk path still throws above 200 rows
 EOF
-rungate && fail gate 'a flat open box' \
-  "the recommended gate passed on an ordinary open box, so it now catches nothing:
-$GATE"
+catches 'a flat open box' \
+  "the recommended gate passed on an ordinary open box, so it now catches nothing:"
 
 spec <<'EOF'
 - [x] fixed — the null guard the critic wanted
   - [x] false positive — the caller guarantees non-null
 EOF
-rungate || fail gate 'a clean spec directory' \
+passes 'a clean spec directory' \
   "the recommended gate failed on a directory whose boxes are all closed, so it
-fails every spec rather than the open ones:
-$GATE"
+fails every spec rather than the open ones:"
 
 rm -rf "$FIX"
 
@@ -98,8 +127,10 @@ rm -rf "$FIX"
 # Every place the pattern is written, live or quoted, has to carry the leading
 # whitespace. A bare ^ anywhere is the silent failure returning, and a widened
 # gate sitting beside a narrow hook block is a gate that disagrees with itself.
-# The two forms are the shell one and the JSON-escaped one inside a hook block.
-NARROW=$(grep -rnE '\^- \\+\[' README.md skills/*/SKILL.md 2>/dev/null)
+# The backslashes are optional in both greps below because the pattern is
+# written three ways: bare in prose, shell-escaped, and JSON-escaped inside a
+# hook block. Requiring one would let the bare form through unread.
+NARROW=$(grep -rnE '\^- \\*\[' README.md skills/*/SKILL.md 2>/dev/null)
 [ -n "$NARROW" ] && fail narrowed 'the open-box pattern' \
   "anchored at a bare ^, which misses an indented box:
 $NARROW"
@@ -109,7 +140,7 @@ $NARROW"
 # step 3. A floor rather than a census, because README carries several and a new
 # check is not a failure.
 for f in README.md skills/integrate/SKILL.md; do
-  grep -qE '\^\[\[:space:\]\]\*- \\+\[' "$f" \
+  grep -qE '\^\[\[:space:\]\]\*- \\*\[' "$f" \
     || fail 'gate copy' "$f" "carries no open-box pattern, so this file no longer specifies the gate"
 done
 
