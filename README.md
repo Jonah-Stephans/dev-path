@@ -561,13 +561,13 @@ on it now, and **no ninth field was needed** — which is why the row's third co
 ```markdown
 ## Outcome checks
 - [x] met — Tolerances configurable per quantity, unit price and total
-- [ ] unmet — Bulk update over 200 rows completes without error
+- [ ] unmet — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
 ```
 
 | Marker | Means |
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
-| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
+| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **The words after the tag are what was observed, never the Outcome or the criterion restated.** **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
 | `- [x] fixed` / `- [x] met` | the code does it |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway** |
@@ -602,8 +602,15 @@ honestly. **It accumulates**, so on the base branch `grep -rn "won't fix" devpat
 of everything the team knowingly shipped unresolved. **Pin that apostrophe as ASCII** — a typographic one
 silently empties the ledger.
 
-**`devpath` writes `fixed`, `met` and `false positive`. It never writes `won't fix`** — that one is the
-human's, by hand, under any heading.
+**`devpath` writes `fixed`, `met` and `false positive` off its own judgment. `won't fix` it writes only on
+an instruction** — the human decides it and gives the reason in their own words, and the session they say
+it to writes the line, under any heading. **No agent drafts the reason. No reason, no write.** Approval
+plus an agent write is the same act as the human opening the file, and that is already how a yes in
+conversation writes `intent_accepted: true` at the intent gate.
+
+**The seat is what this turns on, not the run.** A worker subagent has no human in its context and so
+never writes this line; the orchestrator, where the human is, does. A repo that wants an agent barred from
+the write adds a hook of its own — `devpath` ships none and depends on none.
 
 ### Nothing writes a placeholder
 
