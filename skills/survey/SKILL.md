@@ -166,7 +166,8 @@ nothing for Survey to find; a cross-feature convention discovered inside one fea
 ## Write
 
 **`## Current state`, on `spec.md`.** Survey is its only writer; Design prunes it later to the facts the
-design rests on. **Survey done ⇔ `## Current state` is non-empty.**
+design rests on. **Survey done ⇔ `## Current state` is non-empty, or `## Refuse first` stopped the
+run and named the condition.**
 
 **Rewrite the section; do not append to it.** A stage that supersedes an earlier section rewrites it. The
 file is the working set and git is the archive.

@@ -322,7 +322,8 @@ pull request, a re-scope, and two intent gates already burnt.
 
 ## Stop
 
-**Initiate done ⇔ the intent gate has been answered and the spec is on an open draft pull request.**
+**Initiate done ⇔ the intent gate has been answered and the spec is on an open draft pull request,
+or `## Refuse first` stopped the run and named the condition.**
 
 **Commit, push, and open the draft pull request — one commit**, so the spec *is* the branch's first
 commit whichever way the answer went.

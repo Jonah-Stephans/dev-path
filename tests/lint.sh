@@ -232,13 +232,21 @@ done
 # Requiring the bold `**<name> done ⇔` rather than a bare glyph is what keeps
 # Design honest. That file quotes Survey's condition in italics where it prices a
 # skipped Survey call, and a grep for the glyph alone would pass Design on
-# somebody else's sentence.
+# somebody else's sentence. That closes the cross-file quote, which is the one
+# that occurs here. A file quoting its own condition — inside a fence, or in a
+# sentence forbidding it — still passes, and that case is left to the diff.
+#
+# The prefix has to survive on one line. Several of the sentences wrap, all of
+# them after the glyph, and one that wrapped earlier would go red while being
+# correct.
 STAGES=0
 for f in skills/*/SKILL.md; do
   [ -f "$f" ] || continue
 
   # Front matter is the block between the first two --- lines, so a body that
-  # names the flag cannot exempt itself.
+  # names the flag cannot exempt itself. tests/schema.sh reads the same flag
+  # whole-file and pins the disabled set by name, so the two scopes disagree by
+  # design: a body mention is invisible here and red there. Keep it that way.
   FM=$(awk 'NR == 1 && $0 != "---" { exit } NR > 1 && $0 == "---" { exit } NR > 1' "$f")
   printf '%s\n' "$FM" | grep -qE '^disable-model-invocation:[[:space:]]*true' && continue
 

@@ -425,7 +425,7 @@ design_approved: true
 | `## Out of scope` | Initiate; **Design narrows it to one design** | Design, Build, to refuse creep. **Never gated** |
 | `## Open questions` | Initiate, verbatim with its owner; the Design conversation adds | Design; `devpath:sketch`; a resumed Design |
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
-| `## Current state` | Survey; Design prunes it | Design. **Survey done ⇔ non-empty** |
+| `## Current state` | Survey; Design prunes it | Design |
 | `## Design` | Design | the design gate — **never `design_approved: true` with this heading empty**; Slice, Build |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
 | `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |

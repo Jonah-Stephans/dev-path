@@ -330,7 +330,8 @@ provisional. **What is settled, and survives any change to its content, is where
 
 ## Stop
 
-**Learn done ⇔ a proposal pull request is open, or the report names why nothing was proposed.**
+**Learn done ⇔ a proposal pull request is open, or the report names why nothing was proposed, or
+`## Refuse first` stopped the run and named the condition.**
 
 Report the pull request link, one line per proposed entry, and one line per proposed check. Then stop —
 Integrate's step 8 follows.

@@ -307,6 +307,9 @@ is what makes the bottom rung of the ladder above genuinely identical rather tha
 
 ## Any stop that needs a human stops the whole run
 
+**Build done ⇔ every slice carries `done: true`, or the run stopped and named what stopped it — the
+slice mid-run, the condition at `## Refuse first`.**
+
 Stated once for **any** mid-run stop rather than once per trigger, because two rules with the same reason
 behind them drift apart later.
 
@@ -589,8 +592,6 @@ code is missing. A trap names what the same test has to fail on when the code is
 which is the half red-before-green cannot see.
 
 ## Deploy, then tick, then `done: true`, then return
-
-**Build done ⇔ every slice carries `done: true`, or the run stopped and named which slice and why.**
 
 **Mandated, in that order.**
 
