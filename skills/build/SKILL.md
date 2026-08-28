@@ -330,12 +330,12 @@ its refusal — the trailing period closes this bullet's sentence and is the onl
 
 **The ID rather than the Outcome's text, because this entry is permanent and the text is not.** A bullet
 under `## Deviations` is never deleted, and `## Outcomes` is rewritten whenever Initiate or Design revises
-the problem — so an entry quoting the statement would sit in the pull-request body claiming a target the
-spec stopped asking for. If O2 was later retired, this bullet naming a retired ID is the trace working.
+the problem — so an entry quoting the statement would sit in front of the human at merge claiming a target
+the spec stopped asking for. If O2 was later retired, this bullet naming a retired ID is the trace working.
 
 **That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
-plain untagged sentence under `## Deviations`, nothing deleted, carried whole into the pull request body
-by Integrate's step 4. One convention, two writers.
+plain untagged sentence under `## Deviations`, nothing deleted, counted into the pull request body by
+Integrate's step 4 and read at the path it gives. One convention, two writers.
 
 > **A plain bullet, never `- [ ]`.** Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole spec
 > directory, so a box here holds this spec's merge open forever. **No new tag either** — the closed set is

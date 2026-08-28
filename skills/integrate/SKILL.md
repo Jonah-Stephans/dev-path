@@ -39,8 +39,9 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
    **Print every unmet Outcome's shortfall and where each of the three exits goes, then ask once per
    unmet Outcome. Step 3 prints and stops; it starts no run.**
-4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
-   every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
+4. Write the pull request body with `gh pr edit <number> --body-file -`: **every `- [x] won't fix` and
+   `- [ ] unmet` line from anywhere in the spec directory, in full**, and `## Critique findings`,
+   `## Deviations` and `## Traps` as a count and a path.
 5. Offer to file `## devpath feedback` as an issue. **If it is empty, say the heading exists and file
    nothing.**
 6. Name a signal back to the engineer, if anything written down shows one. **If step 5 is also filing, it
@@ -226,11 +227,11 @@ and need not open the slices named here, so it does not clear this refusal. **Pr
 way** — they are what the next run is for.
 
 **Why a second test earns its place at a step that was one grep.** An empty `## Critique findings` holds no
-box, so test 1 passes a spec no critic ever read and step 4 then carries the empty section into the pull
-request body — *nothing was wrong* and *the pass never ran* are otherwise indistinguishable at every check
-downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants named. **And
-Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in the harness
-makes it certain, so what catches a skip is the trace, not a louder instruction.
+box, so test 1 passes a spec no critic ever read and step 4 then names the heading empty — which reads as a
+slice a critic cleared. *Nothing was wrong* and *the pass never ran* are otherwise indistinguishable at
+every check downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants
+named. **And Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in
+the harness makes it certain, so what catches a skip is the trace, not a louder instruction.
 
 **The cost, said rather than smoothed: step 3 is no longer one grep.** It is a grep and a walk, and *one
 grep, zero judgment* is now a claim about `- [ ]` alone.
@@ -577,21 +578,49 @@ field.
 
 Runaway automation has nowhere to live. **No spec-level counter, no aggregation, no new field.**
 
-## 4 · Carry the findings into the pull request body
+## 4 · Write the pull request body
 
-So the human reviewer is not re-finding what was already caught. Carry `## Critique findings`,
-`## Deviations` and `## Traps`, **plus every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the
-spec directory.**
+So the human reviewer is not re-finding what was already caught. **The decisions ride in full, and the
+material they were taken against rides as a count and a path.** A decision is what the reviewer is being
+asked to ratify, so it has to be on the page. The material is already committed in the spec directory and
+already inside this pull request's own diff, so a path reaches it.
+
+**Mandated, and the body reaches the command on standard input:**
+
+```sh
+gh pr edit <number> --body-file -
+```
+
+**Standard input rather than an argument**, the same as the two `gh pr create` calls this workflow already
+makes. The body is assembled rather than typed and carries a human's own sentences over many lines, so it
+is unbounded in length and full of characters a shell would read. Neither survives argv.
+
+**GitHub refuses a body over 65,536 characters, and the number is GitHub's rather than `devpath`'s.** One
+measured spec of eight slices held roughly 455 KB under `## Critique findings` and `## Deviations` alone,
+seven times the limit. **The purpose above is no better served by 455 KB than by the write being
+refused** — that is the observation this step turns on, and the limit is only where it stops being a
+matter of taste.
+
+**One shape at every scale: no size test, no threshold, no fallback branch.** A body that reads one way on
+a two-slice spec and another way on an eight-slice one is the failure this replaces, and a shape that
+appears only above some line is a shape nobody has read before the run that needs it.
+
+### The decisions ride in full
+
+**Every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory, whole.**
 
 **Two extra lines by grammar, not two whole sections.** A criterion can close as `won't fix` under
 `## Acceptance criteria`, and exit 2 puts one under `## Outcome checks` — but carrying
 `## Acceptance criteria` wholesale would put every criterion of every slice in the body, which is the
 noise this step exists to reduce. **`- [ ] unmet` rides with it because it is the same line's other
-half:** the reviewer needs the shortfall next to the decision to ship without it. **`- [ ] excess` needs no
-line of its own** — its sibling in the grammar sits under `## Deviations`, which rides whole.
+half:** the reviewer needs the shortfall next to the decision to ship without it.
+
+**`- [ ] excess` needs no line of its own.** Step 3 refuses while one is open, so by here it has closed
+either as `- [x] won't fix — <reason>`, which the rule above already carries whole, or as
+`- [x] false positive`, which is the commit audit withdrawing its own note.
 
 **Every line carried out of `## Outcome checks` rides with its `## Outcomes` line beside it**, because it
-references an Outcome by ID and `## Outcomes` is not one of the sections this step carries:
+references an Outcome by ID and `## Outcomes` is not one of the sections this step puts in the body:
 
 ```
 - [x] won't fix O3 — audit-trail object is managed and read-only in this org
@@ -600,22 +629,56 @@ references an Outcome by ID and `## Outcomes` is not one of the sections this st
 
 **Without the pairing the body loses the target.** What follows the tag is the human's words about the
 obstacle, never a statement of what went unmet, so the reviewer would meet a reason with nothing to weigh
-it against — which is the thing exit 2 exists to put in front of them. **A criterion's `won't fix` rides
-alone**: it carries no ID and closes in place, with the criterion's own text already on the line.
+it against — which is the thing exit 2 exists to put in front of them.
 
-**The pairing stops at `## Outcome checks`, and `## Deviations` rides whole with its IDs bare.** A bullet
-there carries its own account of what happened — *04 built a fixed 200-row cap*, *throws above 200 rows;
-batching is fixed at 200* — so the ID says which Outcome rather than carrying the whole meaning, and the
-sentence reads without resolving it. **`devpath:slice`'s rework deviation could not be paired anyway**: it
-names an Outcome the same rework retired, so there is no line under `## Outcomes` to set beside it, and
-that is the trace working rather than a gap in this step.
+**The pairing stops at `## Outcome checks`, and a `won't fix` anywhere else rides with its path.** One
+closing an acceptance criterion carries no ID; one closing an `excess` note names files rather than an
+Outcome — so neither has an `## Outcomes` line to sit beside. **What both still owe the reviewer is which
+slice**, which the reason alone never names:
 
-**`## Traps` rides whole as well, and it is the section that tells a reviewer what to read the tests
-for.** Each entry names a mutation the tests on this spec had to be able to fail on, which is the question
-a reviewer cannot answer from a green suite. It is also step 7's input: `devpath:learn` generalises
-`## Critique findings` at the end, and a trap is that generalisation already done by the pass that was
-there. **Empty is the ordinary case** — say the heading is empty and carry nothing, as with the feedback
-offer below.
+```
+- [x] won't fix — hard-coded org id in the test; fixture is scratch-org-local
+      devpath/tolerance-config/slices/04-tolerance-service.md
+```
+
+**The same failure as a missing pairing, one level out.** A waiver the reviewer cannot place is a waiver
+they have to grep for, which is the re-finding this step opens by refusing. **A `won't fix` on `spec.md`
+takes no path** — there is one of those, and the pairing above already carries it.
+
+### The material rides as a count and a path
+
+**One line per file, saying how many and where:**
+
+- **`## Critique findings`, per slice** — how many `- [x] fixed`, how many `- [x] false positive`, how
+  many `- [x] won't fix`, and the slice's path. **The `won't fix` count double-counts lines the section
+  above already carries whole, deliberately** — a count that did not reconcile against the file at the
+  path would send the reviewer to work out which of the two was lying.
+- **`## Deviations`, per slice** — how many entries, closed `excess` notes included, and the same path.
+- **`## Traps`, once** — how many entries, and the path to `spec.md` — `devpath/<slug>/spec.md — 2 traps`.
+  It is one section on the spec rather than one per slice, and the example below shows it at its ordinary
+  count of none.
+
+```
+devpath/tolerance-config/slices/04-tolerance-service.md — 9 fixed, 21 false positive, 2 won't fix; 3 deviations
+devpath/tolerance-config/slices/05-tolerance-ui.md — 2 fixed, 0 false positive, 0 won't fix; `## Deviations` empty
+devpath/tolerance-config/spec.md — `## Traps` empty
+```
+
+**Where a section is empty, name the heading on that file's own line and carry nothing** — one line per
+file either way, exactly as the feedback offer below does for its own heading. **A count of zero is not
+the same line:** it says the section was read and held none of that disposition, where an empty heading
+says the section held nothing at all. **On `## Traps` the empty heading is the ordinary case.**
+
+**Why a path rather than the text.** All three sections are committed inside the spec directory, which is
+inside this pull request's own diff — so the body is the one place a reviewer does not need the text in
+order to reach it. What the body owes them is the shape of what happened and a way in. **The count is the
+shape; the path is the way in.**
+
+**`## Traps` is still the section that tells a reviewer what to read the tests for**, which is why its
+count is worth a line of its own. Each entry names a mutation the tests on this spec had to be able to
+fail on — the question a reviewer cannot answer from a green suite. It is also step 7's input:
+`devpath:learn` generalises `## Critique findings` at the end, and a trap is that generalisation already
+done by the pass that was there.
 
 ## 5 · Offer to file `## devpath feedback`
 

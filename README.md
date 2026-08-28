@@ -427,7 +427,7 @@ design_approved: true
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
 | `## Current state` | Survey; Design prunes it | Design |
 | `## Design` | Design | the design gate — **never `design_approved: true` with this heading empty**; Slice, Build |
-| `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
+| `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, counting it into the pull request body; Learn |
 | `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code**; **`devpath:initiate`, which clears every line on a re-entry** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; **`devpath:initiate`, which opens it by name on a re-entry and starts from the shortfalls**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
 
@@ -479,7 +479,7 @@ write them.
 - **`## Acceptance criteria`** — Slice writes them from the design; Build ticks each one as it satisfies
   it. One `- [ ]` per criterion, closed as `- [x] met`. They count toward *Critique clean* like every other
   box in the directory.
-- **`## Deviations`** — Build records; Integrate carries into the pull request body; the human sees it at
+- **`## Deviations`** — Build records; Integrate counts into the pull request body; the human sees it at
   merge. Recording is mandatory; whether to stop is the engineer's call. Slice appends one plain sentence
   here, with no tag and no box, when a re-cut changes the behaviour a built slice deployed. **Two kinds of
   open box live here and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is
@@ -497,10 +497,10 @@ the only place a non-text file exists anywhere in `devpath`.**
 **Every section above is a signal or a written trace, and the tables say which.** A signal names each
 reader that branches on its contents and states the grammar those readers match — `## Traps` does both,
 and so does `## Outcome checks`. A written trace names who *carries* it and states a grammar for a human's
-benefit only: `## Deviations` and `## Critique findings` ride into the pull request body and are read at
-merge, and **no run branches on what they say.** The box markers in them are a signal, and the words after
-a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing reads a
-`## Deviations` entry to decide what to do next.
+benefit only: `## Deviations` and `## Critique findings` are counted into the pull request body and
+read at merge, and **no run branches on what they say.** The box markers in them are a signal, and the
+words after a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing
+reads a `## Deviations` entry to decide what to do next.
 
 ### The front-matter block starts at byte zero
 

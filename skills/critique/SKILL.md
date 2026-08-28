@@ -176,7 +176,7 @@ numbering it was written against — where the code and the tests it names are s
 
 **One meaning, one place: `## Critique findings` holds the instances, `## Traps` holds what outlives
 them.** An entry that is a copy of the finding it came from is the duplication this schema avoids
-everywhere else, and Integrate carries the finding into the pull request body anyway.
+everywhere else, and the finding is already inside this pull request's own diff anyway.
 
 **Two bounds, and both are the price of the section rather than a footnote to it.** Every entry loads into
 every later worker and every later critic — the multiplier `devpath:learn` states about unscoped rules,
