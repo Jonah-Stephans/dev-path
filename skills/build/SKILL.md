@@ -535,14 +535,38 @@ was reachable. **Uncommitted, that work is one `git checkout` from gone.** `git 
 memory is out of the loop, and a pause that kept nothing would put it back — in the one case where the
 next actor is a human who did not do the work.
 
-**Stage with `git add -A`**, and **any commit excess against the slice's declared scope is recorded as
-one `- [ ] excess — <the paths, and what swept them in>` under `## Deviations`, and that slot is the only
-place the box's shape is set.**
+**Stage with `git add -A`**, and **every path the commit carries beyond the slice's declared scope gets
+its own `- [ ] excess — <the path, how it differs from the base, and what swept it in>` under
+`## Deviations`, and that slot is the only place the box's shape is set.** The command that fills the
+middle clause, and the order it forces, are below.
 
 ```markdown
 ## Deviations
-- [ ] excess — package-lock.json, committed by `git add -A` and outside this slice's `touches`
+- [ ] excess — docs/tolerance-notes.md, +140 -0 against `main` as this branch found it; committed
+      by `git add -A` and outside this slice's `touches`
+- [ ] excess — package-lock.json, +812 -4 against `main` as this branch found it; committed by
+      `git add -A` and outside this slice's `touches`
+- [ ] excess — .claude/rules/rstk-slds2-ux-standards.md, +0 -72 against `main` as this branch found
+      it; committed by `git add -A` and outside this slice's `touches`
 ```
+
+**A filename is not a finding, and the third box is why.** Those three paths are a notes file somebody
+wrote, a lockfile a package manager rewrote, and a stale copy that takes 72 lines off a rules file the
+base already carries. **Without the clause all three read identically**, a name and how it got swept in,
+and the third one is a revert about to be merged. A box exactly like it was closed *the engineer's own
+in-flight edits* by a human who held nothing else. **`+0 -72` is the finding**, and nobody in that loop
+had it.
+
+**One box per path, never one box for the commit.** The figures are per path and so is the disposition:
+three files reaching one box took one decision that was wrong about all three of them. **The dirty-tree
+stop above asks one question per path for exactly that reason.** It named this box as its precedent while
+this box still took paths in bulk; now both are per path.
+
+**The comparison sits before the provenance, because a grep hit is one line.** Integrate finds open
+boxes with `grep -rn '^[[:space:]]*- \[ \]'`, which returns the line a box starts on and never the line
+it wraps onto. Put the figures last and the refusal prints a filename and nothing else — the box this
+clause replaces, at the moment somebody decides. `devpath:integrate` already says it about a bullet of
+Build's: *a hit cut at the line break drops the end of the sentence.*
 
 **The tag is mandatory, and it closes a real ambiguity rather than decorating one.** An untagged open box
 under `## Deviations` is a pause: *this slice does not proceed until a human answers*. This one is a note
@@ -559,16 +583,17 @@ joins on `done` rather than reading the tag** — a tag is prose a run can forge
 mechanical, and the test deciding whether a push is denied reads the mechanical one.
 
 **Why the audit beat a filter**, because it looks like the lazier choice and is not. Both need the *same*
-comparison — what git reports changed, versus `touches` plus `devpath/` plus created files — so the
-machinery cost is identical and the only difference is exclude-it versus include-and-note-it. A filter's
-risk is dropping a file Build legitimately created, which shows up later as a failed deploy somebody has
-to debug. The audit's risk is committing something out of scope, and all the audit does about that is put
-the file in front of a human before merge. **A flag is not a catch.** Closing the box edits the box, not
-the commit, so whether a flagged file merges turns on whoever read it — which is why the working tree has
-to be clean before Build dispatches. A clean tree at dispatch narrows the audit to what this run wrote
-plus whatever arrived while it ran — and the first of those is the same set the filter would wrongly
-drop, so the audit still wins. And `git add -A` cannot lose work, which takes Build's memory out of the
-loop.
+first comparison — what git reports changed, versus `touches` plus `devpath/` plus created files — and
+the difference between them is exclude-it versus include-and-note-it. **The machinery costs are no longer
+identical**: noting a path runs a second comparison, against the base, that a filter would never make.
+The conclusion survives the extra cost. A filter's risk is dropping a file Build legitimately created,
+which shows up later as a failed deploy somebody has to debug. The audit's risk is committing something
+out of scope, and all the audit does about that is put the file in front of a human before merge.
+**A flag is not a catch.** Closing the box edits the box, not the commit, so whether a flagged file
+merges turns on whoever read it — which is why the working tree has to be clean before Build dispatches.
+A clean tree at dispatch narrows the audit to what this run wrote plus whatever arrived while it ran —
+and the first of those is the same set the filter would wrongly drop, so the audit still wins. And
+`git add -A` cannot lose work, which takes Build's memory out of the loop.
 
 **Who closes that box, and it is not a skill.** No later `devpath` run is looking for it — **a done slice
 with an open box under `## Deviations` is not a pause and must not be read as one**, and where a pause
@@ -593,6 +618,74 @@ audit writes it down as excess. **`devpath` benefits from the ignore without dep
 cannot fire today and, when parallelism arrives, it fires **loudly** — slice 02's commit records slice 03's
 files as excess. And the engineer's own stray edits in a shared working directory get committed into a
 slice; also recorded, also visible at review.
+
+### The direction clause, and the order it forces
+
+**The figures come out of git, never out of a sentence the run composes.** A run that summarises a file
+it did not read writes a reassuring summary, and reassurance is the failure this box exists to stop. One
+command per excess path:
+
+```sh
+git diff --numstat --cached "$(git merge-base "origin/$base" HEAD)" -- <path>
+```
+
+**The two figures are the only part that varies.** Where git reports a binary file — two dashes where
+the numbers go — `binary, changed` takes their place. Where the command prints nothing at all, because an
+earlier slice's change to that path came back out and the staged content now matches the base's, `no net
+difference` takes their place. The rest of the clause stands in both, so the base's name and *as this
+branch found it* are written one way only.
+
+**A path with nothing to report still gets its box, and the box still gets a clause.** One that stops at
+the semicolon reads exactly like a box nobody compared, which is the box this clause replaces.
+
+**No condition on the path.** A path the base does not carry reports as pure additions, which is true and
+reads correctly, so there is no *does the base have this file* question to ask first and no second shape
+of box to keep in step with the first.
+
+**`<base>` is resolved rather than assumed**, by the lookup `devpath:initiate` and `devpath:learn`
+already make:
+
+```sh
+base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+```
+
+**Resolve it only when the audit has something to report**, which on most slices is never. Nothing else
+in Build wants a base branch, and a lookup at the top of the stage would pay on every slice to serve a
+clause that mostly does not fire.
+
+**Where the comparison cannot be made — no remote, `gh` cannot answer, or `origin/<base>` is not in this
+clone — the clause reads `direction not compared`** and the run carries on. **The missing ref arrives as
+an error rather than a number**: `git merge-base` prints nothing and the diff then refuses with `fatal:
+bad revision ''` rather than quietly comparing against something else, so the case is one a run can see.
+**Say the state and say nothing about the cause**, exactly as the dirty-tree stop above does. An
+unauthenticated `gh` and a repo with no remote fail here identically, and a box naming the wrong one
+sends the reader to fix something that is not broken. **Not silence** — an uncompared box that reads
+exactly like a compared one that found nothing is the box this clause replaces. Not a refusal either:
+this is a reporting clause, and a run does not stop over one.
+
+**The order is stage, compare, write, stage again, commit.** `git add -A` first, then the comparison
+against the staged state, then the boxes, then a second `git add`, then the commit. **`git diff` does not
+see an untracked file**, so a comparison made before staging is silent on exactly the new-file case — the
+one the reader has least other evidence about. The second staging pass adds the slice file alone, which
+is under `devpath/` and already exempt from the audit, so it cannot manufacture excess of its own.
+
+**The comparison point is the merge-base, because the base's tip lies on any branch the base has moved
+past.** If `main` gained forty lines in a file last week and this branch never touched that file, a
+comparison against `main`'s tip reports *this commit removes forty lines* — and merging removes nothing,
+because a three-way merge keeps the base's version of a file the branch did not change. **A clause that
+cries wolf is a clause the reader skims**, which is the failure this box already has.
+
+**And the merge-base needs no fetch.** It is an ancestor of both refs and is in the clone already, so a
+stale `refs/remotes/origin/<base>` still resolves it correctly. Build fetches nowhere today, and a
+reporting clause is not the reason to make it start.
+
+**The figure is the branch's rather than the commit's.** Comparing against the merge-base carries every
+earlier slice's change to that path as well — which is the number that decides a merge, and what *as this
+branch found it* says. A path swept in on two slices gets two boxes carrying two different figures, both
+open at review, and the later one is the whole of it rather than the second instalment.
+
+**On a short-lived spec the two answers agree**, because `devpath:initiate` cuts the spec branch from
+`origin/<base>`. The merge-base is the one that stays right when they do not.
 
 ### The commit message
 
@@ -900,7 +993,8 @@ whether the slice finished or not, so the audit can write its box on the very sl
 ## Deviations
 - [ ] O2 implies mid-cycle proration and the design carries no basis for it — needs a decision
       before this slice continues.
-- [ ] excess — package-lock.json, committed by `git add -A` and outside this slice's `touches`
+- [ ] excess — package-lock.json, +812 -4 against `main` as this branch found it; committed by
+      `git add -A` and outside this slice's `touches`
 ```
 
 **The frozen test still answers *frozen* here, and still reads `done` to do it.** No `done: true` plus an
