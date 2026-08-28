@@ -421,7 +421,7 @@ design_approved: true
 | Heading | Written by | Read by |
 | --- | --- | --- |
 | `## Intent` | Initiate; **Design rewrites it when its conversation revises the problem, and narrows it when one spec turns out to be two** | the intent gate — **must be non-empty**; every later stage |
-| `## Outcomes` | Initiate; Design rewrites it when its conversation revises the problem | the intent gate — **must be non-empty**; Survey, which clusters them into areas to dispatch and keys its findings on them; the Outcomes pass |
+| `## Outcomes` | Initiate, **one `- O<n> — <statement>` line per Outcome**; Design rewrites it when its conversation revises the problem, **keeping every ID it did not change** | the intent gate — **must be non-empty**; Survey, which clusters them into areas to dispatch and keys its findings on their IDs; the Outcomes pass; Integrate, resolving a carried-forward `won't fix` against it |
 | `## Out of scope` | Initiate; **Design narrows it to one design** | Design, Build, to refuse creep. **Never gated** |
 | `## Open questions` | Initiate, verbatim with its owner; the Design conversation adds | Design; `devpath:sketch`; a resumed Design |
 | `## Evidence` | Initiate; Design may add, verbatim and attributed | the human at the intent gate; Design; Build |
@@ -569,6 +569,37 @@ them differently: seven slice files, six at `done: true`, every `## Critique fin
 `fix_cycles:` line anywhere in the directory, and every downstream check clean. Integrate's step 3 refuses
 on it now, and **no ninth field was needed** — which is why the row's third column says no.
 
+### An Outcome carries an ID
+
+```markdown
+## Outcomes
+- O1 — Tolerances configurable per quantity, unit price and total
+- O2 — Bulk update over 200 rows completes without error
+- O3 — Tolerance breaches log to the audit trail with the breaching value
+```
+
+**The line's grammar is `- O<n> — <statement>`, and a reference to an Outcome anywhere else is the bare
+token `O<n>`.** Seven things point at an Outcome — `## Outcome checks`, a `won't fix` line, a Survey
+finding, Build's cut entry, Slice's rework deviation and both of Build's pause illustrations. Before the
+ID, each of them pointed at whatever text the Outcome happened to carry, and **Initiate and Design both
+rewrite `## Outcomes` wholesale**, so a rework silently retargeted every one of them with nothing able to
+tell that it had.
+
+**Assigned once, never reused, never renumbered.** An Outcome rewritten to mean the same thing keeps its
+ID; one rewritten to mean something else takes a new ID, one above the highest in the section, and the old
+one is retired. `devpath:initiate`'s `### An Outcome carries an ID` is the rule, and both stages that
+rewrite the section follow it.
+
+**Retirement costs no field, and the gap is the trace.** A retired Outcome is an absent line — no
+tombstone and no `false`, which is *Nothing writes a placeholder* below read over one line instead of a
+section. A spec that met fifteen Outcomes first time carries O1 to O15 with none missing; one that
+reworked four carries fifteen lines and a highest ID of O19. **That is how a reader tells rework from
+success, and it arrives by subtraction:** nothing is stored, nothing is set, and no reader has to look
+behind a flag, because a line is simply not there.
+
+**The ID is part of the line's grammar rather than a field**, like the `- [x] met` tag below — the front
+matter is unchanged and hook block 4's heading list is unchanged.
+
 ### The disposition grammar
 
 ```markdown
@@ -581,15 +612,16 @@ on it now, and **no ninth field was needed** — which is why the row's third co
 
 ```markdown
 ## Outcome checks
-- [x] met — Tolerances configurable per quantity, unit price and total
-- [ ] unmet — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
+- [x] met O1
+- [ ] unmet O2 — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
+- [x] won't fix O3 — audit-trail object is managed and read-only in this org
 ```
 
 | Marker | Means |
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
-| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **The words after the tag are what was observed, never the Outcome or the criterion restated.** **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
-| `- [x] fixed` / `- [x] met` | the code does it |
+| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **What follows is what was observed, never the Outcome or the criterion restated** — under `## Outcome checks` the tag is followed by the Outcome's ID and then the observation. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
+| `- [x] fixed` / `- [x] met` | the code does it. **A `met` line under `## Outcome checks` is the tag and the ID, and stops there** |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway** |
 

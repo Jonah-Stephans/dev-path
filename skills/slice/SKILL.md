@@ -300,12 +300,17 @@ subagent.
 **Neither exit is yours to pick.** The ask is the instruction; the answer is the human's.
 
 **Rework it** → cut a new slice whose `touches` covers the same files, and append one plain sentence to
-the built slice's `## Deviations`: *04 built a fixed 200-row cap; the Outcome "Bulk update over 200 rows
-completes without error" was reworked and 07 changes that behaviour.* No tag and no box, and nothing on 04
-is deleted. **The Outcome is quoted, never numbered** — a positional index is a convention nothing in
-`devpath` defines, and `devpath:integrate` states the same rule where it prints an unmet Outcome.
-`done: true` stays, because 04 genuinely did deploy. Integrate's step 4 carries `## Deviations` whole
-into the pull request body, so the human at merge reads both slices.
+the built slice's `## Deviations`: *04 built a fixed 200-row cap; O2 was reworked and 07 changes that
+behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` stays, because 04 genuinely did
+deploy. Integrate's step 4 carries `## Deviations` whole into the pull request body, so the human at merge
+reads both slices.
+
+**The Outcome is named by ID, and this is the sharpest place in `devpath` where that matters.** This
+sentence is written *during* the rework, onto a slice that keeps it forever, about an Outcome the same
+rework is about to change — so a quoted statement here is stale before the commit lands. Under
+`devpath:initiate`'s `### An Outcome carries an ID`, a reworked meaning takes a new ID and O2 is retired,
+which leaves this sentence naming a retired ID **on purpose**: it says what 04 was built against, which is
+exactly what the human at merge needs and exactly what the current `## Outcomes` no longer holds.
 
 **Keep 04** → the design is what went too far, and it goes back to `devpath:technical-design`, whose
 re-entry on an approved design **withdraws the gate as its own mandated act** and re-slices once the new

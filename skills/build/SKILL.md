@@ -167,9 +167,9 @@ has thrown away the shortfall it was typed to act on.
 > **Never expire a `- [x] won't fix` line.** That is the ledger, and a machine deleting a human's decision
 > silently is the failure the announcement exists to prevent.
 
-**Announcing is mandatory.** Name every Outcome whose line you expired, in this run's output. A verdict
-that goes without a sentence is one the engineer still believes is on the page, and no field makes an old
-one look old.
+**Announcing is mandatory.** Name every Outcome whose line you expired, by ID, in this run's output. A
+verdict that goes without a sentence is one the engineer still believes is on the page, and no field makes
+an old one look old.
 
 ### The cut
 
@@ -195,19 +195,25 @@ four. **Go to that section by name** rather than writing the shape from memory; 
 this section makes for `## Outcome checks`.
 
 **`## What to build` comes from the shortfall, which is the only source you have.** The `- [ ] unmet` line
-says what was observed, `## Outcomes` says the target, and `## Design` says how this spec builds things.
+says what was observed and carries the ID that resolves against `## Outcomes`, which says the target, and
+`## Design` says how this spec builds things.
 
-**The written entry — a plain bullet under the new slice's `## Deviations`, quoting the Outcome and the
-shortfall:**
+**The written entry — a plain bullet under the new slice's `## Deviations`, naming the Outcome by ID and
+reproducing the shortfall:**
 
 ```markdown
 ## Deviations
-- Cut for the Outcome *Bulk update over 200 rows completes without error*, unmet at Integrate: throws
-  above 200 rows; batching is fixed at 200 and nothing chunks past it.
+- Cut for O2, unmet at Integrate: throws above 200 rows; batching is fixed at 200 and nothing chunks
+  past it.
 ```
 
 **The shortfall is reproduced rather than paraphrased**, exactly as `devpath:integrate` reproduces it at
 its refusal — the trailing period closes this bullet's sentence and is the only thing added to the line.
+
+**The ID rather than the Outcome's text, because this entry is permanent and the text is not.** A bullet
+under `## Deviations` is never deleted, and `## Outcomes` is rewritten whenever Initiate or Design revises
+the problem — so an entry quoting the statement would sit in the pull-request body claiming a target the
+spec stopped asking for. If O2 was later retired, this bullet naming a retired ID is the trace working.
 
 **That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
 plain untagged sentence under `## Deviations`, nothing deleted, carried whole into the pull request body
@@ -686,9 +692,9 @@ permits deviation-with-recording.
 ```markdown
 ## Deviations
 - [ ] The design assumes every billing schedule is monthly and derives the period from the
-      contract start date. The second Outcome implies mid-cycle proration, needing a proration
-      basis that is not in the design and not derivable from what exists. This changes what is
-      built, not how — needs a decision before this slice continues.
+      contract start date. O2 implies mid-cycle proration, needing a proration basis that is not
+      in the design and not derivable from what exists. This changes what is built, not how —
+      needs a decision before this slice continues.
 ```
 
 **Why the box and not just prose.** Without it a paused slice is **indistinguishable from one nobody
@@ -714,8 +720,8 @@ whether the slice finished or not, so the audit can write its box on the very sl
 
 ```markdown
 ## Deviations
-- [ ] The second Outcome implies mid-cycle proration and the design carries no basis for it —
-      needs a decision before this slice continues.
+- [ ] O2 implies mid-cycle proration and the design carries no basis for it — needs a decision
+      before this slice continues.
 - [ ] excess — package-lock.json, committed by `git add -A` and outside this slice's `touches`
 ```
 

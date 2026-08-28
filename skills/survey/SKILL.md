@@ -81,12 +81,15 @@ past the ceiling.
 four, or a thread named and not chased. A shallower finding Design knows is shallow is usable; one Design
 reads as complete is not, and Survey is the only stage that can still tell the difference.
 
-**Findings stay per-Outcome.** A dispatch and a finding do not have to share a shape: one researcher
-handed four related Outcomes hands back four separate answers.
+**Findings stay per-Outcome, keyed by the Outcome's ID.** A dispatch and a finding do not have to share a
+shape: one researcher handed O2, O5 and O6 hands back three separate answers, each written under the ID it
+answers.
 
-**Why the Outcome keys the finding.** The per-item question is Survey's actual job, and it is the same key
-at both ends of `devpath`: Survey asks *what exists that bears on this Outcome*, and the Outcomes pass at
-Integrate asks *did we achieve it*.
+**Why the ID keys the finding.** The per-item question is Survey's actual job, and it is the same key at
+both ends of `devpath`: Survey asks *what exists that bears on O2*, and the Outcomes pass at Integrate
+asks *did we achieve O2*. **The ID is the key and the statement is not** — Design rewrites `## Outcomes`
+when the conversation revises the problem, and a finding keyed on the text it happened to carry would end
+up filed under a statement nobody wrote.
 
 **The discard is the load-bearing half, and here is why it must not be edited into something tidier:
 Design runs in the same session as Survey because it wants the findings.** That only works if Survey ends
