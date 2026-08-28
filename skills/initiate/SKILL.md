@@ -163,36 +163,49 @@ be overhead, and the gate is already there, reading the thing the slug names.
 ## Sweep for a colliding slug
 
 `devpath/` is flat and merged specs are never deleted, so the second `devpath/decline-codes/` is
-refused by `mkdir` rather than by policy. Check `<base>` plus every branch, local and remote, in one
-sweep — **before any work exists.**
+refused by `mkdir` rather than by policy. Check `origin/<base>` plus every branch, local and remote, in
+one sweep — **before any work exists.**
 
 ```sh
 git fetch --prune --quiet
-git ls-tree -r --name-only <base> -- devpath/ | awk -F/ '{print $2}' | sort -u
+git ls-tree -r --name-only origin/<base> -- devpath/ | awk -F/ '{print $2}' | sort -u
 git for-each-ref --format='%(refname:short)' refs/heads refs/remotes
 ```
 
-**`<base>` is the repository's base branch, resolved rather than assumed:**
+**`<base>` is the repository's base branch name, resolved rather than assumed:**
 
 ```sh
 base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
 ```
 
-Sweeping the wrong ref reports clean and surfaces the collision at merge, which is the failure this
-check exists to prevent. Where `gh` cannot answer, fall back to `main` and say which ref was swept.
+**The tree comes from `origin/<base>`.** The fetch above moves `refs/remotes/origin/<base>` and leaves
+`refs/heads/<base>` wherever the last pull left it, so a spec merged since then is on `origin/<base>` and
+absent from `<base>`. Sweeping the wrong ref reports clean and surfaces the collision at merge, which is
+the failure this check exists to prevent.
+
+**Two places want the bare name and break on the ref.** `gh pr create --base` takes a branch name and
+rejects `origin/main`, and the `git checkout <base>` in the refusal above detaches HEAD if it is handed a
+remote-tracking ref.
+
+Where `gh` cannot answer, fall back to `main`, which is `origin/main` in the ref positions, and say which
+ref was swept. Naming it is what makes the fallback checkable.
 
 **The fetch is not optional and the stated failure case is why.** *Two engineers running Initiate the
 same morning* is only detectable if the sweep sees the other engineer's branch, and a local clone knows
 only what it has fetched. `--prune` matters for the mirror-image reason: a stale remote-tracking ref for
 a deleted branch reports a collision that no longer exists.
 
-**With no remote configured the sweep covers `<base>` plus local branches and says so in one line.** It
-does not fail — a repo with no remote has no second engineer to collide with yet, and refusing would be a
-stop nobody can clear.
+**With no remote configured there is no `origin/<base>`, so the sweep covers the local `<base>` plus
+local branches and says so in one line.** It does not fail — a repo with no remote has no second engineer
+to collide with yet, and refusing would be a stop nobody can clear.
 
 ## Write
 
-**`git checkout -b <slug>` from `<base>`**, then write `devpath/<slug>/spec.md`.
+**`git checkout -b <slug> origin/<base>`**, the ref the sweep just read, then write
+`devpath/<slug>/spec.md`. Cut from the local `<base>` and the branch starts wherever the last pull left
+it, so the spec's first diff against the real base reads as a deletion of everything the base gained
+since. **With no remote there is no `origin/<base>` and the cut uses `<base>`**, the same condition the
+sweep already handles.
 
 **`devpath/` sits at the repository root. Fixed, not configurable.** A setting means every skill
 resolves it before doing anything and the router grows a branch. Every spec is a directory with

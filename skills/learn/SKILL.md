@@ -274,7 +274,7 @@ writing something fine. Both conditions are aimed at that.
 
 | | |
 | --- | --- |
-| **Cut from** | the repo's **base branch**, never the spec branch. Cut from the spec branch, the lessons ride into the spec's own pull request and **there is no second pull request at all** |
+| **Cut from** | `origin/$base`, the repo's **base branch as the remote has it**, never the spec branch. Cut from the spec branch, the lessons ride into the spec's own pull request and **there is no second pull request at all** |
 | **Branch name** | `devpath/lessons/<slug>`. **It contains a slash, so it can never be mistaken for a slug** — a slug is a flat directory name — and any `devpath` skill run on it refuses, correctly, with *no spec on this branch* |
 | **Title** | *Lessons from `<slug>`*. **Nothing parses it** |
 | **Draft or ready** | **ready.** A draft would be slightly worse than pointless: CI does not run on drafts, and a proposed check's whole point is that its test case runs |
@@ -291,7 +291,8 @@ rather than working around. **A `git stash` dance is not the answer** — it is 
 its failure mode is losing the engineer's work silently.
 
 ```sh
-git checkout -b "devpath/lessons/<slug>" "$base"
+git fetch --quiet
+git checkout -b "devpath/lessons/<slug>" "origin/$base"
 # write the rule files and any CI edit
 git add .claude/rules/ && git commit && git push -u origin HEAD
 gh pr create --base "$base" --head "devpath/lessons/<slug>" --title 'Lessons from <slug>' --body-file -
@@ -303,6 +304,16 @@ Resolve `$base` rather than assuming it:
 ```sh
 base=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
 ```
+
+**The fetch is what makes `origin/$base` current.** The run's only other fetch is Initiate's, back before
+any code existed, so without this one the cut uses whatever that left. `git fetch` moves
+`refs/remotes/origin/$base` and never moves `refs/heads/$base`. Cut from the bare `$base` and the lessons
+branch starts wherever the last pull left it, so its pull request reads as a deletion of everything the
+base gained since, including `.claude/rules/` files an earlier run of this skill wrote.
+
+**`$base` stays a bare name in `gh pr create --base`**, which takes a branch name and rejects
+`origin/main`. **A remote is a precondition of this section rather than a case to branch on**, because the
+block pushes to `origin` and opens a pull request, so a repo without one never reaches here.
 
 **Return to the spec branch before you finish**, so Integrate's step 8 runs where it expects to be.
 
