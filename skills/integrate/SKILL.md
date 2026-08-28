@@ -148,14 +148,18 @@ step 3.
 stale, because it rewrites every other one from scratch — so a stale `met O2` is gone before anybody reads
 it, and a check over the whole section would fire on states that were about to correct themselves.
 
-**`## Outcome checks` has one other reader, and the condition is asked again where it reads.**
-`devpath:build` reads the `- [ ] unmet` lines to cut against, *before* it expires them, so an unmet line
-naming a retired Outcome does reach a reader — and its cut resolves the ID there and skips the line rather
-than cutting for it. **One condition, asked at each of the two places the section is read**, and neither of
-them a check over the spec directory.
+**`## Outcome checks` has one other reader that acts on what it finds, and the condition is asked again
+where it reads.** `devpath:build` reads the `- [ ] unmet` lines to cut against, *before* it expires them,
+so an unmet line naming a retired Outcome does reach a reader — and its cut resolves the ID there and
+skips the line rather than cutting for it. **One condition, asked at each of the two places that could act
+on a stale line**, and neither of them a check over the spec directory.
 
 **Neither exit is this skill's to pick.** The line is a human's decision in a human's words, so nothing
 here retargets it and nothing here deletes it.
+
+**A `devpath:initiate` re-entry reads the section too and asks nothing**, because it clears every line and
+names each `won't fix` it removed while the human who asked for the rework is in the room. So exit 3 no
+longer reaches this stop, and what does is a design conversation retiring an ID, or a hand edit.
 
 **Why this is an instruction here rather than a check over the spec directory.** Measured against a spec
 directory holding one genuinely stale line, a grep resolving every `O<n>` token returned four hits: the

@@ -193,6 +193,26 @@ words surface here or nowhere.
 
 **Design prunes `## Current state`** to the facts the design rests on. Rewrite the section; do not append.
 
+### A re-entry starts from the design already on the page
+
+**Mandated. Read the existing `## Design` before the conversation opens, and open the conversation on what
+the rework changed.** Default to carrying every decision the rework did not touch forward as written. The
+gate is already withdrawn, the human approves again, and the section is still rewritten whole. There is no
+mode that edits one decision in place.
+
+**Without this the anchoring one stage earlier buys nothing.** `devpath:initiate` opens its re-entry on the
+shortfalls and hands the result to a stage that may rewrite `## Intent` and `## Outcomes` again, so a
+design conversation starting from a blank page puts the drift straight back.
+
+**This is a live run written down rather than a behaviour invented for the page.** On
+`navigator-test-system-mode`, 2026-08-27, a re-entered Design replaced `## Current state` and nothing else,
+re-scanned rather than trusting the inventory that had just failed, and reported the Outcomes as deltas
+against the ones already written. It was already possible. Writing it down is what makes it hold across
+sessions.
+
+**The accepted cost is `devpath:initiate`'s and it is unchanged here: this bounds drift by conversation,
+not by mechanism.**
+
 ### The spec boundary, when one spec turns out to be two
 
 **Design narrows `## Intent` and `## Out of scope` to one design.** That is the whole of the answer:

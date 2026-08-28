@@ -61,12 +61,30 @@ rested on Outcomes that have just changed. Leaving `design_approved: true` in pl
 
 | Deleted | Survives untouched |
 | --- | --- |
-| `intent_accepted` **and** `design_approved` | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
+| `intent_accepted`, `design_approved`, **and every line under `## Outcome checks`** | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
 
 **The slices survive on purpose.** They are work, `design_approved` is absent so nothing acts on them, and
 `devpath:technical-design` re-slices when the design settles. Deleting them would be this skill throwing
 away an artifact the human never asked it to throw away. **The draft pull request survives, always** — one
 per spec, for the spec's whole life, and nothing in a re-entry changes which spec this is.
+
+**Every line under `## Outcome checks` goes.** Mandated. Each one is a verdict on a code state, and a
+rework drops `design_approved`, re-slices and changes the code, so every verdict under that heading is
+about a diff that is about to stop existing. **Clearing is the heading with no lines under it**, the shape
+`devpath:build` already leaves when it expires the section, and it reads as *the pass has not run against
+this code*.
+
+**Name each `- [x] won't fix` line in the announcement, quoted whole.** `devpath:integrate` carries those
+lines forward verbatim and `devpath:build` never expires one, both for the same stated reason: a machine
+deleting a human's decision silently. **Initiate deletes it anyway, and the announcement is the whole
+difference.** A `won't fix` that outlives the Outcome it names is an admission this spec has stopped
+asking for, and the human who can say whether it still stands is the one who asked for the rework. Say it
+in substance: *`won't fix O3 —
+audit-trail object is managed and read-only in this org` goes with the verdicts. Say it again against the
+new Outcomes if it still stands.*
+
+**Read the section before you clear it.** `## Write` below opens it by name, and a run that clears first
+has thrown away the shortfalls the engineer came back for.
 
 **Announcing is the whole of what makes this acceptable.** The uncomfortable part of an automatic
 withdrawal is *silence*, not the deletion — here the human is in the room, asked for the rework, and is
@@ -255,6 +273,29 @@ Design and Slice**, where `depends_on` holds paths inside a single spec.
 **An unanswered question can reach `main`.** `## Open questions` is written with its owner and read at
 Design; nothing gates on it, and nothing stops a spec merging with one still open. That is deliberate —
 gating it would yield the word `none` — but it is worth knowing rather than discovering.
+
+### A re-entry starts from the sections already on the page
+
+**Mandated. Read the five sections as they stand and open `## Outcome checks` by name before you write
+anything.** That section holds the shortfalls the engineer came back for, and they are the only part of
+this spec anything has said is wrong.
+
+**Open on them, and default to carrying every other Outcome forward as written.** *O7 fell short this
+way. Was O7 wrong?* A spec where three of ten Outcomes were wrong is a spec where seven were right, and a
+re-derivation from a blank page rewrites all ten with nothing checking that the seven still say what a
+human accepted.
+
+**The write is still a full rewrite of all five sections, and there is no mode that edits one Outcome in
+place.** Anchoring moves where the run starts, never what it writes. The full rewrite and the double
+withdrawal together are what stop this route laundering a failed Outcome into a met one, which is *a
+criterion you cannot satisfy is not edited into one you can* in `devpath:build`, read over an Outcome
+instead of a criterion. A scoped edit is the cheap way past a hard Outcome and it costs both.
+
+**One accepted cost, stated now rather than discovered later: this bounds drift by conversation, not by
+mechanism.** Nothing checks that a carried-forward Outcome still says what it said, and nothing can. The
+anchoring puts the shortfalls in front of the session doing the rewriting, and the diff and the intent
+gate are where a human sees what moved. That is the same class of guarantee as `devpath:learn` running at
+Integrate's step 7, which this plugin states as model-driven and not certain.
 
 ### An Outcome carries an ID
 
