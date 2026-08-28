@@ -61,7 +61,7 @@ rested on Outcomes that have just changed. Leaving `design_approved: true` in pl
 
 | Deleted | Survives untouched |
 | --- | --- |
-| `intent_accepted`, `design_approved`, **and every line under `## Outcome checks`** | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
+| `intent_accepted`, `design_approved`, **and every line under `## Outcome checks`, cleared at `## Write`** | the branch, the draft pull request, the slice files, `## Critique findings`, `## Deviations`, `## Traps` |
 
 **The slices survive on purpose.** They are work, `design_approved` is absent so nothing acts on them, and
 `devpath:technical-design` re-slices when the design settles. Deleting them would be this skill throwing
@@ -79,12 +79,13 @@ lines forward verbatim and `devpath:build` never expires one, both for the same 
 deleting a human's decision silently. **Initiate deletes it anyway, and the announcement is the whole
 difference.** A `won't fix` that outlives the Outcome it names is an admission this spec has stopped
 asking for, and the human who can say whether it still stands is the one who asked for the rework. Say it
-in substance: *`won't fix O3 —
-audit-trail object is managed and read-only in this org` goes with the verdicts. Say it again against the
-new Outcomes if it still stands.*
+in substance: *`- [x] won't fix O3 — audit-trail object is managed and read-only in this org` goes with
+the verdicts. Say it again against the new Outcomes if it still stands.*
 
-**Read the section before you clear it.** `## Write` below opens it by name, and a run that clears first
-has thrown away the shortfalls the engineer came back for.
+**The lines come off the page at `## Write`, not here.** The announcement quotes them while they are
+still on it, and `### A re-entry starts from the sections already on the page` below opens the heading by
+name to start from them. A run that clears at the withdrawal has thrown away the shortfalls the engineer
+came back for.
 
 **Announcing is the whole of what makes this acceptable.** The uncomfortable part of an automatic
 withdrawal is *silence*, not the deletion — here the human is in the room, asked for the rework, and is
@@ -296,6 +297,10 @@ mechanism.** Nothing checks that a carried-forward Outcome still says what it sa
 anchoring puts the shortfalls in front of the session doing the rewriting, and the diff and the intent
 gate are where a human sees what moved. That is the same class of guarantee as `devpath:learn` running at
 Integrate's step 7, which this plugin states as model-driven and not certain.
+
+**Clear `## Outcome checks` once the five sections are written, and not before.** The withdrawal above
+owns the deletion and its announcement; this is where the lines actually go, because this section had to
+read them first.
 
 ### An Outcome carries an ID
 

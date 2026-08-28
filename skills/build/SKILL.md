@@ -137,12 +137,13 @@ section below is what to do with what is in it.
 
 ## Cut for an unmet Outcome, then expire the section
 
-**Mandated, and it is a heading you open by name.** The only other reader is a `devpath:initiate`
-re-entry, which is exit 3 rather than this one. Integrate writes it and Integrate refuses on it, and the
-shortfall then sits on the spec with no reader at all. A cold `devpath:build` after that refusal sorts
-the slices, finds every one `done: true`, and reports there is no work — which is the run the engineer
-typed to clear the refusal. A worker reading `spec.md`
-for Intent and Outcomes skims straight past a heading nobody sent it to.
+**Mandated, and it is a heading you open by name.** The other readers are `devpath:integrate`'s own step
+1, which resolves a carried-forward `won't fix` against `## Outcomes`, and a `devpath:initiate` re-entry,
+which is exit 3 rather than this one. Integrate writes it and Integrate refuses on it, and the shortfall
+then sits on the spec with no reader at all. A cold `devpath:build` after that refusal sorts the slices,
+finds every one `done: true`, and reports there is no work — which is the run the engineer typed to clear
+the refusal. A worker reading `spec.md` for Intent and Outcomes skims straight past a heading nobody sent
+it to.
 
 ### The verdicts expire when the code moves
 

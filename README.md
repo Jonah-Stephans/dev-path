@@ -428,7 +428,7 @@ design_approved: true
 | `## Current state` | Survey; Design prunes it | Design |
 | `## Design` | Design | the design gate — **never `design_approved: true` with this heading empty**; Slice, Build |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code**; **`devpath:initiate`, which clears every line on a re-entry** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code**; **`devpath:initiate`, which clears every line on a re-entry** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; **`devpath:initiate`, which opens it by name on a re-entry and starts from the shortfalls**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
 
 **`## Outcome checks` is a verdict on a code state, and it expires when that state changes.** Any run that

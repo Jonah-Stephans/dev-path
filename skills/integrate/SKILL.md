@@ -158,8 +158,9 @@ on a stale line**, and neither of them a check over the spec directory.
 here retargets it and nothing here deletes it.
 
 **A `devpath:initiate` re-entry reads the section too and asks nothing**, because it clears every line and
-names each `won't fix` it removed while the human who asked for the rework is in the room. So exit 3 no
-longer reaches this stop, and what does is a design conversation retiring an ID, or a hand edit.
+names each `won't fix` it removed while the human who asked for the rework is in the room. So the
+refusal's exit 3 no longer reaches this stop, and what does is a design conversation retiring an ID, or a
+hand edit.
 
 **Why this is an instruction here rather than a check over the spec directory.** Measured against a spec
 directory holding one genuinely stale line, a grep resolving every `O<n>` token returned four hits: the
