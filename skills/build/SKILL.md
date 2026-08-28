@@ -19,6 +19,11 @@ to route cannot be disconnected.
 - **The command returns empty** → **stop, and say what is actually wrong:** it returns empty with exit
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
+- **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
+  uncommitted, and do not dispatch.** Something is uncommitted, and that is worth surfacing rather than
+  working around. **A `git stash` dance is not the answer** — it hides exactly what this stop surfaced,
+  and its failure mode is losing the engineer's work silently. What the stop prints, and what it asks, is
+  below.
 - **`design_approved` is not `true`** → **stop.** Build runs behind gate 2. Say the next act: run
   `devpath:technical-design` and take the design through its gate.
 - **Zero slice files** → **stop.** Say the next act: run `devpath:slice` against the approved design.
@@ -35,6 +40,100 @@ to route cannot be disconnected.
 **Prefix every message a gate or refusal prints with `devpath: `.** Suggested — two enforcement layers
 with overlapping symptoms are otherwise indistinguishable, and a human reading a stop should know which
 plugin stopped them.
+
+### The dirty-tree stop, where the harness offers a question tool
+
+**This stop is the orchestrator's, and that is what makes it askable.** `## Refuse first` runs in the
+main session ahead of any dispatch, which is the one seat the question tool exists in — it is absent
+from a subagent and fails synchronously there.
+
+**Print every dirty path before asking about any of them.** Per path: whether git tracks it, how it
+differs from `HEAD`, and **which direction it differs in.** A tree that is *short* of the committed file
+holds an older copy rather than an edit, and saying that out loud is the finding. A diffstat on its own
+leaves the reader to guess, and a guess is what this stop exists to stand in the way of.
+
+**Direction is also what says whose work it is, and it is the only thing here that does.** Nothing this
+run writes moves a file backwards, so a path behind `HEAD` is not this run's — which is the case this
+stop was grown from, where it was upstream's. A path ahead of `HEAD` while a slice still carries no
+`done` is more likely this command's own killed run, and calling that one *upstream* sends the engineer
+looking for a colleague who does not exist. **`touches` does not settle it** — it is a collision list
+holding pre-existing paths only, so the new files an interrupted build leaves are invisible to it. Where
+neither signal decides, print the state and say nothing about the cause.
+
+**Write that sentence for someone who does not work in this code.** The disposition that armed the merge
+this stop was grown from was written by a reader holding three file names and no diff. Whoever typed
+`devpath:build` is who answers here, and *the tree is 72 lines short of the committed file* lands with
+them whether or not they have ever opened that file.
+
+**One question per path, never one for the tree.** Three files reached one box and took one disposition
+that was wrong about all three of them. Paths in a single dirty tree have different right answers, and
+one question forces one verdict — the box's own shape, at a new address.
+
+**More than four dirty paths → print them all and stop, and ask nothing.** Four is the tool's own cap, so
+the stop is always one call and never a queue; past four the finding is the state of the tree rather than
+anything about a path in it, and a queue of clicks is how somebody clicks without reading.
+
+**The option set follows what git knows about the path**, because the acts on offer are not the same:
+
+| The path | The exits |
+| --- | --- |
+| tracked, modified | restore `HEAD`'s version, commit it here, carry it off |
+| untracked | commit it here, carry it off |
+
+> **Only one exit throws anything away, and its own description says so out loud.** Restoring `HEAD`'s
+> version discards an edit and nothing holds it afterwards — that is the whole of what a click can
+> destroy here. Deleting an untracked file destroys a file rather than an edit, and no click buys that:
+> the human does it in their own terminal or it does not happen.
+
+```
+  Dirty tree · tolerance-config
+  Nothing is dispatched. Three paths are uncommitted.
+
+   M .claude/rules/rstk-slds2-ux-standards.md   72 lines short of HEAD
+     The tree is behind the commit, so this is an older copy and not an edit. What is
+     missing from it: the var(--hook, fallback) requirement and the --slds-c-* ban.
+
+   M .claude/rules/rstk-lwc-standards.md         4 lines short of HEAD
+     Same direction. The tree is behind the commit.
+
+  ?? job                                         9 bytes, untracked, never tracked here.
+```
+
+```
+  .claude/rules/rstk-slds2-ux-standards.md — what happens to it?
+
+  ▸ Restore HEAD's version   git checkout -- the path. The 72 lines come back and the
+                             tree's copy is gone, with nothing in the reflog holding it.
+
+  ▸ Commit it here           Commits it on this branch ahead of the first dispatch, so
+                             it lands on this pull request under its own message
+                             instead of inside a slice.
+
+  ▸ Carry it off             Commits it on a branch beside this one and switches back.
+                             Nothing is lost and nothing rides on the spec.
+```
+
+> **The tool presents the decision. It never presents the material.** Every path prints in full above the
+> prompt, direction and all, and an option's description says what the choice *does*. **A click is legal
+> downstream of a read and never instead of one.**
+
+**No option is marked as recommended.** This run can read the diff and it cannot read the engineer: *the
+tree is behind the commit* is a finding, *and therefore throw the tree's copy away* is a judgment about
+work that is not this run's. Marking one would be the plugin answering a question it opened because it
+could not answer it. `tests/lint.sh` check 7 holds that against this file's own illustrations.
+
+**Re-read `git status --porcelain` when the acts are done, and let it decide.** Clean → carry on into the
+run. Anything left → stop and name what is left. **The rule is the tree at dispatch, never how the tree
+came to be clean**, so a run that cleared it by asking and a run an engineer cleared by hand are the same
+run from here on.
+
+**Where the harness offers no such tool, the printed block is the whole handover** and the run stops
+there: the engineer acts and types the command again. **Both paths leave the same tree and the same
+commits**, and what differs is how many times the command was typed, which nothing downstream reads — no
+field, no marker, no detection step.
+
+**No row on `## Print what you re-derived`.** The acts print as they happen, above that report, and the
+report holds what this run re-derived from the spec directory rather than what it did to the tree.
 
 ---
 
@@ -463,8 +562,13 @@ mechanical, and the test deciding whether a push is denied reads the mechanical 
 comparison — what git reports changed, versus `touches` plus `devpath/` plus created files — so the
 machinery cost is identical and the only difference is exclude-it versus include-and-note-it. A filter's
 risk is dropping a file Build legitimately created, which shows up later as a failed deploy somebody has
-to debug. The audit's risk is committing something out of scope, **and it is flagged.** And `git add -A`
-cannot lose work, which takes Build's memory out of the loop.
+to debug. The audit's risk is committing something out of scope, and all the audit does about that is put
+the file in front of a human before merge. **A flag is not a catch.** Closing the box edits the box, not
+the commit, so whether a flagged file merges turns on whoever read it — which is why the working tree has
+to be clean before Build dispatches. A clean tree at dispatch narrows the audit to what this run wrote
+plus whatever arrived while it ran — and the first of those is the same set the filter would wrongly
+drop, so the audit still wins. And `git add -A` cannot lose work, which takes Build's memory out of the
+loop.
 
 **Who closes that box, and it is not a skill.** No later `devpath` run is looking for it — **a done slice
 with an open box under `## Deviations` is not a pause and must not be read as one**, and where a pause
