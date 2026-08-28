@@ -590,6 +590,8 @@ which is the half red-before-green cannot see.
 
 ## Deploy, then tick, then `done: true`, then return
 
+**Build done ⇔ every slice carries `done: true`, or the run stopped and named which slice and why.**
+
 **Mandated, in that order.**
 
 **Deploy the slice and run its tests against the engineer's own scratch org**, kept for the life of the

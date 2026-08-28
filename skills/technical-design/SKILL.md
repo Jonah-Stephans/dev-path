@@ -350,6 +350,8 @@ denied. Building a sibling ahead of it is.
 
 ## Stop
 
+**Design done ⇔ the design gate has been answered.**
+
 **Push once the layout settles**, so the human sees the design and the slice layout together on the draft
 pull request.
 
