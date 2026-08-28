@@ -193,6 +193,16 @@ words surface here or nowhere.
 
 **Design prunes `## Current state`** to the facts the design rests on. Rewrite the section; do not append.
 
+**A finding you keep, you keep with what it was read off** — the file Survey named and the sentence it
+quoted, carried through the rewrite. Cut the finding as hard as the design needs; that half is not the
+part to cut. **A finding that arrived without it is not disqualified** — it is the one to go and read the
+file for yourself before the design rests on it.
+
+**Hold each kept finding against the file it names before you keep it.** The pruned section is what
+`## Design` then rests on, and from there the claim travels as a premise: Slice and Build never open
+`## Current state`, and the next reader of it is a critic looking at code already built on it. A note
+naming the wrong element costs one file read at the prune and a slice's fix cycles after it.
+
 ### A re-entry starts from the design already on the page
 
 **Mandated. Read the existing `## Design` before the conversation opens, and open the conversation on what
