@@ -392,6 +392,11 @@ resolves it, before that session ends.** Build writes the box and stops; this is
 Resolve the question, tick the box in the disposition grammar, and say which slice it unblocks — leaving
 it open means `devpath:build` will refuse the slice again on the next run.
 
+**Commit the tick before this session ends.** The next act is `devpath:build` on the slice this just
+unblocked, and `devpath:build` refuses on a dirty tree — so a disposition left on disk stops the run it
+was written to release. Every stage that writes commits before it hands on, and this is that stage
+handing on.
+
 **The pause is the untagged box, and it is the only one here that is yours.** A `- [ ] excess` box under
 the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
 to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged

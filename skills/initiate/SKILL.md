@@ -37,14 +37,19 @@ Three refusals are Initiate's own.
   else's spec branch, and creating a second spec on it would put two specs in one pull request, which
   one branch / one draft pull request / one approval forbids. Say the next act: `git checkout <base>`
   and run `devpath:initiate` again.
+- **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
+  uncommitted, and do not cut the branch.** The spec commit is this branch's first, and `git checkout -b`
+  from a dirty tree either fails or carries what is uncommitted across — so a dirty tree rides through
+  design, slicing and build, inside that commit or beside it, on a fresh cut and on a re-entry alike.
 - **A colliding slug**, found by the sweep below → **stop, and propose a better, non-colliding slug.**
   Never a numeric suffix — not `decline-codes-2`. Being forced to say what is *different* about the
   second spec produces a better name than the first one had, so the proposal is a real name:
   `decline-code-retry-window`.
-- **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
-  uncommitted, and do not cut the branch.** `git checkout -b` from a dirty tree either fails or drags
-  what is uncommitted onto the spec branch, where it does not belong and where it rides through design,
-  slicing and build.
+
+**Initiate's dirty-tree stop stays prose, and `devpath:build`'s is the one that asks through a question
+tool.** Build stops on a spec branch, where *commit it here* is a real exit. Initiate stops on the base
+branch, where committing is the exit `--no-track` in `## Write` exists to prevent — so what is left is
+one act in two spellings, and a prompt over that is a click standing in for a sentence.
 
 **Prefix every message this skill prints when it stops with `devpath: `.** Suggested — the same prefix
 every pasteable block in the README echoes, so a human reading a stop meets one prefix rather than two.

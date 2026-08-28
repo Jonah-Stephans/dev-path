@@ -327,12 +327,15 @@ fi
 
 # ------------------------------ 7. no gate or layout prompt marks one of its options
 #
-# Three stops put a question to a human about work this plugin just produced: the
-# intent gate, the design gate and the slice layout. At each of them the default
-# *is* the judgment being asked for, so a marked option is the plugin answering
-# its own gate. Integrate's step 3 is the one stop that marks one, because there
-# the run computed the verdict already and the human is choosing a disposition —
-# so this check names three files and leaves skills/integrate/SKILL.md out.
+# Four stops put a question the run cannot answer for itself: the intent gate, the
+# design gate, the slice layout and build's dirty-tree stop. At the three gates
+# the default *is* the judgment being asked for, so a marked option is the plugin
+# answering its own gate. At the dirty-tree stop the run has read the diff and
+# still cannot know whose work it is looking at, which is the same prohibition
+# reached by a different road. Integrate's step 3 is the one stop that marks one,
+# because there the run computed the verdict already and the human is choosing a
+# disposition — so this check names four files and leaves
+# skills/integrate/SKILL.md out.
 #
 # Scoped to fenced blocks, because all three files argue the prohibition in
 # prose and an unscoped grep would go red against a compliant plugin — and a
@@ -345,7 +348,8 @@ fi
 # The walk inverts for the rest of the file on an odd fence count, exactly as
 # check 5's does, so it says so out loud rather than falling silent.
 PROMPTS=0
-for f in skills/initiate/SKILL.md skills/technical-design/SKILL.md skills/slice/SKILL.md; do
+for f in skills/initiate/SKILL.md skills/technical-design/SKILL.md skills/slice/SKILL.md \
+         skills/build/SKILL.md; do
   [ -f "$f" ] || continue
   PROMPTS=$((PROMPTS + 1))
 
@@ -363,10 +367,10 @@ done
 # A floor, not a census, for the reason stated at the prose floor above — with
 # one difference that matters. Checks 1 and 6 derive their subjects from a glob,
 # so a renamed file stays in scope; this list is written out, so a rename is
-# exactly how it would go quiet while still reporting clean. Three named, three
+# exactly how it would go quiet while still reporting clean. Four named, four
 # read.
-if [ "$PROMPTS" -lt 3 ]; then
-  echo "FAIL subject: expected 3 files carrying a gate or layout prompt, found $PROMPTS"
+if [ "$PROMPTS" -lt 4 ]; then
+  echo "FAIL subject: expected 4 files carrying a gate or layout prompt, found $PROMPTS"
   FAIL=1
 fi
 
