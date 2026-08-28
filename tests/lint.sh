@@ -3,8 +3,8 @@
 #
 # Six checks, all of them rules rather than paragraphs: the retired vocabulary,
 # the skill-to-skill call strings, the closed set of gate fields, the
-# commit-excess tag staying unread by anything mechanical, the ban on numbering
-# an Outcome, and every stage naming when the stage is over. What this file does
+# commit-excess tag staying unread by anything mechanical, the Outcome handle
+# grammar, and every stage naming when the stage is over. What this file does
 # not do is assert that a given paragraph is still on a given page, which a diff
 # already catches. Check 6 comes closest and is still a rule. What it asserts is
 # a shape every file derives from its own heading, never a sentence written out
@@ -201,20 +201,78 @@ if [ -n "$MECH" ]; then
 $MECH"
 fi
 
-# --------------------------------------------- 5. an Outcome is never numbered
+# ----------------------------------------------- 5. the Outcome handle grammar
 #
-# `devpath:integrate` states it where it prints an unmet Outcome: a positional
-# index is a convention nothing in `devpath` defines, and #69 owns the question
-# of what would. This scans devpath's own prose rather than a spec on disk, so
-# what it catches is an illustration teaching the convention by example — which
-# is how the last one survived a rule that already forbade it.
+# An Outcome's handle is `O<n>`: its line reads `- O2 — <statement>` and every
+# reference to it anywhere else is the bare token. Five rules hold that grammar,
+# and they are one check rather than checks 5 and 7 through 10 — split across
+# five, a later edit deletes one and leaves this file's header counting six
+# checks that are now ten.
 #
-# Stable under #69. An ID line reads `- O2 — <statement>` and a reference reads
-# `O2`, neither of which is the word Outcome followed by a digit, so the ban on
-# positions outlives the arrival of handles.
+#   1. a digit after the word Outcome — the positional index, and the reason
+#      `devpath:integrate` gives is that a position is a convention nothing here
+#      defines
+#   2. an ordinal word before it — the same index spelled out, which rule 1
+#      cannot see. Two of these sat in skills/build/SKILL.md under a rule that
+#      already forbade the digit form. Capital `Outcome` only, the same split
+#      checks 1's Research and Review rules make: lower case is ordinary
+#      English, and *there is no third outcome* is a sentence this repo writes
+#   3. a `## Outcomes` illustration whose bullets carry no ID
+#   4. a `met` line under a `## Outcome checks` illustration carrying anything
+#      after the ID
+#   5. an `unmet` or `won't fix` line under that same heading that does not read
+#      tag, ID, em dash, observation. The grammar puts the ID on all three
+#      verdicts and rule 4 sees only the one that ends at it — so without this,
+#      the exact line this check was grown to retire goes back on the page unseen
+#
+# All five scan devpath's own prose rather than a spec on disk, because what
+# they catch is an illustration teaching the wrong convention by example, which
+# is how the last violation survived a rule that already forbade it.
+#
+# Rule 4 reads the heading rather than the tag, because `- [x] met` also closes
+# an acceptance criterion, where the criterion's own text *is* the line. A flat
+# rule over the tag would go red on a correct slice illustration, and a test that
+# cannot pass gets deleted. Rule 5 reads the heading for the same reason, and
+# matches `- [x] won` rather than the apostrophe: the tag sits inside a
+# single-quoted awk program, and under this heading nothing else opens that way.
+#
+# Rules 3, 4 and 5 accept a leading indent on a line they judge as well as on one
+# they pick up. README's own rule is that a box sits at column zero and that the
+# checks match an indented one anyway, because a formatter that renests a list
+# would otherwise turn a red gate green — anchoring only the judgment half turns
+# a green one red, which is the same failure pointing the other way.
+#
+# Rules 3, 4 and 5 walk fences, which is the only way to tell an illustration
+# from a sentence about one: `## Outcomes` in running prose is inline code, and
+# grep cannot see a fence. A file with no fence at all is walked and yields
+# nothing, which is scripts/contention.sh writing an empty `## Outcomes` into a
+# fixture. An odd count leaves the walk inverted for the rest of the file and the
+# three rules silently stop applying, so the END rule says so out loud.
+ORDINALS='[Ff]irst|[Ss]econd|[Tt]hird|[Ff]ourth|[Ff]ifth|[Ss]ixth|[Ss]eventh|[Ee]ighth|[Nn]inth|[Tt]enth'
+
 for f in $PROSE; do
   [ -f "$f" ] || continue
+
   report 'never numbered' "$f" "$(grep -nE "${L}Outcome[[:space:]]+[0-9]" "$f")"
+  report 'never ordinal' "$f" "$(grep -nE "${L}(${ORDINALS})[[:space:]]+Outcome${R}" "$f")"
+
+  report 'handle grammar' "$f" "$(
+    awk '
+      /^```/            { fence = !fence; sec = ""; next }
+      !fence            { next }
+      /^## /            { sec = substr($0, 4); sub(/ +$/, "", sec); next }
+      sec == "Outcomes" && /^ *- / && $0 !~ /^ *- O[0-9]+ — ./ {
+        print NR ": an ## Outcomes line carrying no ID — " $0
+      }
+      sec == "Outcome checks" && /^ *- \[x\] met/ && $0 !~ /^ *- \[x\] met O[0-9]+$/ {
+        print NR ": a met line carrying more than its ID — " $0
+      }
+      sec == "Outcome checks" && /^ *- (\[ \] unmet|\[x\] won)/ && $0 !~ /O[0-9]+ — ./ {
+        print NR ": a verdict line outside the tag, ID, observation grammar — " $0
+      }
+      END { if (fence) print "unbalanced fence — rules 3, 4 and 5 stopped partway" }
+    ' "$f"
+  )"
 done
 
 # --------------------------------- 6. every stage names when the stage is over
@@ -267,6 +325,6 @@ if [ "$STAGES" -lt 8 ]; then
 fi
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, no numbered Outcome, $STAGES stages naming when they are over — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over — clean"
 fi
 exit "$FAIL"

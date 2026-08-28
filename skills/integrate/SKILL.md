@@ -33,7 +33,8 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
 
 **The arming is last because it is the one irreversible act on this list.**
 
-1. Run the Outcomes pass; write `## Outcome checks`.
+1. Run the Outcomes pass; write `## Outcome checks`. **Refuse on a `won't fix` line whose Outcome is
+   gone from `## Outcomes`.**
 2. Run the contention script again.
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
    **Per unmet Outcome, print the shortfall and where each of the three exits goes.**
@@ -71,17 +72,27 @@ every line is a real per-Outcome verdict.
 
 ```markdown
 ## Outcome checks
-- [x] met — Tolerances configurable per quantity, unit price and total
-- [ ] unmet — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
+- [x] met O1
+- [ ] unmet O2 — throws above 200 rows; batching is fixed at 200 and nothing chunks past it
+- [x] won't fix O3 — audit-trail object is managed and read-only in this org
 ```
+
+**Mandated: the tag, then the Outcome's ID, then what was observed.** A `met` line **ends at the ID** and
+carries no prose at all — the ID is the reference and the statement is one heading away under
+`## Outcomes`.
 
 **`- [ ] unmet` is not a sixth state.** It is a bare `- [ ]` with the shortfall spelled out, so every
 check that greps `^[[:space:]]*- \[ \]` matches it.
 
-**Mandated: what follows `unmet — ` is what the checker observed.** Never the Outcome restated, never a
-proposed fix. The Outcome is already on the page under `## Outcomes`, so a line that repeats it carries
-nothing about what fell short, and step 3 then hands the engineer a refusal with nothing in it to act on.
-A live run wrote exactly that line and the engineer read *the outcome failed*.
+**What follows the ID is what the checker observed.** Never the Outcome restated, never a proposed fix. A
+line that repeats the Outcome carries nothing about what fell short, and step 3 then hands the engineer a
+refusal with nothing in it to act on. A live run wrote exactly that line and the engineer read *the
+outcome failed*.
+
+**The ID is what makes the restatement impossible rather than forbidden.** With the reference already on
+the line there is nowhere for a restatement to go, so this stops being a rule an agent has to remember and
+becomes a shape it cannot get wrong. **`tests/lint.sh` check 5 holds it** against this skill's own
+illustrations, which is where the last violation of a rule like this one survived.
 
 **That is step 6's fourth bound arriving five steps early — *report the observation, never the
 diagnosis*.** One rule, cited rather than a second one invented. *Throws above 200 rows; batching is fixed
@@ -108,6 +119,51 @@ is the earliest possible moment.
 
 Same principle as never writing `false` on a gate field: **the machine does not relitigate a human's
 decision.** It is a string check, not a judgment.
+
+### Carrying a `won't fix` forward stops on an Outcome that is gone
+
+**Mandated. Read `## Outcome checks` before you dispatch anything, and resolve every `- [x] won't fix`
+line's `O<n>` against `## Outcomes`. If the ID is not there, stop the run** — before the checkers go out
+and before this step writes.
+
+```
+devpath: `- [x] won't fix O2` names an Outcome that is not in ## Outcomes.
+
+  O2 was retired. Carrying this line forward files a permanent admission that
+  the team shipped short on something this spec no longer asks for.
+
+  Decide before this runs again:
+    the admission still stands → retarget it to the Outcome that replaced O2
+    it went with the rework    → delete the line
+
+  This run stops here. Steps 2 to 8 do not run.
+```
+
+**Steps 2 to 8 do not run.** The contention script does not run, `## Outcome checks` is not rewritten, the
+pull request stays a draft, and nothing is armed. **Say that** — a builder wiring this as a warning
+produces a different plugin, and it is the same reason `### This refusal is a hard exit` exists under
+step 3.
+
+**Scoped to `won't fix` and to nothing else here.** The carry-forward is the only line this step can meet
+stale, because it rewrites every other one from scratch — so a stale `met O2` is gone before anybody reads
+it, and a check over the whole section would fire on states that were about to correct themselves.
+
+**`## Outcome checks` has one other reader, and the condition is asked again where it reads.**
+`devpath:build` reads the `- [ ] unmet` lines to cut against, *before* it expires them, so an unmet line
+naming a retired Outcome does reach a reader — and its cut resolves the ID there and skips the line rather
+than cutting for it. **One condition, asked at each of the two places the section is read**, and neither of
+them a check over the spec directory.
+
+**Neither exit is this skill's to pick.** The line is a human's decision in a human's words, so nothing
+here retargets it and nothing here deletes it.
+
+**Why this is an instruction here rather than a check over the spec directory.** Measured against a spec
+directory holding one genuinely stale line, a grep resolving every `O<n>` token returned four hits: the
+stale `won't fix`, a Survey finding under `## Current state` that Design prunes anyway, a slice deviation
+naming a retired Outcome — **which is the trace working rather than a defect** — and `O365` out of a Jira
+URL under `## Evidence`. One useful hit in four, in a check that is off for every repo that does not paste
+it, firing at pull-request time when the line is already written and already in the body. **The condition
+above is on for every repo, fires before the line reaches the pull request, and cannot see a Jira link.**
 
 ## 2 · The contention checkpoint
 
@@ -195,27 +251,28 @@ The shape, rather than wording to copy:
 ```
 devpath: 11 of 15 Outcomes met. 4 unmet — this run stops here.
 
-  Unmet · Bulk update over 200 rows completes without error
+  Unmet · O2 — Bulk update over 200 rows completes without error
     Fell short: throws above 200 rows; batching is fixed at 200 and nothing
     chunks past it
 
   Did we fall short of the target, or was the target wrong?
     work left             → /devpath:build       cuts a slice for this Outcome
     target was wrong      → /devpath:initiate    rewrites the Outcome; both gates drop
-    right, shipping short → tell me: won't fix, quoting this Outcome — <your reason>
+    right, shipping short → tell me: won't fix O2 — <your reason>
 
 Settle every won't fix and every rewrite first. /devpath:build cuts a slice for
 each Outcome still marked unmet when it runs.
 ```
 
-**Neither line is composed here. Both are quoted, punctuation included.** The Outcome comes from
-`## Outcomes` and *Fell short* reproduces the `- [ ] unmet` line's own words, which is why the grammar
-above mandates an observation — a line restating the Outcome makes this block say the Outcome twice and
-the shortfall never. **Reproducing it means reproducing it:** the illustration above wraps the line to fit
-and changes nothing else about it, semicolon included.
+**Neither line is composed here. Both are quoted, punctuation included.** The `Unmet ·` line is
+`## Outcomes`'s own line, ID and all, and *Fell short* reproduces what the `- [ ] unmet` line says after
+its ID. **Reproducing it means reproducing it:** the illustration above wraps the line to fit and changes
+nothing else about it, semicolon included.
 
-**The Outcome is quoted, never numbered.** A positional index is a convention nothing in `devpath` defines,
-and the human's `won't fix` answer quotes the same text back.
+**The ID and the statement print together, because the human answering has only the ID to give back.**
+`won't fix O2` is what they type, and a block printing the handle alone would ask them to decide against
+one. **The ID is a handle, never a position** — O2 is the second line only until an Outcome is retired,
+and a positional index is a convention nothing in `devpath` defines.
 
 **The ordering sentence is not optional, because `devpath:build` cannot know which exit you chose for
 which Outcome.** It cuts a slice for every Outcome still marked unmet at the moment it runs, so a
@@ -263,16 +320,16 @@ destination, no attribution.**
 
 ### Exit 2's line is the human's decision, written by the session they tell
 
-> **`- [x] won't fix — <reason>` on an unmet Outcome is the human's decision, in the human's words. The
-> session they say it to writes the line, between the refused run and the next one. No agent drafts the
-> reason, and no reason means no write.**
+> **`- [x] won't fix O<n> — <reason>` on an unmet Outcome is the human's decision, in the human's words.
+> The session they say it to writes the line, between the refused run and the next one. No agent drafts
+> the reason, and no reason means no write.**
 
 **Say it, because a builder who does not read it will wire a step 3 that waits.** A run admits no mid-run
 human input, so Integrate cannot name the exits, hold, and write the one the human picks — the run is over
-at the naming. What arrives instead is a turn: the human quotes the Outcome and answers
-*won't fix — their reason*, and the session writes that line onto `## Outcome checks`. **That is the intent
-gate's own shape** — `devpath:initiate` ends its turn on a question, and a yes on the next turn writes
-`intent_accepted: true`. Approval plus an agent write is the same act as the human opening the file, and
+at the naming. What arrives instead is a turn: the human names the ID and answers
+*won't fix O2 — their reason*, and the session writes that line onto `## Outcome checks`. **That is the
+intent gate's own shape** — `devpath:initiate` ends its turn on a question, and a yes on the next turn
+writes `intent_accepted: true`. Approval plus an agent write is the same act as the human opening the file, and
 this plugin already runs on it at the gate that matters most.
 
 **Re-running `devpath:integrate` cannot produce the line**, because step 1 rewrites `## Outcome checks`
@@ -317,6 +374,26 @@ spec directory.**
 noise this step exists to reduce. **`- [ ] unmet` rides with it because it is the same line's other
 half:** the reviewer needs the shortfall next to the decision to ship without it. **`- [ ] excess` needs no
 line of its own** — its sibling in the grammar sits under `## Deviations`, which rides whole.
+
+**Every line carried out of `## Outcome checks` rides with its `## Outcomes` line beside it**, because it
+references an Outcome by ID and `## Outcomes` is not one of the sections this step carries:
+
+```
+- [x] won't fix O3 — audit-trail object is managed and read-only in this org
+      O3 — Tolerance breaches log to the audit trail with the breaching value
+```
+
+**Without the pairing the body loses the target.** What follows the tag is the human's words about the
+obstacle, never a statement of what went unmet, so the reviewer would meet a reason with nothing to weigh
+it against — which is the thing exit 2 exists to put in front of them. **A criterion's `won't fix` rides
+alone**: it carries no ID and closes in place, with the criterion's own text already on the line.
+
+**The pairing stops at `## Outcome checks`, and `## Deviations` rides whole with its IDs bare.** A bullet
+there carries its own account of what happened — *04 built a fixed 200-row cap*, *throws above 200 rows;
+batching is fixed at 200* — so the ID says which Outcome rather than carrying the whole meaning, and the
+sentence reads without resolving it. **`devpath:slice`'s rework deviation could not be paired anyway**: it
+names an Outcome the same rework retired, so there is no line under `## Outcomes` to set beside it, and
+that is the trace working rather than a gap in this step.
 
 **`## Traps` rides whole as well, and it is the section that tells a reviewer what to read the tests
 for.** Each entry names a mutation the tests on this spec had to be able to fail on, which is the question
@@ -456,7 +533,8 @@ somebody fixes forward.
 
 ## Stop
 
-**Integrate done ⇔ step 8 has run, step 3 refused, or `## Refuse first` stopped the run before step 1.**
+**Integrate done ⇔ step 8 has run, step 1 or step 3 refused, or `## Refuse first` stopped the run
+before step 1.**
 
 Report what was written, what was filed, and that auto-merge is armed. **Human actions per spec from here:
 one approval, which branch protection already required.** Nobody clicks Merge.

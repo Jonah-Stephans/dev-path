@@ -73,6 +73,11 @@ withdrawal is *silence*, not the deletion — here the human is in the room, ask
 told. The decision is not being overturned; its **subject** is being replaced, at the human's own request,
 and git keeps the old value regardless.
 
+**Name every Outcome the rework retired, by ID.** A rewrite that changes what an Outcome asks for retires
+its ID under `### An Outcome carries an ID` below, and the retired line is simply gone from the section —
+so the announcement is the only place a human hears it in words. *O2 is retired; O7 replaces it* alongside
+the two gate fields.
+
 ## Read
 
 **Read the requirement. Read the epic's own text if there is one. Never walk its children.** Mandated.
@@ -217,7 +222,7 @@ typed to satisfy a check, which is worse than nothing.
 | Section | Read by |
 | --- | --- |
 | `## Intent` — the problem and the outcome, one paragraph | the human at the gate; every later stage |
-| `## Outcomes` — the testable statements | the Outcomes pass, checking code against the requirement |
+| `## Outcomes` — the testable statements, each carrying an ID | the Outcomes pass, checking code against the requirement |
 | `## Out of scope` | Design and Build, to refuse creep |
 | `## Open questions`, with owners | Design |
 | `## Evidence` — verbatim and attributed | Design and Build, when a question has no answer |
@@ -250,6 +255,42 @@ Design and Slice**, where `depends_on` holds paths inside a single spec.
 **An unanswered question can reach `main`.** `## Open questions` is written with its owner and read at
 Design; nothing gates on it, and nothing stops a spec merging with one still open. That is deliberate —
 gating it would yield the word `none` — but it is worth knowing rather than discovering.
+
+### An Outcome carries an ID
+
+**Mandated. The line's grammar is `- O<n> — <statement>`. A reference to an Outcome anywhere else in
+`devpath` is the bare token `O<n>`, never the statement restated.**
+
+```markdown
+## Outcomes
+- O1 — Tolerances configurable per quantity, unit price and total
+- O2 — Bulk update over 200 rows completes without error
+- O3 — Tolerance breaches log to the audit trail with the breaching value
+```
+
+**A token rather than an ordered list, because a token survives a formatter and `1.` markers do not.**
+They get renumbered on a reflow — the same class of act that demoted `done` and both gate fields out of
+the top level on four slice files, and the one every open-box check now widens its pattern against.
+
+**Assigned once, never reused, never renumbered.** An Outcome rewritten to mean the same thing keeps its
+ID. One rewritten to mean something else takes a **new** ID, and the old one is **retired**: its line
+leaves the section and nothing replaces it. No tombstone and no `false` — a retired Outcome is an absent
+line, which is *absent and empty mean the same thing* read over one line instead of a section.
+
+**The next ID is one above the highest in the section you just read, and you assign it before you
+delete.** Retiring the highest is where reuse happens by accident: retire O3 out of O1, O2 and O3 and the
+highest line left is O2, so the next assignment computes to O3 and two different Outcomes wear one handle.
+The session doing the rework is holding that list, so this costs no field and no reading of git history.
+
+**The gap is the trace.** A spec that met fifteen Outcomes first time carries O1 to O15 with none missing;
+one that reworked four carries fifteen lines and a highest ID of O19. The missing numbers are visible in
+the list and in the diff this skill commits, and **reuse is what makes a gap stop meaning anything.**
+
+**The ID is part of the line's grammar, not a field.** It is the `- [x] met` tag under
+`## Outcome checks`, one heading over: the front matter is unchanged and the schema hook's heading list is
+unchanged. **No check resolves an ID on a spec** — `devpath:integrate` resolving a `won't fix` line
+against this section is an instruction a session follows, which is what every composition in this plugin
+already is.
 
 ### `upstream`, and how its `url` is normalised
 

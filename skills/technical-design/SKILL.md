@@ -179,6 +179,14 @@ design whose problem statement changed *is* approving the change, with both sect
 
 Git holds what Initiate accepted; the diff between the two commits is what changed.
 
+**A rewritten `## Outcomes` keeps every ID it did not change.** `devpath:initiate`'s
+`### An Outcome carries an ID` is the rule and it binds here identically: an Outcome that still means the
+same thing keeps its ID, one that means something else takes a new ID one above the highest in the
+section, and no ID is ever reused. **Name every ID this conversation retired**, the same sentence a
+re-entry to Initiate owes. Rewriting a statement under its old ID is what silently retargets Survey's
+findings, a slice's rework deviation and a `won't fix` line, all of which point by ID and none of which
+can tell that the target moved.
+
 **Design may add to `## Evidence`** — verbatim and attributed, under Initiate's rule. **Mandated**, because
 Build reads Evidence when a question has no answer, and with no conversation at Initiate the engineer's own
 words surface here or nowhere.

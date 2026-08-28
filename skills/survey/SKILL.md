@@ -81,12 +81,38 @@ past the ceiling.
 four, or a thread named and not chased. A shallower finding Design knows is shallow is usable; one Design
 reads as complete is not, and Survey is the only stage that can still tell the difference.
 
-**Findings stay per-Outcome.** A dispatch and a finding do not have to share a shape: one researcher
-handed four related Outcomes hands back four separate answers.
+**Findings stay per-Outcome, keyed by the Outcome's ID.** A dispatch and a finding do not have to share a
+shape: one researcher handed O2, O5 and O6 hands back three separate answers, each written under the ID it
+answers.
 
-**Why the Outcome keys the finding.** The per-item question is Survey's actual job, and it is the same key
-at both ends of `devpath`: Survey asks *what exists that bears on this Outcome*, and the Outcomes pass at
-Integrate asks *did we achieve it*.
+**One bullet per Outcome, in `## Outcomes`'s own grammar:**
+
+```markdown
+## Current state
+- O2 — `TolerancePolicy.update()` batches at a fixed 200 and nothing chunks past it. There is no
+  bulk path; the only caller is the detail page, one row at a time.
+- O5 — There is no audit-trail write anywhere in this package. `AuditEntry__c` exists and is
+  managed, so a write would need a wrapper that does not exist yet.
+- O6 — Nothing bears on this, and the closest thing the repo has is `PricingRules`, which reads
+  tolerances and never sets them.
+
+The ceiling shaped this: O2 and O5 went to one researcher as a single area.
+```
+
+**The bullet is `- O<n> — <finding>`, wrapping where it needs to** — the same line the Outcome itself
+carries one heading over, so there is no second grammar to learn. **Prose that is not per-Outcome sits
+outside the list**, which is where the ceiling sentence belongs and where a fact bearing on the whole spec
+goes.
+
+**O6 is the placeholder rule and this one meeting on a line.** *Nothing bears on this* is a finding, it is
+written under the ID it answers like any other, and what makes it content rather than `n/a` is the clause
+after it. The placeholder rule is stated under `## Write` and had no example carrying an ID until here.
+
+**Why the ID keys the finding.** The per-item question is Survey's actual job, and it is the same key at
+both ends of `devpath`: Survey asks *what exists that bears on O2*, and the Outcomes pass at Integrate
+asks *did we achieve O2*. **The ID is the key and the statement is not** — Design rewrites `## Outcomes`
+when the conversation revises the problem, and a finding keyed on the text it happened to carry would end
+up filed under a statement nobody wrote.
 
 **The discard is the load-bearing half, and here is why it must not be edited into something tidier:
 Design runs in the same session as Survey because it wants the findings.** That only works if Survey ends
