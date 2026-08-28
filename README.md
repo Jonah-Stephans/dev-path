@@ -623,7 +623,7 @@ matter is unchanged and hook block 4's heading list is unchanged.
 | `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **What follows is what was observed, never the Outcome or the criterion restated** — under `## Outcome checks` the tag is followed by the Outcome's ID and then the observation. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
 | `- [x] fixed` / `- [x] met` | the code does it. **A `met` line under `## Outcome checks` is the tag and the ID, and stops there** |
 | `- [x] false positive` | there was nothing there |
-| `- [x] won't fix` | **real, not done, shipping anyway** |
+| `- [x] won't fix` | **real, not done, shipping anyway**. **Under `## Outcome checks` the tag is followed by the Outcome's ID and then the reason** |
 
 **A box entry is one line beginning `- [` at column zero.** Nothing nests under it and nothing indents it.
 That is the shape a lesson entry in `.claude/rules/` already has, and a flat line is what a per-line grep

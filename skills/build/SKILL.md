@@ -188,6 +188,23 @@ a slice nobody can write `## What to build` for.
 **Cut one slice per `- [ ] unmet` line**, never one slice for the first one found. Four unmet Outcomes are
 four shortfalls, and a run that cuts for one leaves three on a section it is about to expire.
 
+**Resolve each line's `O<n>` against `## Outcomes` before you cut for it. A line whose ID is not there is
+not cut for** — name it in the announcement above and cut for the rest.
+
+**The ID is gone because the Outcome was retired**, which is exit 3 of Integrate's refusal doing what it
+was typed to do: the target was wrong, `devpath:initiate` rewrote it, and the shortfall on this line is a
+verdict against a target this spec stopped asking for. **Cutting for it builds toward the thing the rework
+rejected**, and `## What to build` would name an ID no reader can resolve.
+
+**Skipped rather than refused, because this run is about to expire the line anyway.** That is the split
+`skills/integrate/SKILL.md` makes at its own step 1: a stale `- [x] won't fix` is a permanent admission
+riding into a pull request, so it stops the run; a stale `- [ ] unmet` is a verdict this run deletes, so it
+costs a sentence. **The announcement is already the channel** for saying a line went, and a hard exit here
+would stop work the rest of the section is still good for.
+
+**If every unmet line resolves to nothing, nothing is cut** — report that every slice is done and give the
+next act, `devpath:integrate`, which rewrites the section from scratch.
+
 **The slice file is `skills/slice/SKILL.md`'s `## Write`, followed exactly** — front matter carrying
 `depends_on` and `touches`, the test-first block, and exactly the four headings that section prints, with
 `done` and `fix_cycles` absent. The schema hook in README's own hook list flags any heading outside those

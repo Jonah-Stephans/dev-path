@@ -144,10 +144,15 @@ pull request stays a draft, and nothing is armed. **Say that** — a builder wir
 produces a different plugin, and it is the same reason `### This refusal is a hard exit` exists under
 step 3.
 
-**Scoped to `won't fix` and to nothing else.** The carry-forward is the only line in this section that can
-go stale, because this step rewrites every other one from scratch — so a stale `met O2` is gone before
-anybody reads it, and a check over the whole section would fire on states that were about to correct
-themselves.
+**Scoped to `won't fix` and to nothing else here.** The carry-forward is the only line this step can meet
+stale, because it rewrites every other one from scratch — so a stale `met O2` is gone before anybody reads
+it, and a check over the whole section would fire on states that were about to correct themselves.
+
+**`## Outcome checks` has one other reader, and the condition is asked again where it reads.**
+`devpath:build` reads the `- [ ] unmet` lines to cut against, *before* it expires them, so an unmet line
+naming a retired Outcome does reach a reader — and its cut resolves the ID there and skips the line rather
+than cutting for it. **One condition, asked at each of the two places the section is read**, and neither of
+them a check over the spec directory.
 
 **Neither exit is this skill's to pick.** The line is a human's decision in a human's words, so nothing
 here retargets it and nothing here deletes it.
@@ -382,6 +387,13 @@ references an Outcome by ID and `## Outcomes` is not one of the sections this st
 obstacle, never a statement of what went unmet, so the reviewer would meet a reason with nothing to weigh
 it against — which is the thing exit 2 exists to put in front of them. **A criterion's `won't fix` rides
 alone**: it carries no ID and closes in place, with the criterion's own text already on the line.
+
+**The pairing stops at `## Outcome checks`, and `## Deviations` rides whole with its IDs bare.** A bullet
+there carries its own account of what happened — *04 built a fixed 200-row cap*, *throws above 200 rows;
+batching is fixed at 200* — so the ID says which Outcome rather than carrying the whole meaning, and the
+sentence reads without resolving it. **`devpath:slice`'s rework deviation could not be paired anyway**: it
+names an Outcome the same rework retired, so there is no line under `## Outcomes` to set beside it, and
+that is the trace working rather than a gap in this step.
 
 **`## Traps` rides whole as well, and it is the section that tells a reviewer what to read the tests
 for.** Each entry names a mutation the tests on this spec had to be able to fail on, which is the question
