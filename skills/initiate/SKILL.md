@@ -199,13 +199,25 @@ a deleted branch reports a collision that no longer exists.
 local branches and says so in one line.** It does not fail — a repo with no remote has no second engineer
 to collide with yet, and refusing would be a stop nobody can clear.
 
+**A failed fetch is a third case and a stop, not a fallback.** `--quiet` silences progress and not errors,
+but nothing here reads the fetch's exit status, so the sweep can run against remote-tracking refs from
+days ago, or against none at all in a clone that has never fetched. **Check that the fetch succeeded and
+stop if it did not**, naming it. The cut below refuses anyway — *'origin/<base>' is not a commit* — but one
+step later and without saying what went wrong. Falling back to the local `<base>` here would reinstate the
+stale read this section exists to remove.
+
 ## Write
 
-**`git checkout -b <slug> origin/<base>`**, the ref the sweep just read, then write
+**`git checkout --no-track -b <slug> origin/<base>`**, the ref the sweep just read, then write
 `devpath/<slug>/spec.md`. Cut from the local `<base>` and the branch starts wherever the last pull left
 it, so the spec's first diff against the real base reads as a deletion of everything the base gained
 since. **With no remote there is no `origin/<base>` and the cut uses `<base>`**, the same condition the
 sweep already handles.
+
+**`--no-track` is load-bearing.** Cutting from a remote-tracking ref sets the new branch's upstream to
+`origin/<base>` unless told otherwise, and a bare `git push` on a branch so configured offers
+`git push origin HEAD:<base>` as its first remedy — the spec's commit on the base branch, no pull request
+and no review. The push in `## Stop` names its destination for the same reason.
 
 **`devpath/` sits at the repository root. Fixed, not configurable.** A setting means every skill
 resolves it before doing anything and the router grows a branch. Every spec is a directory with
@@ -464,8 +476,13 @@ or `## Refuse first` stopped the run and named the condition.**
 commit whichever way the answer went.
 
 ```sh
+git push -u origin HEAD
 gh pr create --draft --base <base> --head <slug> --title '<the spec title>' --body-file -
 ```
+
+**The push names its remote and its ref rather than taking a default.** A bare `git push` resolves against
+the branch's upstream, and the `--no-track` in `## Write` is what keeps that from being `origin/<base>`.
+Naming the destination here means this step does not depend on that flag surviving an edit.
 
 **The body is `## Intent`, verbatim.** It is the one section the gate requires non-empty and the one a
 reader wants first, and `devpath:integrate` rewrites the body later anyway.

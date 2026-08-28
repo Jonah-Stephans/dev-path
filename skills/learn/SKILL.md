@@ -292,7 +292,7 @@ its failure mode is losing the engineer's work silently.
 
 ```sh
 git fetch --quiet
-git checkout -b "devpath/lessons/<slug>" "origin/$base"
+git checkout --no-track -b "devpath/lessons/<slug>" "origin/$base"
 # write the rule files and any CI edit
 git add .claude/rules/ && git commit && git push -u origin HEAD
 gh pr create --base "$base" --head "devpath/lessons/<slug>" --title 'Lessons from <slug>' --body-file -
@@ -310,6 +310,10 @@ any code existed, so without this one the cut uses whatever that left. `git fetc
 `refs/remotes/origin/$base` and never moves `refs/heads/$base`. Cut from the bare `$base` and the lessons
 branch starts wherever the last pull left it, so its pull request reads as a deletion of everything the
 base gained since, including `.claude/rules/` files an earlier run of this skill wrote.
+
+**`--no-track` is redundant here and kept anyway.** The `git push -u` two lines down sets the upstream
+itself, so the flag changes nothing unless the run stops between those lines. It is here because both
+skills cut a branch the same way or neither does, and Initiate's `## Write` carries the reason.
 
 **`$base` stays a bare name in `gh pr create --base`**, which takes a branch name and rejects
 `origin/main`. **A remote is a precondition of this section rather than a case to branch on**, because the
