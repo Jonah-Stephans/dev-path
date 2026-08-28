@@ -394,13 +394,48 @@ Pretending otherwise is how you get a check that goes green on a spec nobody rea
 actually wants is **read the Outcomes and confirm the translation is faithful to the Evidence**, both
 halves on the page. That reading is what converts a model's judgment into a human-accepted statement.
 
-**How the yes is captured: plain prose, and then the turn ends.** `devpath` names no question tool at
-either gate. A tool that presents options invites a click where this gate wants a read — and naming a
-harness tool is a dependency `devpath` does not otherwise take, whereas a gate that works by ending the
-turn works in every harness that can run a skill at all.
+**How the yes is captured: the material in full, and then the ask.** Print `## Outcomes` and `## Evidence`
+whole, state what was accepted, show the slug, and put the go/no-go to the human.
 
-**So: state what was accepted, show the slug, ask for the go/no-go in one sentence, and stop.** The next
-turn is the answer. A yes writes `intent_accepted: true`; anything else writes nothing.
+> **The tool presents the decision. It never presents the material.** A click is legal downstream of a
+> read and never instead of one. An option's description says what the choice *does*; it never carries the
+> thing being judged.
+
+**Where the harness offers a tool that puts a question with named options, use it. Where it does not, ask
+in one sentence and end the turn.** Both paths write the same field off the same reading, and **nothing
+downstream can tell which one ran** — no field, no marker, no branch, and **no detection step, because a
+detection step is itself that branch.** Same posture as the tier rule in `devpath:survey`, which degrades
+to a no-op on a single-tier harness and probes for nothing.
+
+```
+  Intent gate · tolerance-config
+  [the Outcomes and the Evidence are printed above, in full]
+
+  Read the Outcomes against the Evidence. Is the translation faithful?
+
+  ▸ Accept the intent   Writes intent_accepted: true. The next act is
+                        devpath:technical-design, and this gate is not asked again.
+
+  ▸ Not yet             Writes nothing. Say what is wrong and the conversation
+                        continues.
+```
+
+> **Mandated: a gate prompt marks no option as recommended and names no default.** Elsewhere in the plugin
+> a recommendation is a reading the human does not have in front of them, so it helps. **At a gate the
+> default *is* the judgment being asked for**, so marking one is the plugin answering its own gate — the
+> failure the old no-tool rule was written to prevent, arriving through the door the tool opens.
+> `tests/lint.sh` check 7 holds it against this file's own illustrations.
+
+**The answer is the human's, whichever way it arrives — a returned option, or the next turn's prose. A
+yes writes `intent_accepted: true`; anything else writes nothing** — *Not yet* writes nothing, and a
+free-text answer this run cannot read unambiguously as a yes writes nothing either. **Where the reading is
+not unambiguous, confirm rather than write.** Every stored field is either something a human did or
+something a machine counted, never something a model judged, and this is one of the two that hold a
+human's decision.
+
+**Approval plus an agent write is already this plugin's model for a gate.** A yes writes the field, which
+is the same act as the human opening the file. The prompt changes how the yes is collected, never what it
+means.
 
 **The gate's subject includes scope, not only content.** One spec is one design a human can approve in
 one sitting — not a size test, because size is what slices are for. **When in doubt, make it one spec:**

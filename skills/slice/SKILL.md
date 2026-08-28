@@ -235,7 +235,8 @@ appends.**
 This is *Slice partitions; it never invents* applied to a directory that already holds work. The built
 slices are a partition somebody already shipped, and the delta is what is left.
 
-**Show the layout with the built slices listed and marked**, so the human sees what was left alone.
+**Show the layout with the built slices listed and marked**, so the human sees what was left alone. **It
+is put to the human exactly as `## Stop` puts an ordinary layout, and it marks no option either.**
 
 ```
 devpath: 6 slices on this spec already carry done: true. Not touching them.
@@ -368,6 +369,42 @@ stopped — on a named conflict with a built slice, or at `## Refuse first` — 
 
 **Show the layout and stop.** The slice list, each slice's one-sentence behaviour line, and the
 `depends_on` edges between them.
+
+**Then ask.** Where the harness offers a tool that puts a question with named options, put the layout to
+the human through it. Where it does not, the printed layout is the whole handover and the engineer answers
+in prose. **Both paths leave the same files and store nothing either way, so no reader can tell which
+one ran** — no field, no marker, no detection step.
+
+```
+  Layout · tolerance-config
+  [the slice list, the behaviour lines and the depends_on edges are printed above]
+
+  Read the layout against the design. Is this the right cut?
+
+  ▸ Accept the layout   Commits the slice files and pushes, so the design and the
+                        layout land on the draft pull request together.
+
+  ▸ Re-cut it           Say what to change and I will re-cut in this session.
+                        The design approval stands.
+```
+
+> **The tool presents the decision. It never presents the material.** The slice list prints in full above
+> the prompt, and an option's description says what the choice *does*. **A click is legal downstream of a
+> read and never instead of one.**
+
+**No option is marked as recommended**, for the same reason neither gate marks one: this run produced the
+layout and is asking whether the cut is right, so marking *Accept* is the run grading its own work.
+`tests/lint.sh` check 7 holds it against this file's own illustrations.
+
+**Nothing is stored, on either answer.** Two gate fields exist and this asks for neither. Accepting lets
+`## Stop` finish; re-cutting is conversational in this same session, as it already is.
+
+**Picking *Re-cut it* is followed by a prompt for what to change**, and then the turn ends. A free-text
+answer that already says what to change skips that round.
+
+**This is the one place both routes into Slice reach the ask** — a `devpath:technical-design` run at its
+step 6, and a standalone `devpath:slice` run. The standalone one is the cold recovery after a session died
+between the approval and the cut, and it is the last run that should be left scrolling.
 
 **Commit the slice files.** When Slice was reached by `devpath:technical-design`, that command pushes
 once the layout settles, so the human sees the design and the layout together on the draft pull request.

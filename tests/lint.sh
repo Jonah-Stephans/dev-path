@@ -1,14 +1,15 @@
 #!/bin/sh
 # devpath — repo-wide rules that hold no matter which file is edited next.
 #
-# Six checks, all of them rules rather than paragraphs: the retired vocabulary,
+# Seven checks, all of them rules rather than paragraphs: the retired vocabulary,
 # the skill-to-skill call strings, the closed set of gate fields, the
 # commit-excess tag staying unread by anything mechanical, the Outcome handle
-# grammar, and every stage naming when the stage is over. What this file does
-# not do is assert that a given paragraph is still on a given page, which a diff
-# already catches. Check 6 comes closest and is still a rule. What it asserts is
-# a shape every file derives from its own heading, never a sentence written out
-# here.
+# grammar, every stage naming when the stage is over, and no gate or layout
+# prompt marking one of its options. What this file does not do is assert that a
+# given paragraph is still on a given page, which a diff already catches. Checks
+# 6 and 7 come closest and are still rules. Check 6 asserts a shape every file
+# derives from its own heading, never a sentence written out here, and check 7
+# asserts the absence of one string from one kind of block.
 #
 # Exit code is the build's.
 
@@ -205,9 +206,9 @@ fi
 #
 # An Outcome's handle is `O<n>`: its line reads `- O2 — <statement>` and every
 # reference to it anywhere else is the bare token. Five rules hold that grammar,
-# and they are one check rather than checks 5 and 7 through 10 — split across
-# five, a later edit deletes one and leaves this file's header counting six
-# checks that are now ten.
+# and they are one check rather than checks 5 and 8 through 11 — split across
+# five, a later edit deletes one and leaves this file's header counting seven
+# checks that are now eleven.
 #
 #   1. a digit after the word Outcome — the positional index, and the reason
 #      `devpath:integrate` gives is that a position is a convention nothing here
@@ -324,7 +325,52 @@ if [ "$STAGES" -lt 8 ]; then
   FAIL=1
 fi
 
+# ------------------------------ 7. no gate or layout prompt marks one of its options
+#
+# Three stops put a question to a human about work this plugin just produced: the
+# intent gate, the design gate and the slice layout. At each of them the default
+# *is* the judgment being asked for, so a marked option is the plugin answering
+# its own gate. Integrate's step 3 is the one stop that marks one, because there
+# the run computed the verdict already and the human is choosing a disposition —
+# so this check names three files and leaves skills/integrate/SKILL.md out.
+#
+# Scoped to fenced blocks, because all three files argue the prohibition in
+# prose and an unscoped grep would go red against a compliant plugin — and a
+# test that cannot pass gets deleted.
+#
+# The subject is the illustration rather than the rule, which is check 5's
+# precedent: an illustration teaching the wrong convention by example is how the
+# last violation of a rule like this one survived.
+#
+# The walk inverts for the rest of the file on an odd fence count, exactly as
+# check 5's does, so it says so out loud rather than falling silent.
+PROMPTS=0
+for f in skills/initiate/SKILL.md skills/technical-design/SKILL.md skills/slice/SKILL.md; do
+  [ -f "$f" ] || continue
+  PROMPTS=$((PROMPTS + 1))
+
+  report 'no recommendation at a gate' "$f" "$(
+    awk '
+      /^```/ { fence = !fence; next }
+      fence && /\(Recommended\)/ {
+        print NR ": a prompt illustration marking an option — " $0
+      }
+      END { if (fence) print "unbalanced fence — this rule stopped partway" }
+    ' "$f"
+  )"
+done
+
+# A floor, not a census, for the reason stated at the prose floor above — with
+# one difference that matters. Checks 1 and 6 derive their subjects from a glob,
+# so a renamed file stays in scope; this list is written out, so a rename is
+# exactly how it would go quiet while still reporting clean. Three named, three
+# read.
+if [ "$PROMPTS" -lt 3 ]; then
+  echo "FAIL subject: expected 3 files carrying a gate or layout prompt, found $PROMPTS"
+  FAIL=1
+fi
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
 fi
 exit "$FAIL"

@@ -37,7 +37,8 @@ test — all of those are step 3's, and step 3 is a verdict on the work rather t
    gone from `## Outcomes`.**
 2. Run the contention script again.
 3. **Refuse on an open `- [ ]`, and on a slice carrying `done: true` with no `fix_cycles:` line.**
-   **Per unmet Outcome, print the shortfall and where each of the three exits goes.**
+   **Print every unmet Outcome's shortfall and where each of the three exits goes, then ask once per
+   unmet Outcome. Step 3 prints and stops; it starts no run.**
 4. Carry `## Critique findings`, `## Deviations` and `## Traps` into the pull request body — **plus
    every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory.**
 5. Offer to file `## devpath feedback` as an issue. **If it is empty, say the heading exists and file
@@ -245,11 +246,10 @@ decision rather than whether one is owed. `- [ ] excess` is the commit audit's n
 swept in, closed on the human's decision at merge: `- [x] false positive` where the files were in scope
 and `touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
 
-**On an unmet Outcome, print the shortfall and all three exits, one block per Outcome.** A table of
+**Print every unmet Outcome's block in full, all of them, before you ask about any of them.** A table of
 meanings is not a handover — the engineer in the seat needs a next act, and for two of these three exits
-there was nowhere to go. **Two of the three are commands and the third is not**, so the block names the act
-each exit takes rather than printing three commands. The question that separates them is **did we fall
-short of the target, or was the target wrong?**
+there was nowhere to go. The question that separates them is **did we fall short of the target, or was
+the target wrong?**
 
 The shape, rather than wording to copy:
 
@@ -257,16 +257,22 @@ The shape, rather than wording to copy:
 devpath: 11 of 15 Outcomes met. 4 unmet — this run stops here.
 
   Unmet · O2 — Bulk update over 200 rows completes without error
-    Fell short: throws above 200 rows; batching is fixed at 200 and nothing
-    chunks past it
+    Fell short: throws at 500 rows; the chunker walks the first batch and
+    nothing advances it
+    Cut for O2 once already, at slice 07: throws above 200 rows; batching is
+    fixed at 200 and nothing chunks past it
+    Recommended: Rebuild it. The design covers batching, the code stops at one
+    batch, and that is work left.
+
+  [one block per unmet Outcome, in ## Outcome checks order, all of them]
 
   Did we fall short of the target, or was the target wrong?
-    work left             → /devpath:build       cuts a slice for this Outcome
-    target was wrong      → /devpath:initiate    rewrites the Outcome; both gates drop
-    right, shipping short → tell me: won't fix O2 — <your reason>
+    work left             → Rebuild it           /devpath:build cuts a slice for it
+    target was wrong      → Rewrite the Outcome  /devpath:initiate rewrites it; both gates drop
+    right, shipping short → Won't fix            tell me: won't fix O2 — <your reason>
 
-Settle every won't fix and every rewrite first. /devpath:build cuts a slice for
-each Outcome still marked unmet when it runs.
+Type every won't fix reason here. Then /devpath:initiate if any Outcome was
+rewritten, otherwise /devpath:build.
 ```
 
 **Neither line is composed here. Both are quoted, punctuation included.** The `Unmet ·` line is
@@ -274,27 +280,44 @@ each Outcome still marked unmet when it runs.
 its ID. **Reproducing it means reproducing it:** the illustration above wraps the line to fit and changes
 nothing else about it, semicolon included.
 
+**The prior-attempt line is the one composed thing in the block, and only its prefix is.** What follows
+the colon is the bullet's shortfall, punctuation included, on the same rule as the two lines above. **The
+two shortfalls are written in different runs and often differ**, which is the whole reason the older one
+is worth printing.
+
 **The ID and the statement print together, because the human answering has only the ID to give back.**
 `won't fix O2` is what they type, and a block printing the handle alone would ask them to decide against
 one. **The ID is a handle, never a position** — O2 is the second line only until an Outcome is retired,
 and a positional index is a convention nothing in `devpath` defines.
 
-**The ordering sentence is not optional, because `devpath:build` cannot know which exit you chose for
-which Outcome.** It cuts a slice for every Outcome still marked unmet at the moment it runs, so a
-`won't fix` or a rewrite settled afterwards arrives too late and the spec carries a slice nobody wanted.
+**The handover names one order, because `devpath:build` cannot know which exit you chose for which
+Outcome.** It cuts a slice for every Outcome still marked unmet at the moment it runs. So: type any
+`won't fix` reasons in this session. **If any Outcome was rewritten, `/devpath:initiate` is the only next
+act** — it rewrites `## Outcomes` and drops both gates, so Build waits behind them. Otherwise
+`/devpath:build`.
 
-**Exit 1 — `/devpath:build`.** There is work left. Build cuts a slice for that Outcome, builds it, and
-writes down which Outcome it was cut for.
+**The hazard that ordering closes is now *finish typing before you build***, where it used to be *decide
+before you build*. The deciding happened at the prompt. What can still arrive too late is a reason nobody
+typed, and the spec then carries a slice nobody wanted.
 
-**Exit 2 — the ledger.** The Outcome was right and the spec ships without it: `grep -rn "won't fix"
+**Exit 1 — `Rebuild it`, `/devpath:build`.** There is work left. Build cuts a slice for that Outcome,
+builds it, and writes down which Outcome it was cut for.
+
+**Exit 2 — `Won't fix`, the ledger.** The Outcome was right and the spec ships without it: `grep -rn "won't fix"
 devpath/`, forever. How that line gets written is below.
 
-**Exit 3 — `/devpath:initiate`.** The Outcome was never what we wanted. Its text lives in `## Outcomes`,
-which Initiate owns and overwrites, and Initiate's re-entry table already handles this exact re-run.
-**Say the consequence in one blunt sentence: rework sends the spec back behind both gates, and the slices
-survive on purpose.** **The expense is the point** — it is what stops rework being the cheap way past a
-hard Outcome. Same rule as *a criterion you cannot satisfy is not edited into one you can* in
-`devpath:build`, one level up and about an Outcome instead.
+**Exit 3 — `Rewrite the Outcome`, `/devpath:initiate`.** The Outcome was never what we wanted. Its text
+lives in `## Outcomes`, which Initiate owns and overwrites, and Initiate's re-entry table already handles
+this exact re-run. **Say the consequence in one blunt sentence: a rewrite sends the spec back behind both
+gates, and the slices survive on purpose.** **The expense is the point** — it is what stops a rewrite
+being the cheap way past a hard Outcome. Same rule as *a criterion you cannot satisfy is not edited into
+one you can* in `devpath:build`, one level up and about an Outcome instead.
+
+**Why these three names, and why not *rework it*.** *Rework it* and *Rebuild it* are the same word wearing
+different hats — both read as *do the work again*, where the whole point of the distinction is that one
+changes code and the other changes what we asked for. **`Rewrite the Outcome` names the artifact that
+changes.** *Fix the Outcome* collides with `Won't fix` in the same list of options, and *Restate the
+Outcome* collides with step 1, where restating the Outcome on a verdict line is the forbidden thing.
 
 **Exits 1 and 3 belong in a fresh session. Exit 2 is this session's next turn.** Say both, because they
 are not the same shape. `/devpath:build` and `/devpath:initiate` are commands and a command starts a run,
@@ -323,19 +346,206 @@ routing trap — routing a finding to one of five existing slices is attribution
 judgment about code the model did not write. **Cutting a new slice asks *is there work left*: one
 destination, no attribution.**
 
-### Exit 2's line is the human's decision, written by the session they tell
+### A prior attempt on the same Outcome prints, and nothing branches on it
+
+An Outcome cut for once already, built, and still unmet is evidence that the target is wrong rather than
+merely hard — and **it is the one signal the engineer is least likely to be holding in their head.**
+
+The fact already has a fixed written form. `devpath:build` writes it under the new slice's
+`## Deviations`:
+
+```markdown
+## Deviations
+- Cut for O2, unmet at Integrate: throws above 200 rows; batching is fixed at 200 and nothing chunks
+  past it.
+```
+
+> **Mandated: grep the slice files for `- Cut for O<n>, unmet at Integrate:`. For every hit, print
+> `Cut for O<n> once already, at slice <NN>:` — the number from the file the hit came from — and then the
+> bullet's own shortfall, whole, in that Outcome's printed block above the prompt. The ladder below stays
+> blind to it.**
+
+**`grep` returns the matching line and the bullet wraps.** Read the entry rather than the match: Build's
+bullet runs to its trailing period, and a hit cut at the line break drops the end of the sentence.
+
+**This costs no exception.** `devpath:build` says **no run branches on `## Deviations`**, and nothing here
+branches: no act changes, no option moves, no artifact differs. What changes is what prints. And the entry
+reaches the reader it was written for — Build says it is there for the human at merge, and this is the
+most human-facing moment in the plugin.
+
+**Step 3 already walks the slice files** for test 2, so the read is free.
+
+**The grep reads no tag**, because Build mandates that this bullet carries none. Matching a plain prefix
+adds no state: the closed set of tags stays five, and nothing mechanical reads a tag word.
+
+### The ask, where the harness offers a question tool
+
+**The printed block is the message; the prompt is what follows it.** Where the harness offers a tool that
+puts a question to the human with named options, step 3 asks **one question per unmet Outcome**, and the
+three exits are its three options, named as acts:
+
+| Exit | Option | Where it goes |
+| --- | --- | --- |
+| there is work left | `Rebuild it` | `/devpath:build` |
+| the Outcome was wrong | `Rewrite the Outcome` | `/devpath:initiate` |
+| right, shipping short | `Won't fix` | the ledger |
+
+**Where the harness offers no such tool, the printed block is the whole handover** and the engineer types
+the answer, exactly as the shape above prints it. **Both paths carry the same information and leave the
+same artifacts, so nothing downstream can tell which one ran** — no field, no marker, no branch. Same
+posture as `devpath:survey`'s tier rule, which degrades to a no-op on a single-tier harness and probes for
+nothing. **There is no detection step, because a detection step is itself the branch this forbids.**
+
+> **The tool presents the decision. It never presents the material.** The Outcomes, the shortfalls, the
+> prior attempts and the recommendation are printed in full, in the message, and the prompt follows them.
+> **A click is legal downstream of a read and never instead of one.** An option's description says what
+> the choice *does*; it never carries the thing being judged.
+
+**Every unmet block prints before the first call, all of them.** Where the tool caps how many questions
+one call carries, more unmet Outcomes than that cap means more than one call, **in `## Outcome checks`
+order** so nothing is silently dropped. Printing per batch instead would have the human answering about
+the first four Outcomes before reading about the fifth, which breaks *a click is legal downstream of a
+read* for every Outcome past the cap. **Step 3 writes nothing at all** — the only write any exit produces
+is Exit 2's line, and that waits on a typed reason on a later turn either way.
+
+**Step 3 prints and stops. It starts no run.** It now holds every disposition at once and the `Skill` tool
+is already a dependency, so a builder will be tempted. The reason exits 1 and 3 belong in a fresh session
+is the session's spent context, which is a fact about the context rather than about how the choice was
+collected — so it survives the prompt untouched.
+
+**The free-text answer the tool always offers stays legal at every question, and the run reads it for
+intent.** Someone may want to ask about O3 rather than dispose of it, and an over-literal rule would either
+refuse the question or quietly write a disposition nobody picked. **One bound, and it is narrow.** Three
+writes in this plugin hold a human's decision — `intent_accepted: true`, `design_approved: true`, and a
+`- [x] won't fix O<n> — <reason>` line — and every stored field is either something a human did or
+something a machine counted, never something a model judged. **On those three, where the reading is not
+unambiguous, confirm rather than write.** Everywhere else — routing to Build, answering a question — the
+judgment is unbounded.
+
+### The recommendation is the orchestrator's, never the checker's
+
+**Mandated: exactly one option carries `(Recommended)`, and its description says why.**
+
+Step 1 requires the unmet line to carry the observation and **never the diagnosis**, and the reason it
+gives is that *a checker holding one diff and one sentence is the last agent in this workflow qualified to
+write it*. **That is a statement about the checker, not about the stage.** One checker holds one Outcome
+and one diff. The orchestrator here holds every observation at once, plus `## Outcomes`,
+`## Out of scope`, `## Evidence` and the slice files.
+
+> **The checker reports only what it saw. The orchestrator forms the recommendation, from all of them
+> plus the spec.** Step 1's rule is untouched, and the judgment lands in the one seat with the context to
+> make it.
+
+**The ladder, checked in order.** Neither exception below is the common case, and the common case is
+`Rebuild it`.
+
+**Recommend `Rewrite the Outcome` where the shortfall is a defect in the Outcome rather than in the
+code:**
+
+- **It names something that does not exist.** *No audit-trail object exists in this org; the Outcome
+  assumes a subsystem the design never had.* No diff fixes a premise.
+- **It is not checkable as written.** The checker could form no verdict — *"the UI feels responsive" has
+  no observable form*. `## Outcomes` is always a translation of the Evidence, and a bad translation
+  surfaces here.
+- **Two Outcomes contradict.** *O2 requires synchronous completion; O9 requires the batch size that forces
+  async.* Building cannot resolve it; a human has to say which is wanted.
+
+**Recommend `Won't fix` only where the cause is outside anything this spec can change:**
+
+- **Environmental.** *The managed package's object is read-only in this org.* Nothing to build, and the
+  Outcome is not wrong either.
+- **Scope.** *Closing this needs the batch-framework migration, which `## Out of scope` names.* A human
+  drew that line at the intent gate; admitting the gap is honest, and quietly relitigating scope is not.
+
+**Everything else is `Rebuild it`**, which will be most of them — not by hope, but because both exception
+bands are narrow and factual.
+
+**Say why, every time.** A marked option with an invisible rationale is a nudge. A marked option that says
+*the audit-trail object does not exist in this org, so no diff satisfies this as written* is a claim the
+human can disagree with, which is the difference between informing and steering.
+
+```
+  O3 — Tolerance breaches log to the audit trail with the breaching value
+  Fell short: no audit-trail object exists in this org or in this repo.
+
+  ▸ Rewrite the Outcome (Recommended)   O3 assumes a subsystem nothing here has,
+                                        so no diff satisfies it as written.
+                                        /devpath:initiate rewrites it — both gates
+                                        drop, and the slices survive.
+
+  ▸ Rebuild it                          Cuts a slice for O3 anyway. Take this if
+                                        the subsystem is meant to exist and the
+                                        design missed it.
+
+  ▸ Won't fix                           Ship without O3. I will ask you for the
+                                        reason in your own words.
+```
+
+```
+  O7 — Bulk update over 200 rows completes without error
+  Fell short: throws above 200 rows; batching is fixed at 200 and nothing chunks past it.
+
+  ▸ Rebuild it (Recommended)            The design covers batching and the code
+                                        stops at one batch. That is work left.
+                                        /devpath:build cuts a slice for O7 and
+                                        writes down which Outcome it was cut for.
+
+  ▸ Rewrite the Outcome                 O7 was never what we wanted.
+                                        /devpath:initiate rewrites it — both gates
+                                        drop, and the slices survive.
+
+  ▸ Won't fix                           O7 was right and we ship without it. I will
+                                        ask you for the reason in your own words,
+                                        and write nothing without one.
+```
+
+**The option descriptions are also where the expense lives.** The obvious objection to a clickable rewrite
+is that the design's most expensive exit now costs one click. The expense is downstream and unchanged;
+what the description does is put it **in front of** the click rather than in a paragraph the engineer
+would have had to already know.
+
+**The recommendation prints in the block as well**, as the one line the shape above shows, so the two
+paths carry the same information.
+
+**Frequency is a signal about the Outcomes, never about the recommender.** If `Won't fix` starts being
+recommended often, the reading is that Outcomes are being written against things this repo cannot change
+— an Initiate problem surfacing five stages late. **Do not tune the ladder to make that go away.**
+
+**A gate carries no recommendation, and neither does the slice layout.** This is a disposition, where the
+run computed the verdict already and the human is choosing what to do about it. At a gate the default *is*
+the judgment being asked for, so `devpath:initiate`, `devpath:technical-design` and `devpath:slice` mark
+no option, and `tests/lint.sh` check 7 holds them to it.
+
+### Exit 2's reason is the human's, typed in the seat that can ask for it
 
 > **`- [x] won't fix O<n> — <reason>` on an unmet Outcome is the human's decision, in the human's words.
-> The session they say it to writes the line, between the refused run and the next one. No agent drafts
-> the reason, and no reason means no write.**
+> The session they say it to writes the line. No agent drafts the reason, and no reason means no write.**
 
-**Say it, because a builder who does not read it will wire a step 3 that waits.** A run admits no mid-run
-human input, so Integrate cannot name the exits, hold, and write the one the human picks — the run is over
-at the naming. What arrives instead is a turn: the human names the ID and answers
-*won't fix O2 — their reason*, and the session writes that line onto `## Outcome checks`. **That is the
-intent gate's own shape** — `devpath:initiate` ends its turn on a question, and a yes on the next turn
-writes `intent_accepted: true`. Approval plus an agent write is the same act as the human opening the file, and
-this plugin already runs on it at the gate that matters most.
+**A click may pick the exit. Only typing may supply the reason.** Selecting `Won't fix` is followed by a
+prompt, and then the turn ends. **More than one `Won't fix` is one prompt naming every ID.**
+
+```
+  You chose won't fix for O3 and O7. Please give the reason for each, in your
+  own words — it rides into the pull request in front of the approver.
+```
+
+The next turn writes `- [x] won't fix O<n> — <their words>` onto `## Outcome checks`, one line per ID it
+gave a reason for. **An ID with no reason gets no line**, and the run says which are still open — the rule
+above read per Outcome rather than per turn. **That is the intent gate's own shape** — a question ends the
+turn, and the answer writes the field. Approval plus an agent write is the same act as the human opening
+the file, and this plugin already runs on it at the gate that matters most.
+
+**The seat is what makes the ask legal at all.** A worker can reach the orchestrator; only the
+orchestrator can reach the human, and every one of these steps runs in the orchestrator seat.
+`devpath:build` states the same rule one level down, where the tool is absent from a subagent and fails
+synchronously.
+
+> **The run never drafts the reason, least of all when it recommended the exit.** A recommendation is
+> exactly the moment drafting starts to feel helpful, and a reason an agent wrote is a waiver signed by
+> the applicant.
+
+**Presenting `won't fix` as a named option is not what would make it cheap. Drafting the reason would be**,
+and nothing here does.
 
 **Re-running `devpath:integrate` cannot produce the line**, because step 1 rewrites `## Outcome checks`
 and would write the same Outcome unmet again. **Step 1's carry-forward rule is the other half of the
