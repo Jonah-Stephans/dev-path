@@ -90,11 +90,15 @@ answers.
 ```markdown
 ## Current state
 - O2 — `TolerancePolicy.update()` batches at a fixed 200 and nothing chunks past it. There is no
-  bulk path; the only caller is the detail page, one row at a time.
+  bulk path; the only caller is the detail page, one row at a time. Read off
+  `TolerancePolicy.cls`, `for (Integer i = 0; i < rows.size(); i += 200)`, and
+  `toleranceDetail.js`, at `updateTolerance({ recordId: this.recordId })` in `handleSave`.
 - O5 — There is no audit-trail write anywhere in this package. `AuditEntry__c` exists and is
-  managed, so a write would need a wrapper that does not exist yet.
+  managed, so a write would need a wrapper that does not exist yet. Grepped `AuditEntry__c` across
+  `force-app/`: the only hit is `AuditEntry__c.object-meta.xml`, which carries `<packageVersions>`.
 - O6 — Nothing bears on this, and the closest thing the repo has is `PricingRules`, which reads
-  tolerances and never sets them.
+  tolerances and never sets them. Grepped `Tolerance` across `force-app/`: outside
+  `TolerancePolicy.cls` the only hit is `PricingRules.cls`, at `Decimal t = policy.Tolerance__c;`.
 
 The ceiling shaped this: O2 and O5 went to one researcher as a single area.
 ```
@@ -107,6 +111,32 @@ goes.
 **O6 is the placeholder rule and this one meeting on a line.** *Nothing bears on this* is a finding, it is
 written under the ID it answers like any other, and what makes it content rather than `n/a` is the clause
 after it. The placeholder rule is stated under `## Write` and had no example carrying an ID until here.
+
+**Mandated: a finding says what it was read off — the file, and what you read there: the line quoted
+where there is one, the grep and what it came back with where there is not.**
+
+**A finding does not stay a finding.** Design prunes this section to what the design rests on and writes
+the design a builder then works from. `devpath:slice` and `devpath:build` never open this heading at all,
+and a critic opens it only after code has been built on what it said. So a finding carrying nothing to
+check it against reaches a builder as a premise, with no way back to whatever produced it. That is how a
+note naming an `<article>` inside a shadow root as the flex item, when the flex item was the host element,
+put a layout class on an element the layout never reads.
+
+**Quote the line rather than giving a line number.** A number goes stale on the next edit above it and
+nothing about a stale one looks stale. A quote either still matches the file or visibly does not, which is
+what makes the finding checkable at all.
+
+**One rule and no exemption: a finding of absence says where it looked.** *Nothing bears on this* is a
+claim about the whole repo and the one most worth being able to check, so it carries the grep that came
+back empty — which is the shape the O6 bullet above already has. The placeholder rule is not an exception
+to this one. It is this one read over an absence.
+
+**Nothing checks this, and the silence is a decision.** What a finding was read off is prose in
+`## Current state` — **no new field**, the same trade this stage already takes with the dispatch list. A
+mechanical check could only ask whether a bullet carries something shaped like a file name, so it would go
+green on a sentence nobody read, and a check reading *verified* when nothing verified anything costs the
+one reader who would otherwise have gone and looked. **That reader is Design, at the prune**, holding each
+finding it keeps against the file the finding names.
 
 **Why the ID keys the finding.** The per-item question is Survey's actual job, and it is the same key at
 both ends of `devpath`: Survey asks *what exists that bears on O2*, and the Outcomes pass at Integrate
@@ -191,9 +221,9 @@ nothing for Survey to find; a cross-feature convention discovered inside one fea
 
 ## Write
 
-**`## Current state`, on `spec.md`.** Survey is its only writer; Design prunes it later to the facts the
-design rests on. **Survey done ⇔ `## Current state` is non-empty, or `## Refuse first` stopped the
-run and named the condition.**
+**`## Current state`, on `spec.md`.** Survey writes it; Design prunes it later to the facts the design
+rests on, and Critique's slice pass may strike a wrong note in place. **Survey done ⇔ `## Current state`
+is non-empty, or `## Refuse first` stopped the run and named the condition.**
 
 **Rewrite the section; do not append to it.** A stage that supersedes an earlier section rewrites it. The
 file is the working set and git is the archive.
@@ -202,6 +232,9 @@ file is the working set and git is the archive.
 
 > **Write what you found, and *nothing bears on this, and here is what the repo does have* is something
 > you found. Never the word `none`, and never a heading written to satisfy the check.**
+
+**And it says where it looked.** *A finding says what it was read off* is above and has no exemption here:
+the grep that came back empty is what a finding of absence was read off.
 
 `## Current state` is **not** a second exception to the placeholder rule and does not need to be. Survey's
 question is *what exists today that bears on this?*, and **there is nothing here yet** is an answer: it is

@@ -8,7 +8,7 @@ Critique has **three passes with three subjects. Do not merge them.**
 
 | Pass | Subject | Runs | Writes |
 | --- | --- | --- | --- |
-| **The slice pass** | that slice's code | when a slice is built, inside `devpath:build`, or `devpath:critique` alone | `## Critique findings` on **that slice file**, and `## Traps` on **`spec.md`** |
+| **The slice pass** | that slice's code | when a slice is built, inside `devpath:build`, or `devpath:critique` alone | `## Critique findings` on **that slice file**; `## Traps`, and a strike through a wrong `## Current state` note, on **`spec.md`** |
 | **The Outcomes pass** | the spec's Outcomes | **once, at the start of `devpath:integrate`** | `## Outcome checks` on **`spec.md`** |
 | **The change-request pass** | a human reviewer's comments on the pull request | when a reviewer requests changes and the engineer re-runs `devpath:critique` | as the slice pass — triaged findings into the fix loop |
 
@@ -218,6 +218,45 @@ paid **per worker** rather than per session. So: the section is per-spec and **d
 no other spec's workers ever load it; and an entry that **restates a default** — *write thorough tests* —
 pays that per-worker cost to change nothing, **as does a second copy of a trap already there.**
 
+### A wrong `## Current state` note
+
+**Mandated on one trigger: a confirmed finding whose cause is a wrong `## Current state` note on
+`spec.md`.** Survey writes every finding with what it was read off, so the check is the ordinary kind: go
+to what the note names — the file and the line it quotes, or the grep it ran — and see whether the repo
+says what the note says.
+
+**Strike the note in place and put the correction after it. Leave the error visible, and never overwrite
+it.** Edit the bullet that is already there: no second bullet, and **no box** — there is nothing here for
+anyone to close.
+
+**The correction carries what it was read off**, in Survey's shape — the file, and what you read there.
+The corrected note is the one the next worker inherits, so a correction nobody can check leaves that
+worker exactly where the wrong note left them.
+
+```markdown
+## Current state
+- O1 — ~~The flex item is the `.rstk-nav-section` `<article>` inside `navigatorSection`'s shadow
+  root. Read off `navigatorSection.html`, `<article class="rstk-nav-section">`.~~ Struck at
+  Critique: the flex item is the `<c-navigator-section>` host. Read off `navigator.html`,
+  `<c-navigator-section>` inside the flex container — the `<article>` is the shadow root's own
+  child, which the parent's layout never reaches.
+```
+
+**Why the wrong note stays on the page.** It is the one thing that explains the code the next worker is
+about to read: a class sitting on an element nothing lays out reads as an oversight until you can see the
+note it came from. An overwrite also costs the next critic the difference between a note nobody has
+questioned and a note that was wrong and got corrected.
+
+**This is not new authority.** The slice pass already writes `## Traps` on `spec.md`, and who commits that
+write is settled under `## Stop` without reference to the caller — a dispatched critic writes and returns,
+and the session that dispatched it commits on that return. That is what makes the strike work identically
+inside `devpath:build` and under `devpath:critique` alone.
+
+**The critic does not edit `## Design`.** A design premise the correction invalidates is superseded, not
+rewritten: that heading is gated material, and correcting it is a stop rather than a subagent's write.
+Where the premise is still quotable from `## Design`, it is trigger 2 above and the trap is already owed —
+**this section adds no trigger and widens neither.**
+
 ## The two-cycle cap
 
 > **The cap does not stop the work. It stops the work being unattended.**
@@ -310,8 +349,8 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 **Critique done ⇔ this pass has written its findings, or it stopped and named what stopped it — the
 slice on a tripped cap, the condition at `## Refuse first`.**
 
-Write the findings, write any trap this pass earned, write `fix_cycles` if this pass is one of the three
-cases above, and return.
+Write the findings, write any trap this pass earned, strike any `## Current state` note this pass found a
+confirmed finding's cause in, write `fix_cycles` if this pass is one of the three cases above, and return.
 
 **Who commits that write is your role and never which skill called this one.** **A dispatched critic
 writes and returns; the session that dispatched it commits on that return.** **The session holding this
