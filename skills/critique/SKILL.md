@@ -273,6 +273,9 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 
 ## Stop
 
+**Critique done ⇔ this pass has written its findings, or it stopped and named what stopped it — the
+slice on a tripped cap, the condition at `## Refuse first`.**
+
 Write the findings, write any trap this pass earned, write `fix_cycles` if this pass is one of the three
 cases above, and return.
 

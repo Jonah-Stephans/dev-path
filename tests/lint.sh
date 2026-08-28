@@ -1,11 +1,14 @@
 #!/bin/sh
 # devpath — repo-wide rules that hold no matter which file is edited next.
 #
-# Four checks, all of them rules rather than paragraphs: the retired vocabulary,
-# the skill-to-skill call strings, the closed set of gate fields, and the
-# commit-excess tag staying unread by anything mechanical. What this file does
-# not do is assert that a given sentence is still on a given page — a deleted
-# paragraph shows up in the diff, which is where it gets caught.
+# Six checks, all of them rules rather than paragraphs: the retired vocabulary,
+# the skill-to-skill call strings, the closed set of gate fields, the
+# commit-excess tag staying unread by anything mechanical, the ban on numbering
+# an Outcome, and every stage naming when the stage is over. What this file does
+# not do is assert that a given paragraph is still on a given page, which a diff
+# already catches. Check 6 comes closest and is still a rule. What it asserts is
+# a shape every file derives from its own heading, never a sentence written out
+# here.
 #
 # Exit code is the build's.
 
@@ -214,7 +217,56 @@ for f in $PROSE; do
   report 'never numbered' "$f" "$(grep -nE "${L}Outcome[[:space:]]+[0-9]" "$f")"
 done
 
+# --------------------------------- 6. every stage names when the stage is over
+#
+# Survey shipped the only done-condition of the eight. The other seven ended on an
+# instruction about what to report, which is not a bound, and a loose bound is
+# what lets a stage stop early with its later steps still pulling at it.
+#
+# Both halves are derived, never listed. The stage set is every skill whose front
+# matter leaves it model-invocable, so a ninth stage is checked the day it lands
+# and another human-invoked skill is skipped the day it lands. The name is the
+# file's own `# ` heading, which already carries it. skills/technical-design/
+# SKILL.md opens `# Design`.
+#
+# Requiring the bold `**<name> done ⇔` rather than a bare glyph is what keeps
+# Design honest. That file quotes Survey's condition in italics where it prices a
+# skipped Survey call, and a grep for the glyph alone would pass Design on
+# somebody else's sentence. That closes the cross-file quote, which is the one
+# that occurs here. A file quoting its own condition — inside a fence, or in a
+# sentence forbidding it — still passes, and that case is left to the diff.
+#
+# The prefix has to survive on one line. Several of the sentences wrap, all of
+# them after the glyph, and one that wrapped earlier would go red while being
+# correct.
+STAGES=0
+for f in skills/*/SKILL.md; do
+  [ -f "$f" ] || continue
+
+  # Front matter is the block between the first two --- lines, so a body that
+  # names the flag cannot exempt itself. tests/schema.sh reads the same flag
+  # whole-file and pins the disabled set by name, so the two scopes disagree by
+  # design: a body mention is invisible here and red there. Keep it that way.
+  FM=$(awk 'NR == 1 && $0 != "---" { exit } NR > 1 && $0 == "---" { exit } NR > 1' "$f")
+  printf '%s\n' "$FM" | grep -qE '^disable-model-invocation:[[:space:]]*true' && continue
+
+  STAGES=$((STAGES + 1))
+  NAME=$(awk '/^# / { sub(/^# /, ""); print; exit }' "$f")
+  if [ -z "$NAME" ]; then
+    report 'when it is over' "$f" "carries no \`# \` heading to read a stage name from"
+  elif ! grep -qF "**$NAME done ⇔" "$f"; then
+    report 'when it is over' "$f" "names no condition for the stage being over
+expected a line holding: **$NAME done ⇔"
+  fi
+done
+
+# A floor, not a census, for the reason stated at the prose floor above.
+if [ "$STAGES" -lt 8 ]; then
+  echo "FAIL subject: expected at least 8 model-invocable skills, found $STAGES"
+  FAIL=1
+fi
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, no numbered Outcome — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, no numbered Outcome, $STAGES stages naming when they are over — clean"
 fi
 exit "$FAIL"

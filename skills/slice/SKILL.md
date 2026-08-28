@@ -358,6 +358,9 @@ slugs, and what a reader does about it is talk to the other engineer.
 
 ## Stop
 
+**Slice done ⇔ every slice the design needs exists with its `depends_on` edges resolving, or the run
+stopped — on a named conflict with a built slice, or at `## Refuse first` — and named the condition.**
+
 **Show the layout and stop.** The slice list, each slice's one-sentence behaviour line, and the
 `depends_on` edges between them.
 

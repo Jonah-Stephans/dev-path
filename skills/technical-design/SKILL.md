@@ -350,6 +350,9 @@ denied. Building a sibling ahead of it is.
 
 ## Stop
 
+**Design done ⇔ the design gate has been answered and, on `true`, the slice files exist and are
+pushed — or `## Refuse first` stopped the run and named the condition.**
+
 **Push once the layout settles**, so the human sees the design and the slice layout together on the draft
 pull request.
 

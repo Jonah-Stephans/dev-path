@@ -456,5 +456,7 @@ somebody fixes forward.
 
 ## Stop
 
+**Integrate done ⇔ step 8 has run, step 3 refused, or `## Refuse first` stopped the run before step 1.**
+
 Report what was written, what was filed, and that auto-merge is armed. **Human actions per spec from here:
 one approval, which branch protection already required.** Nobody clicks Merge.
