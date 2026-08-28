@@ -290,11 +290,19 @@ tree is normally clean here; if it is not, something upstream did not commit and
 rather than working around. **A `git stash` dance is not the answer** — it is a mechanism nobody chose, and
 its failure mode is losing the engineer's work silently.
 
+**And the tree is clean when this skill hands back**, which is the same rule read the other way. `learn`
+is a stage that writes, so it commits before it hands on. Everything it wrote is in the commit the block
+below makes, and **nothing waits for somebody else to commit later.** There is nobody later to wait for.
+`git checkout "<slug>"` carries an uncommitted change onto the spec branch, where the next spec's Build
+stages it into a slice commit for work that never touched it.
+
 ```sh
 git fetch --quiet
 git checkout --no-track -b "devpath/lessons/<slug>" "origin/$base"
 # write the rule files and any CI edit
-git add .claude/rules/ && git commit && git push -u origin HEAD
+git add .claude/rules/ <each CI file this run edited> && git commit
+git status --porcelain  # prints nothing; read what it names if it does
+git push -u origin HEAD
 gh pr create --base "$base" --head "devpath/lessons/<slug>" --title 'Lessons from <slug>' --body-file -
 git checkout "<slug>"
 ```
@@ -311,9 +319,27 @@ any code existed, so without this one the cut uses whatever that left. `git fetc
 branch starts wherever the last pull left it, so its pull request reads as a deletion of everything the
 base gained since, including `.claude/rules/` files an earlier run of this skill wrote.
 
-**`--no-track` is redundant here and kept anyway.** The `git push -u` two lines down sets the upstream
-itself, so the flag changes nothing unless the run stops between those lines. It is here because both
-skills cut a branch the same way or neither does, and Initiate's `## Write` carries the reason.
+**`--no-track` is redundant here and kept anyway.** The `git push -u` below sets the upstream itself, so
+the flag changes nothing unless the run stops between the two lines. It is here because both skills cut a
+branch the same way or neither does, and Initiate's `## Write` carries the reason.
+
+**Stage by naming paths, and never with `git add -A`.** The rule files are under `.claude/rules/`. A
+proposed check is an edit to the repo's own CI configuration, at a path only that repo knows, so the
+block names what this run edited rather than a path `devpath` does not own. **Each half of that `git add`
+line is there only if this run wrote it.** A run proposing only a check writes no rule file, and
+`git add .claude/rules/` against a repo with no such directory fails the pathspec, and the `&&` takes the
+commit down with it.
+
+**`devpath:build` sweeps with `git add -A`, and that is Build's answer rather than a plugin-wide one.**
+Build pairs the sweep with an audit that writes whatever it caught into `## Deviations`, where a human
+dispositions it. A lessons branch has no such box, so a swept file reaches the lessons pull request with
+nothing naming it, and the point of that pull request is that a human can read a small diff.
+
+**The `git status --porcelain` line is the refusal above, run on the way out instead of on the way in.**
+It prints nothing when the `git add` line named every path this run wrote. When it prints, read what it
+names before you stage anything. A file this run wrote is one `git add` and `git commit --amend` away,
+and the push has not happened yet. **A file this run did not write is the dirty tree the refusal exists
+for.** Name it and stop. Staging it puts somebody else's change in the lessons pull request.
 
 **`$base` stays a bare name in `gh pr create --base`**, which takes a branch name and rejects
 `origin/main`. **A remote is a precondition of this section rather than a case to branch on**, because the
@@ -345,8 +371,8 @@ provisional. **What is settled, and survives any change to its content, is where
 
 ## Stop
 
-**Learn done ⇔ a proposal pull request is open, or the report names why nothing was proposed, or
-`## Refuse first` stopped the run and named the condition.**
+**Learn done ⇔ the tree is clean and a proposal pull request is open, or the tree is clean and the
+report names why nothing was proposed, or `## Refuse first` stopped the run and named the condition.**
 
 Report the pull request link, one line per proposed entry, and one line per proposed check. Then stop —
 Integrate's step 8 follows.
