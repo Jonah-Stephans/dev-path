@@ -64,6 +64,12 @@ engineer runs `devpath:learn` again pointed at it.
 make, written by the pass that was there while it was there. It enters the routing below as a candidate
 like any other.
 
+**An entry quoting `## Design` is the one exception, and looking settles it.** That entry exists because
+this spec's design still reads as current where a defect came out of it, which is a fact about this spec's
+own paperwork and true of no code in the repo. It is not a finding about `devpath` either. So it is
+neither a lesson here nor an issue on the plugin, and it dies with the spec exactly as the rest of
+`## Traps` does.
+
 ## What this produces
 
 > **A pull request proposing lessons. Learn never writes them directly.**
