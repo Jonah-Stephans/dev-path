@@ -337,7 +337,7 @@ fi
 # disposition — so this check names four files and leaves
 # skills/integrate/SKILL.md out.
 #
-# Scoped to fenced blocks, because all three files argue the prohibition in
+# Scoped to fenced blocks, because all four files argue the prohibition in
 # prose and an unscoped grep would go red against a compliant plugin — and a
 # test that cannot pass gets deleted.
 #

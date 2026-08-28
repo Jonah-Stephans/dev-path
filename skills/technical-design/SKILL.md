@@ -321,8 +321,11 @@ flush condition:** write before anything that could lose the thread.
 2. **Commit, and push.** The human is about to approve a design, and a pushed diff on the draft pull
    request is what they approve against — readable and inline-commentable, at zero approval cost.
 3. **The human approves the design.**
-4. **`design_approved: true` is written.** Value is always `true`; absence is how you say no; nothing ever
-   writes `false`.
+4. **`design_approved: true` is written, and committed.** Value is always `true`; absence is how you say
+   no; nothing ever writes `false`. **The commit is this step's** — `devpath:slice` commits the slice
+   files rather than `spec.md`, and `devpath:build` refuses on a dirty tree, so a field left on disk here
+   stops Build two acts later. **It holds that one field and no prose**, so *the Design commit* that
+   `devpath:survey`'s write is read against is still step 2's.
 5. **Run the skill `devpath:slice` against this spec** — which now finds the field, so its refusal is
    satisfied by the route rather than excepted from it.
 6. The layout is shown and put to the human by `devpath:slice`'s own `## Stop`. The human may reject it,

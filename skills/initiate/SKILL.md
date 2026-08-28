@@ -47,9 +47,10 @@ Three refusals are Initiate's own.
   `decline-code-retry-window`.
 
 **Initiate's dirty-tree stop stays prose, and `devpath:build`'s is the one that asks through a question
-tool.** Build stops on a spec branch, where *commit it here* is a real exit. Initiate stops on the base
-branch, where committing is the exit `--no-track` in `## Write` exists to prevent — so what is left is
-one act in two spellings, and a prompt over that is a click standing in for a sentence.
+tool.** Build stops on a spec branch, where *commit it here* is an exit only this run can spell — it
+knows the branch and it is about to commit on it anyway. Initiate stops before any branch or spec exists,
+so every exit left is ordinary git against work `devpath` has no claim on, and a prompt over that is a
+click standing in for a sentence.
 
 **Prefix every message this skill prints when it stops with `devpath: `.** Suggested — the same prefix
 every pasteable block in the README echoes, so a human reading a stop meets one prefix rather than two.
