@@ -294,10 +294,16 @@ going*.
 ## Print what you re-derived, before anything else
 
 **Mandated. The first thing this run prints is the state it re-derived from the spec directory.** It
-prints before the first dispatch, and before any report that there is nothing to dispatch.
+prints before the first dispatch, and before any report that there is nothing to dispatch. **A run that
+stops at `## Refuse first` prints its refusal instead.** It derived no state to print.
 
-**This section is late in the file and first in the run.** Every section above it computes a row, so this
-is the first point at which all seven are known.
+**The state is the directory as it stands at that point, not as the run opened it.** A run that cut a
+slice for an unmet Outcome lists that slice, and a run that expired `## Outcome checks` says which lines
+went.
+
+**This section is late in the file and first in the run.** Every row but one is computed by a section
+above it, which is the first point at which those are known. The exception is the pause check, which reads
+the frozen test below.
 
 **A run with nothing to dispatch prints the report too.** Every slice `done: true` with no
 `- [ ] unmet` line ends in *there is nothing to do*, which is a conclusion this run reached rather than an
@@ -314,9 +320,10 @@ The print is how a human checks that claim in one glance.
 - **`design_approved`.** `true`, from `spec.md`'s front matter.
 - **The order.** The `depends_on` chain the walk sorted, and that it is acyclic.
 - **Each slice.** Its `done`, its `fix_cycles`, and its open findings under `## Critique findings`.
-- **The pause check.** Per slice, an untagged open box under `## Deviations`, or none.
-- **`touches`.** Which paths resolve, and which do not. `## Refuse first` had this run write a
-  deviation for each one that does not.
+- **The pause check.** Per slice, an untagged open box under `## Deviations`, or none. The frozen test
+  below is the grammar, and `- [ ] excess` is not a pause.
+- **`touches`.** Which paths resolve, and which do not. `## Refuse first` had this run record a deviation
+  for each one that does not.
 - **What expired.** Every Outcome whose `## Outcome checks` line this run expired, by ID.
 
 **Two of those rows can only ever print one value, and both are kept anyway.** The branch reaches this
@@ -329,13 +336,12 @@ thing a human checks.
 the code moves` already mandates the announcement and carries the reason it exists. This section is the
 place in the output it goes.
 
-**Seven named rows rather than a rule about what to report.** A rule produced two differently shaped
-tables across two runs of one spec. A fixed list is what lets a human check the same rows every run
-instead of reading each report fresh.
+**Named rows rather than a rule about what to report.** A rule produced two differently shaped tables
+across two runs of one spec. A fixed list is what lets a human check the same rows every run instead of
+reading each report fresh.
 
 **The content is mandated and the shape is yours.** No table, no alignment, no fixed wording.
-`devpath:slice` and `devpath:integrate` name what their own runs show at the end and mandate no shape
-either.
+`devpath:integrate` names what its own run reports at the end and mandates no shape either.
 
 **One clause bounds it. The report says what this run derived from disk, never what it is about to do.**
 Drop the clause and the row list grows a preamble, which is where *next I will dispatch slice 02* lands.
