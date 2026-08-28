@@ -521,8 +521,9 @@ is immune to how a foreign guard identifies the caller.
 `done: true` and returns; commit on that return. **A pause returns too, and you commit on that return as
 well** — the worker wrote its box and stopped, and what it built before stopping is on disk. **The
 critic's findings write is a second commit on the same slice**, on its own return and under the same
-division, and **a trap it wrote on `spec.md` rides in that commit** rather than earning one of its own —
-so *one commit per slice* is a claim about code, and it is written that way wherever it is claimed.
+division, and **a trap or a struck note it wrote on `spec.md` rides in that commit** rather than earning
+one of its own — so *one commit per slice* is a claim about code, and it is written that way wherever it
+is claimed.
 
 **A pause commit is not a claim that the slice works.** What claims that is `done: true`, and a paused
 worker writes no such field. **Nothing mechanical reads the commit either** — the frozen test below joins

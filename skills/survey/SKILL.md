@@ -92,7 +92,7 @@ answers.
 - O2 — `TolerancePolicy.update()` batches at a fixed 200 and nothing chunks past it. There is no
   bulk path; the only caller is the detail page, one row at a time. Read off
   `TolerancePolicy.cls`, `for (Integer i = 0; i < rows.size(); i += 200)`, and
-  `toleranceDetail.js`, whose `handleSave` sends one id.
+  `toleranceDetail.js`, at `updateTolerance({ recordId: this.recordId })` in `handleSave`.
 - O5 — There is no audit-trail write anywhere in this package. `AuditEntry__c` exists and is
   managed, so a write would need a wrapper that does not exist yet. Grepped `AuditEntry__c` across
   `force-app/`: the only hit is `AuditEntry__c.object-meta.xml`, which carries `<packageVersions>`.
@@ -112,7 +112,8 @@ goes.
 written under the ID it answers like any other, and what makes it content rather than `n/a` is the clause
 after it. The placeholder rule is stated under `## Write` and had no example carrying an ID until here.
 
-**Mandated: a finding says what it was read off — the file, and the sentence quoted from it.**
+**Mandated: a finding says what it was read off — the file, and what you read there: the line quoted
+where there is one, the grep and what it came back with where there is not.**
 
 **A finding does not stay a finding.** Design prunes this section to what the design rests on and writes
 the design a builder then works from. `devpath:slice` and `devpath:build` never open this heading at all,
@@ -121,7 +122,7 @@ check it against reaches a builder as a premise, with no way back to whatever pr
 note naming an `<article>` inside a shadow root as the flex item, when the flex item was the host element,
 put a layout class on an element the layout never reads.
 
-**Quote the sentence rather than giving a line number.** A number goes stale on the next edit above it and
+**Quote the line rather than giving a line number.** A number goes stale on the next edit above it and
 nothing about a stale one looks stale. A quote either still matches the file or visibly does not, which is
 what makes the finding checkable at all.
 
@@ -220,9 +221,9 @@ nothing for Survey to find; a cross-feature convention discovered inside one fea
 
 ## Write
 
-**`## Current state`, on `spec.md`.** Survey is its only writer; Design prunes it later to the facts the
-design rests on. **Survey done ⇔ `## Current state` is non-empty, or `## Refuse first` stopped the
-run and named the condition.**
+**`## Current state`, on `spec.md`.** Survey writes it; Design prunes it later to the facts the design
+rests on, and Critique's slice pass may strike a wrong note in place. **Survey done ⇔ `## Current state`
+is non-empty, or `## Refuse first` stopped the run and named the condition.**
 
 **Rewrite the section; do not append to it.** A stage that supersedes an earlier section rewrites it. The
 file is the working set and git is the archive.
@@ -231,6 +232,9 @@ file is the working set and git is the archive.
 
 > **Write what you found, and *nothing bears on this, and here is what the repo does have* is something
 > you found. Never the word `none`, and never a heading written to satisfy the check.**
+
+**And it says where it looked.** *A finding says what it was read off* is above and has no exemption here:
+the grep that came back empty is what a finding of absence was read off.
 
 `## Current state` is **not** a second exception to the placeholder rule and does not need to be. Survey's
 question is *what exists today that bears on this?*, and **there is nothing here yet** is an answer: it is

@@ -221,20 +221,25 @@ pays that per-worker cost to change nothing, **as does a second copy of a trap a
 ### A wrong `## Current state` note
 
 **Mandated on one trigger: a confirmed finding whose cause is a wrong `## Current state` note on
-`spec.md`.** Survey writes every finding with what it was read off, so the check is the ordinary kind:
-open the file the note names, read the sentence it quotes, and see whether the note says what that file
-says.
+`spec.md`.** Survey writes every finding with what it was read off, so the check is the ordinary kind: go
+to what the note names — the file and the line it quotes, or the grep it ran — and see whether the repo
+says what the note says.
 
 **Strike the note in place and put the correction after it. Leave the error visible, and never overwrite
 it.** Edit the bullet that is already there: no second bullet, and **no box** — there is nothing here for
 anyone to close.
 
+**The correction carries what it was read off**, in Survey's shape — the file, and what you read there.
+The corrected note is the one the next worker inherits, so a correction nobody can check leaves that
+worker exactly where the wrong note left them.
+
 ```markdown
 ## Current state
 - O1 — ~~The flex item is the `.rstk-nav-section` `<article>` inside `navigatorSection`'s shadow
-  root.~~ Struck at Critique: the flex item is the `<c-navigator-section>` host. `navigator.html`
-  lays out the hosts, and the `<article>` is the shadow root's own child, which the parent's
-  layout never reaches.
+  root. Read off `navigatorSection.html`, `<article class="rstk-nav-section">`.~~ Struck at
+  Critique: the flex item is the `<c-navigator-section>` host. Read off `navigator.html`,
+  `<c-navigator-section>` inside the flex container — the `<article>` is the shadow root's own
+  child, which the parent's layout never reaches.
 ```
 
 **Why the wrong note stays on the page.** It is the one thing that explains the code the next worker is
