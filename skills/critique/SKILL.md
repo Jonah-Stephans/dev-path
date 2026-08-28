@@ -145,16 +145,47 @@ Every entry is one mutation a test on this spec has to be able to fail on. **A t
 what an entry names is a finding**, and it is the ordinary kind — you are checking the code against
 something this spec wrote down, exactly as you check it against the repo's standards rule.
 
-**Mandated: write a trap when a confirmed finding's cause is a test that passed while the code was
-wrong.** That is the whole trigger and it is binary: the finding survived triage, and the test covering
-that code was green when you found it. **That defect is the one a fresh critic on the next slice cannot
-see** — the test passes, it covers the code, and nothing in that slice states what it must be able to
-fail on. So the pass holding the finding is the only pass that can write the trap, which is the rule that
-puts `- [x] fixed` on the worker that fixed it.
+**Mandated: write a trap on either of two triggers.** Each one is binary, and **the pass that confirmed
+the finding writes both** — the only pass that can, which is the same rule that puts `- [x] fixed` on the
+worker that fixed it.
 
-**A trap is written off a finding, never hunted for.** The trigger is a fact about a finding you already
-confirmed, and nothing here sends you looking for a class of defect. That would be this skill writing a
-check instead of reading the repo's standard, which is the line the section above draws.
+| The trigger | What makes it binary |
+| --- | --- |
+| **Trigger 1.** A confirmed finding whose cause is **a test that passed while the code was wrong** | it survived triage, and the test covering that code was green when you found it |
+| **Trigger 2.** A confirmed finding whose cause is **still quotable from `## Design`** | the sentence the defect came out of is under that heading, and you can point at it |
+
+**Both triggers name a defect the next worker cannot see in what they read.** On trigger 1 the test
+passes, it covers the code, and nothing in that slice states what it must be able to fail on. On trigger 2
+the sentence that produced the defect sits under `## Design` reading as current as the rest of the
+heading, so the next worker to build from it writes the defect back. Neither survives in the slice it was
+raised on, and a fresh critic on the next slice reads the slice.
+
+**Trigger 2 is a quote or it did not fire, and the quote goes in the entry.** Point at the sentence under
+`## Design` the finding came out of. If you cannot, there is no trap — nothing here asks you to weigh how
+much the design contributed, and the trigger holds no word for you to judge.
+
+**One finding, one entry.** A finding that trips both triggers earns one trap carrying both — the
+mutation, and the sentence it came out of.
+
+**Both triggers fire on what this pass confirmed, and that is what makes them once-only.** Triage is
+something a pass does, so a finding already carrying a disposition was triaged by an earlier pass and is
+not yours to confirm again. `## Critique findings` appends and never deletes, and neither trigger reads
+it — the subject is the list you built this pass.
+
+**A quote that no longer resolves is still the entry doing its job.** `## Traps` survives a design
+withdrawal — `devpath:technical-design` deletes `design_approved` and rewrites `## Design` with this
+section untouched — so a finding confirmed here can be paused by Build, sent back through the design gate,
+and answered by a sentence that is no longer on the page. **The mutation is the entry and the quote is why
+it was written.** A quote you cannot find under `## Design` is provenance, not a broken reference: it
+holds where the code and the tests it names are still there, exactly as an entry outlives the slice
+numbering it was written against.
+
+**A trap quotes `## Design` and does nothing else to it.** `devpath:technical-design` owns that heading,
+and this section carries no mechanism that touches it.
+
+**A trap is written off a finding, never hunted for.** Both triggers are facts about a finding already
+confirmed on this slice, and nothing here sends you looking for a class of defect. That would be this
+skill writing a check instead of reading the repo's standard, which is the line the section above draws.
 
 **Write the mutation, as a target.** An entry states what a test here must be able to fail on, which is
 something the next worker can go and write. A prohibition — *fixtures should not all look alike* — hands
@@ -165,6 +196,9 @@ that worker the shape to avoid and nothing to build.
 - A test over which item a write lands on must be able to fail on an inaccessible item sitting earlier in
   the list. Every fixture here grants access to every id, so a test that finds the right item and a test
   that takes the first one are the same green.
+- A test over the retry path must be able to fail on a second callout arriving under an idempotency key
+  already used. `## Design` reads *"the queueable re-enqueues itself on a partial failure"*, and
+  re-enqueueing without carrying that key forward is the defect that came out of it.
 ```
 
 **No box.** Every `- [ ]` in a spec directory is *Critique clean*'s subject and Integrate's refusal, and a

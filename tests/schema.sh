@@ -2,11 +2,12 @@
 # devpath — the structural checks: the things that break for somebody who
 # installed this plugin, none of which any prose assertion can see.
 #
-# Six checks. That every skill still loads, that the hook blocks a repo pastes
+# Seven checks. That every skill still loads, that the hook blocks a repo pastes
 # are valid JSON and valid shell, that the three places the spec and slice
 # schemas are written still agree, that no schema heading has escaped its fence
-# into a skill's own outline, that the two human-invoked skills are the two, and
-# that the manifests parse and name the same plugin.
+# into a skill's own outline, that the two human-invoked skills are the two, that
+# the manifests parse and name the same plugin, and that both files stating the
+# two triggers for a trap state both of them.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -200,9 +201,32 @@ if [ -z "$PNAME" ] || [ "$PNAME" != "$MNAME" ]; then
   fail manifest '.claude-plugin/' "plugin.json names '$PNAME', marketplace.json names '$MNAME'"
 fi
 
+# ------------------------------------- 7. both trap triggers, in both the files
+#
+# A trap has two triggers and two files state them: skills/critique/SKILL.md,
+# which the critic acts on, and README's heading table, which is where everyone
+# else learns who writes the section. This is check 3's kind of drift rather than
+# a paragraph assertion. Two copies of one list, where a trigger lost from one
+# copy is invisible in a diff of the other, and the reader left short is the one
+# who read only that file.
+#
+# Literal phrases, one per trigger, chosen because nothing else in either file
+# says them. Each has to survive on one line: a rewrap that splits one goes red
+# while being correct, and the fix is to put the phrase back on one line.
+T1='a test that passed while the code was wrong'
+T2='still quotable from `## Design`'
+for f in skills/critique/SKILL.md README.md; do
+  if [ ! -f "$f" ]; then
+    fail 'trap triggers' "$f" "does not exist, so this check read nothing"
+    continue
+  fi
+  grep -qF "$T1" "$f" || fail 'trap triggers' "$f" "states no green-test trigger — expected: $T1"
+  grep -qF "$T2" "$f" || fail 'trap triggers' "$f" "states no quotable-design trigger — expected: $T2"
+done
+
 rm -rf "$BLK"
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree — clean"
+  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files — clean"
 fi
 exit "$FAIL"
