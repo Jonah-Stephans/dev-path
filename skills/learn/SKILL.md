@@ -64,11 +64,11 @@ engineer runs `devpath:learn` again pointed at it.
 make, written by the pass that was there while it was there. It enters the routing below as a candidate
 like any other.
 
-**An entry quoting `## Design` is the one exception, and looking settles it.** That entry exists because
-this spec's design still reads as current where a defect came out of it, which is a fact about this spec's
-own paperwork and true of no code in the repo. It is not a finding about `devpath` either. So it is
-neither a lesson here nor an issue on the plugin, and it dies with the spec exactly as the rest of
-`## Traps` does.
+**An entry quoting `## Design` is routed on its mutation, and the quote is not routed at all.** That entry
+has two halves. The mutation is a fact about this repo's code and tests like any other trap's, and it
+enters the routing below as a candidate like any other. The quote is a fact about this spec's own
+paperwork — true of no code in the repo, and not a finding about `devpath` either — so it is neither a
+lesson here nor an issue on the plugin, and it dies with the spec.
 
 ## What this produces
 

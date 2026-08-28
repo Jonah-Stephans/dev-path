@@ -861,8 +861,8 @@ artifact, and a test you never saw fail is a test you have not tested.
 entry is one mutation a test on this spec has to be able to fail on, written by a critic on an earlier
 pass over this spec. **The heading is the instruction, not the file** — a worker reading the spec for
 Intent, Outcomes and Design passes over `## Traps` without attending to it, and a spec whose traps nobody
-read looks exactly like a spec that had none. **A spec with no `## Traps` section
-is the ordinary case**, and finding none there costs you one read.
+read looks exactly like a spec that had none. **A spec with no `## Traps` section is the ordinary case**,
+and finding none there costs you one read.
 
 **Red-before-green and a trap catch different failures.** Red-before-green proves a test fails when the
 code is missing. A trap names what the same test has to fail on when the code is **present and wrong**,
