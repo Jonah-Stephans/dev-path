@@ -381,8 +381,8 @@ one ran** — no field, no marker, no detection step.
 
   Read the layout against the design. Is this the right cut?
 
-  ▸ Accept the layout   Commits the slice files. Design pushes once the layout
-                        settles, so you see the design and the layout together.
+  ▸ Accept the layout   Commits the slice files and pushes, so the design and the
+                        layout land on the draft pull request together.
 
   ▸ Re-cut it           Say what to change and I will re-cut in this session.
                         The design approval stands.

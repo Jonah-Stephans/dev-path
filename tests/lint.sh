@@ -344,8 +344,10 @@ fi
 #
 # The walk inverts for the rest of the file on an odd fence count, exactly as
 # check 5's does, so it says so out loud rather than falling silent.
+PROMPTS=0
 for f in skills/initiate/SKILL.md skills/technical-design/SKILL.md skills/slice/SKILL.md; do
   [ -f "$f" ] || continue
+  PROMPTS=$((PROMPTS + 1))
 
   report 'no recommendation at a gate' "$f" "$(
     awk '
@@ -358,7 +360,17 @@ for f in skills/initiate/SKILL.md skills/technical-design/SKILL.md skills/slice/
   )"
 done
 
+# A floor, not a census, for the reason stated at the prose floor above — with
+# one difference that matters. Checks 1 and 6 derive their subjects from a glob,
+# so a renamed file stays in scope; this list is written out, so a rename is
+# exactly how it would go quiet while still reporting clean. Three named, three
+# read.
+if [ "$PROMPTS" -lt 3 ]; then
+  echo "FAIL subject: expected 3 files carrying a gate or layout prompt, found $PROMPTS"
+  FAIL=1
+fi
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, three prompts marking no option — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
 fi
 exit "$FAIL"

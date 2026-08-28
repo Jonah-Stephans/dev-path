@@ -257,8 +257,8 @@ The shape, rather than wording to copy:
 devpath: 11 of 15 Outcomes met. 4 unmet — this run stops here.
 
   Unmet · O2 — Bulk update over 200 rows completes without error
-    Fell short: throws above 200 rows; batching is fixed at 200 and nothing
-    chunks past it
+    Fell short: throws at 500 rows; the chunker walks the first batch and
+    nothing advances it
     Cut for O2 once already, at slice 07: throws above 200 rows; batching is
     fixed at 200 and nothing chunks past it
     Recommended: Rebuild it. The design covers batching, the code stops at one
@@ -279,6 +279,11 @@ rewritten, otherwise /devpath:build.
 `## Outcomes`'s own line, ID and all, and *Fell short* reproduces what the `- [ ] unmet` line says after
 its ID. **Reproducing it means reproducing it:** the illustration above wraps the line to fit and changes
 nothing else about it, semicolon included.
+
+**The prior-attempt line is the one composed thing in the block, and only its prefix is.** What follows
+the colon is the bullet's shortfall, punctuation included, on the same rule as the two lines above. **The
+two shortfalls are written in different runs and often differ**, which is the whole reason the older one
+is worth printing.
 
 **The ID and the statement print together, because the human answering has only the ID to give back.**
 `won't fix O2` is what they type, and a block printing the handle alone would ask them to decide against
@@ -355,8 +360,13 @@ The fact already has a fixed written form. `devpath:build` writes it under the n
   past it.
 ```
 
-> **Mandated: grep the slice files for `- Cut for O<n>, unmet at Integrate:` and reproduce every hit in
-> that Outcome's printed block, above the prompt. The ladder below stays blind to it.**
+> **Mandated: grep the slice files for `- Cut for O<n>, unmet at Integrate:`. For every hit, print
+> `Cut for O<n> once already, at slice <NN>:` — the number from the file the hit came from — and then the
+> bullet's own shortfall, whole, in that Outcome's printed block above the prompt. The ladder below stays
+> blind to it.**
+
+**`grep` returns the matching line and the bullet wraps.** Read the entry rather than the match: Build's
+bullet runs to its trailing period, and a hit cut at the line break drops the end of the sentence.
 
 **This costs no exception.** `devpath:build` says **no run branches on `## Deviations`**, and nothing here
 branches: no act changes, no option moves, no artifact differs. What changes is what prints. And the entry
@@ -391,11 +401,12 @@ nothing. **There is no detection step, because a detection step is itself the br
 > **A click is legal downstream of a read and never instead of one.** An option's description says what
 > the choice *does*; it never carries the thing being judged.
 
-**Every unmet block prints before the first call, all of them.** The tool takes at most four questions in
-one call, so more than four unmet Outcomes means more than one call, **in `## Outcome checks` order** so
-nothing is silently dropped. Printing per batch instead would have the human answering about four Outcomes
-before reading about the fifth, which breaks *a click is legal downstream of a read* for every Outcome past
-the fourth. **Nothing is written until the last call returns.**
+**Every unmet block prints before the first call, all of them.** Where the tool caps how many questions
+one call carries, more unmet Outcomes than that cap means more than one call, **in `## Outcome checks`
+order** so nothing is silently dropped. Printing per batch instead would have the human answering about
+the first four Outcomes before reading about the fifth, which breaks *a click is legal downstream of a
+read* for every Outcome past the cap. **Step 3 writes nothing at all** — the only write any exit produces
+is Exit 2's line, and that waits on a typed reason on a later turn either way.
 
 **Step 3 prints and stops. It starts no run.** It now holds every disposition at once and the `Skill` tool
 is already a dependency, so a builder will be tempted. The reason exits 1 and 3 belong in a fresh session
@@ -511,17 +522,18 @@ no option, and `tests/lint.sh` check 7 holds them to it.
 > The session they say it to writes the line. No agent drafts the reason, and no reason means no write.**
 
 **A click may pick the exit. Only typing may supply the reason.** Selecting `Won't fix` is followed by a
-prompt, and then the turn ends.
+prompt, and then the turn ends. **More than one `Won't fix` is one prompt naming every ID.**
 
 ```
-  You chose won't fix for O7. Give me the reason, in your own words.
-  No reason, no write.
+  You chose won't fix for O3 and O7. Please give the reason for each, in your
+  own words — it rides into the pull request in front of the approver.
 ```
 
-The next turn writes `- [x] won't fix O7 — <their words>` onto `## Outcome checks`. **That is the intent
-gate's own shape** — a question ends the turn, and a yes on the next turn writes the field. Approval plus
-an agent write is the same act as the human opening the file, and this plugin already runs on it at the
-gate that matters most.
+The next turn writes `- [x] won't fix O<n> — <their words>` onto `## Outcome checks`, one line per ID it
+gave a reason for. **An ID with no reason gets no line**, and the run says which are still open — the rule
+above read per Outcome rather than per turn. **That is the intent gate's own shape** — a question ends the
+turn, and the answer writes the field. Approval plus an agent write is the same act as the human opening
+the file, and this plugin already runs on it at the gate that matters most.
 
 **The seat is what makes the ask legal at all.** A worker can reach the orchestrator; only the
 orchestrator can reach the human, and every one of these steps runs in the orchestrator seat.

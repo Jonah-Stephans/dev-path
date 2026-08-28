@@ -426,15 +426,16 @@ to a no-op on a single-tier harness and probes for nothing.
 > failure the old no-tool rule was written to prevent, arriving through the door the tool opens.
 > `tests/lint.sh` check 7 holds it against this file's own illustrations.
 
-**The next turn is the answer. A yes writes `intent_accepted: true`; anything else writes nothing** —
-*Not yet* writes nothing, and a free-text answer this run cannot read unambiguously as a yes writes
-nothing either. **Where the reading is not unambiguous, confirm rather than write.** Every stored field is
-either something a human did or something a machine counted, never something a model judged, and this is
-one of the two that hold a human's decision.
+**The answer is the human's, whichever way it arrives — a returned option, or the next turn's prose. A
+yes writes `intent_accepted: true`; anything else writes nothing** — *Not yet* writes nothing, and a
+free-text answer this run cannot read unambiguously as a yes writes nothing either. **Where the reading is
+not unambiguous, confirm rather than write.** Every stored field is either something a human did or
+something a machine counted, never something a model judged, and this is one of the two that hold a
+human's decision.
 
-**Approval plus an agent write is already this plugin's model for a gate.** A yes on the next turn writes
-the field, which is the same act as the human opening the file. The prompt changes how the yes is
-collected, never what it means.
+**Approval plus an agent write is already this plugin's model for a gate.** A yes writes the field, which
+is the same act as the human opening the file. The prompt changes how the yes is collected, never what it
+means.
 
 **The gate's subject includes scope, not only content.** One spec is one design a human can approve in
 one sitting — not a size test, because size is what slices are for. **When in doubt, make it one spec:**
