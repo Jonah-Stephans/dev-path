@@ -19,6 +19,8 @@ to route cannot be disconnected.
 - **The command returns empty** → **stop, and say what is actually wrong:** it returns empty with exit
   code 0 under a detached HEAD, so the truth is *you are not on a branch*, never *no spec on this
   branch*. The fix is one `git checkout -b <slug>`, and it is a human's.
+- **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
+  uncommitted, and do not dispatch.**
 - **`design_approved` is not `true`** → **stop.** Build runs behind gate 2. Say the next act: run
   `devpath:technical-design` and take the design through its gate.
 - **Zero slice files** → **stop.** Say the next act: run `devpath:slice` against the approved design.
@@ -463,8 +465,11 @@ mechanical, and the test deciding whether a push is denied reads the mechanical 
 comparison — what git reports changed, versus `touches` plus `devpath/` plus created files — so the
 machinery cost is identical and the only difference is exclude-it versus include-and-note-it. A filter's
 risk is dropping a file Build legitimately created, which shows up later as a failed deploy somebody has
-to debug. The audit's risk is committing something out of scope, **and it is flagged.** And `git add -A`
-cannot lose work, which takes Build's memory out of the loop.
+to debug. The audit's risk is committing something out of scope, and all the audit does about that is put
+the file in front of a human before merge. **A flag is not a catch.** Closing the box edits the box, not
+the commit, so whether a flagged file merges turns on whoever read it — which is why the working tree has
+to be clean before Build dispatches. And `git add -A` cannot lose work, which takes Build's memory out of
+the loop.
 
 **Who closes that box, and it is not a skill.** No later `devpath` run is looking for it — **a done slice
 with an open box under `## Deviations` is not a pause and must not be read as one**, and where a pause

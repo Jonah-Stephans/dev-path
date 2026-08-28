@@ -31,7 +31,7 @@ discover, and the rule read literally would be an Initiate that can never create
 The exception is narrow, and the reason bounds it: **the rule exists so no stage ever guesses which spec
 it is operating on.** Initiate is the only skill with no spec to guess about.
 
-Two refusals are Initiate's own.
+Three refusals are Initiate's own.
 
 - **A branch that already holds a spec directory for a different slug** → **stop.** That is somebody
   else's spec branch, and creating a second spec on it would put two specs in one pull request, which
@@ -41,6 +41,10 @@ Two refusals are Initiate's own.
   Never a numeric suffix — not `decline-codes-2`. Being forced to say what is *different* about the
   second spec produces a better name than the first one had, so the proposal is a real name:
   `decline-code-retry-window`.
+- **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
+  uncommitted, and do not cut the branch.** `git checkout -b` from a dirty tree either fails or drags
+  what is uncommitted onto the spec branch, where it does not belong and where it rides through design,
+  slicing and build.
 
 **Prefix every message this skill prints when it stops with `devpath: `.** Suggested — the same prefix
 every pasteable block in the README echoes, so a human reading a stop meets one prefix rather than two.
