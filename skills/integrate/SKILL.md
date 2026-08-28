@@ -227,11 +227,11 @@ and need not open the slices named here, so it does not clear this refusal. **Pr
 way** — they are what the next run is for.
 
 **Why a second test earns its place at a step that was one grep.** An empty `## Critique findings` holds no
-box, so test 1 passes a spec no critic ever read and step 4 then reports it as a slice on which nothing was
-found — *nothing was wrong* and *the pass never ran* are otherwise indistinguishable at every check
-downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants named. **And
-Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in the harness
-makes it certain, so what catches a skip is the trace, not a louder instruction.
+box, so test 1 passes a spec no critic ever read and step 4 then names the heading empty — which reads as a
+slice a critic cleared. *Nothing was wrong* and *the pass never ran* are otherwise indistinguishable at
+every check downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants
+named. **And Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in
+the harness makes it certain, so what catches a skip is the trace, not a louder instruction.
 
 **The cost, said rather than smoothed: step 3 is no longer one grep.** It is a grep and a walk, and *one
 grep, zero judgment* is now a claim about `- [ ]` alone.
@@ -620,7 +620,7 @@ either as `- [x] won't fix — <reason>`, which the rule above already carries w
 `- [x] false positive`, which is the commit audit withdrawing its own note.
 
 **Every line carried out of `## Outcome checks` rides with its `## Outcomes` line beside it**, because it
-references an Outcome by ID and `## Outcomes` is not one of the sections this step reads:
+references an Outcome by ID and `## Outcomes` is not one of the sections this step puts in the body:
 
 ```
 - [x] won't fix O3 — audit-trail object is managed and read-only in this org
@@ -631,28 +631,43 @@ references an Outcome by ID and `## Outcomes` is not one of the sections this st
 obstacle, never a statement of what went unmet, so the reviewer would meet a reason with nothing to weigh
 it against — which is the thing exit 2 exists to put in front of them.
 
-**The pairing stops at `## Outcome checks`, and a `won't fix` anywhere else rides alone.** One closing an
-acceptance criterion carries no ID and closes in place, with the criterion's own text already on the line;
-one closing an `excess` note names files rather than an Outcome. There is nothing to set beside either.
+**The pairing stops at `## Outcome checks`, and a `won't fix` anywhere else rides with its path.** One
+closing an acceptance criterion carries no ID; one closing an `excess` note names files rather than an
+Outcome — so neither has an `## Outcomes` line to sit beside. **What both still owe the reviewer is which
+slice**, which the reason alone never names:
+
+```
+- [x] won't fix — hard-coded org id in the test; fixture is scratch-org-local
+      devpath/tolerance-config/slices/04-tolerance-service.md
+```
+
+**The same failure as a missing pairing, one level out.** A waiver the reviewer cannot place is a waiver
+they have to grep for, which is the re-finding this step opens by refusing. **A `won't fix` on `spec.md`
+takes no path** — there is one of those, and the pairing above already carries it.
 
 ### The material rides as a count and a path
 
 **One line per file, saying how many and where:**
 
-- **`## Critique findings`, per slice** — how many `- [x] fixed`, how many `- [x] false positive`, and the
-  slice's path.
-- **`## Deviations`, per slice** — how many entries, and the same path.
-- **`## Traps`, once** — how many entries, and the path to `spec.md`. It is one section on the spec rather
-  than one per slice.
+- **`## Critique findings`, per slice** — how many `- [x] fixed`, how many `- [x] false positive`, how
+  many `- [x] won't fix`, and the slice's path. **The `won't fix` count double-counts lines the section
+  above already carries whole, deliberately** — a count that did not reconcile against the file at the
+  path would send the reviewer to work out which of the two was lying.
+- **`## Deviations`, per slice** — how many entries, closed `excess` notes included, and the same path.
+- **`## Traps`, once** — how many entries, and the path to `spec.md` — `devpath/<slug>/spec.md — 2 traps`.
+  It is one section on the spec rather than one per slice, and the example below shows it at its ordinary
+  count of none.
 
 ```
-devpath/tolerance-config/slices/04-tolerance-service.md — 9 fixed, 21 false positive; 3 deviations
-devpath/tolerance-config/spec.md — 2 traps
+devpath/tolerance-config/slices/04-tolerance-service.md — 9 fixed, 21 false positive, 2 won't fix; 3 deviations
+devpath/tolerance-config/slices/05-tolerance-ui.md — 2 fixed, 0 false positive, 0 won't fix; `## Deviations` empty
+devpath/tolerance-config/spec.md — `## Traps` empty
 ```
 
-**Where a section is empty, say the heading is empty and carry nothing** — per slice where the section is
-per slice, exactly as the feedback offer below does for its own heading. **On `## Traps` that is the
-ordinary case.**
+**Where a section is empty, name the heading on that file's own line and carry nothing** — one line per
+file either way, exactly as the feedback offer below does for its own heading. **A count of zero is not
+the same line:** it says the section was read and held none of that disposition, where an empty heading
+says the section held nothing at all. **On `## Traps` the empty heading is the ordinary case.**
 
 **Why a path rather than the text.** All three sections are committed inside the spec directory, which is
 inside this pull request's own diff — so the body is the one place a reviewer does not need the text in
