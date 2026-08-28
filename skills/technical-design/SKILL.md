@@ -325,7 +325,8 @@ flush condition:** write before anything that could lose the thread.
    writes `false`.
 5. **Run the skill `devpath:slice` against this spec** — which now finds the field, so its refusal is
    satisfied by the route rather than excepted from it.
-6. The layout is shown. The human may reject it, and it is re-cut in this session.
+6. The layout is shown and put to the human by `devpath:slice`'s own `## Stop`. The human may reject it,
+   and it is re-cut in this session.
 
 > **This is model-driven and is not guaranteed.** Same softness as the Survey call above, for the same
 > reason. A run that skips this call reaches the design gate with zero slice files, which
@@ -347,10 +348,35 @@ conversational when the layout comes back for a re-cut.
 **Every conversation ends in *approved* or *not yet, come back*.** No waiver, no override, no *approve
 anyway*. A run ending unapproved is the design working.
 
-**How the yes is captured: plain prose, and then the turn ends.** `devpath` names no question tool at
-either gate. Every question already carries a recommended answer, and the cheap response this gate wants
-is **disagreement in the engineer's own words**, which an option list is the wrong shape for. A gate that
-works by ending the turn works in every harness that can run a skill at all.
+**How the yes is captured: the material in full, and then the ask.** `## Design` and the revised sections
+print whole, and the go/no-go follows them. **Where the harness offers a tool that puts a question with
+named options, use it. Where it does not, ask in one sentence and end the turn.** Both paths write the
+same field off the same reading, and **nothing downstream can tell which one ran** — no field, no marker,
+no detection step. Same posture as the tier rule in the `devpath:survey` call above.
+
+> **The tool presents the decision. It never presents the material.** A click is legal downstream of a
+> read and never instead of one.
+
+```
+  Design gate · tolerance-config
+  [## Design and the revised sections are printed above, in full]
+
+  Read the design against the problem. Is this what to build?
+
+  ▸ Approve the design   Writes design_approved: true. devpath:slice then cuts
+                         the layout and shows it to you before anything commits.
+
+  ▸ Not yet              Writes nothing. Say what is wrong and the conversation
+                         continues.
+```
+
+> **Mandated: a gate prompt marks no option as recommended and names no default.** At a gate the default
+> *is* the judgment being asked for, so marking one is the plugin answering its own gate.
+> `tests/lint.sh` check 7 holds it against this file's own illustrations.
+
+**The cheap response this gate wants is disagreement in the engineer's own words**, so the free-text
+answer stays legal and the run reads it for intent. A yes writes `design_approved: true`; anything else
+writes nothing, and **where the reading is not unambiguous, confirm rather than write.**
 
 **What the human is actually being asked to do, and it is worth saying to them:**
 
@@ -370,6 +396,12 @@ it open means `devpath:build` will refuse the slice again on the next run.
 the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
 to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged
 whatever was on disk: close the untagged one, and **leave a tagged box open.**
+
+**`devpath:build`'s pause box is deliberately not one of the stops that asks through a question tool, and
+it stays prose.** The intent gate, the design gate, the slice layout and Integrate's refusal each end a
+turn on a fixed set of exits, which is what an option list is for. **A pause has no fixed set** — Build
+writes the question it got stuck on, and what it wants back is the answer in the engineer's own words. A
+builder reading *four stops* must not wire a fifth here.
 
 **A tagged box left open still reads as *frozen*, so name the slice as the next one to build.** The frozen
 test joins the absence of `done: true` to an open box under `## Deviations` and never reads the tag, so the
