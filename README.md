@@ -497,10 +497,10 @@ the only place a non-text file exists anywhere in `devpath`.**
 **Every section above is a signal or a written trace, and the tables say which.** A signal names each
 reader that branches on its contents and states the grammar those readers match — `## Traps` does both,
 and so does `## Outcome checks`. A written trace names who *carries* it and states a grammar for a human's
-benefit only: `## Deviations` and `## Critique findings` ride into the pull request body and are read at
-merge, and **no run branches on what they say.** The box markers in them are a signal, and the words after
-a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing reads a
-`## Deviations` entry to decide what to do next.
+benefit only: `## Deviations` and `## Critique findings` are counted into the pull request body and
+read at merge, and **no run branches on what they say.** The box markers in them are a signal, and the
+words after a marker are not — which is why nothing mechanical reads the word `excess`, and why nothing
+reads a `## Deviations` entry to decide what to do next.
 
 ### The front-matter block starts at byte zero
 

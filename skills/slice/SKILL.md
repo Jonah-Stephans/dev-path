@@ -303,8 +303,8 @@ subagent.
 **Rework it** → cut a new slice whose `touches` covers the same files, and append one plain sentence to
 the built slice's `## Deviations`: *04 built a fixed 200-row cap; O2 was reworked and 07 changes that
 behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` stays, because 04 genuinely did
-deploy. Integrate's step 4 carries `## Deviations` whole into the pull request body, so the human at merge
-reads both slices.
+deploy. Integrate's step 4 counts this slice's deviations into the pull request body and gives the
+path, so the human at merge is sent to both slices.
 
 **The Outcome is named by ID, and this is the sharpest place in `devpath` where that matters.** This
 sentence is written *during* the rework, onto a slice that keeps it forever, about an Outcome the same
