@@ -428,7 +428,7 @@ design_approved: true
 | `## Current state` | Survey; Design prunes it | Design |
 | `## Design` | Design | the design gate — **never `design_approved: true` with this heading empty**; Slice, Build |
 | `## Traps` | Critique's slice pass, on a confirmed finding whose cause is a test that passed while the code was wrong. **One plain bullet per entry, never a box, and never naming a slice** | **every later Build worker and every later critic, sent to it by heading name**; Integrate, into the pull request body; Learn |
-| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; the human at merge |
+| `## Outcome checks` | the Outcomes pass, run by `devpath:integrate`; **`devpath:build`, which expires it before the first dispatch of any run that will change code**; **`devpath:initiate`, which clears every line on a re-entry** | Integrate's refusal; **`devpath:build`, sent to it by heading name, which cuts one slice per `- [ ] unmet` line once every slice is `done: true`**; **`devpath:initiate`, which opens it by name on a re-entry and starts from the shortfalls**; the human at merge |
 | `## devpath feedback` | the engineer, **optional** | Integrate, which offers to file it |
 
 **`## Outcome checks` is a verdict on a code state, and it expires when that state changes.** Any run that
@@ -438,11 +438,17 @@ expired.** A verdict nobody expired is one a later run reads as current, and no 
 old. **The heading stays and the lines under it go**, which is *Nothing writes a placeholder* below, read
 at the other end.
 
-**Both writers carve out the same line, and that is the part they share.** `devpath:integrate` rewrites
-every line but `won't fix` when it runs the Outcomes pass; `devpath:build` deletes every line but that one
-before it changes code. **The acts differ — Integrate replaces a verdict, Build leaves none** — and the
-carve-out holds across both for the reason stated at each: the machine does not relitigate a human's
-decision.
+**Two of the three writers carve out the same line, and that is the part they share.**
+`devpath:integrate` rewrites every line but `won't fix` when it runs the Outcomes pass; `devpath:build`
+deletes every line but that one before it changes code. **The acts differ — Integrate replaces a verdict,
+Build leaves none** — and the carve-out holds across both for the reason stated at each: the machine does
+not relitigate a human's decision.
+
+**`devpath:initiate` is the third writer and the one exception, on a re-entry only.** A rework retires
+Outcomes, so a `won't fix` can outlive the Outcome it names. Initiate clears the section including those
+lines and names each one it removed, and the human who asked for the rework is in the room to say it again
+against the new Outcomes. **Being told is what separates that from the silent deletion the carve-out
+exists to prevent.**
 
 ### `devpath/<slug>/slices/<nn>-<name>.md`
 
