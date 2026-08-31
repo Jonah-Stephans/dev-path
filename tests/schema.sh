@@ -230,8 +230,9 @@ done
 # skills/fit-check/SKILL.md spells how many preconditions it carries in four
 # sentences, how many a non-Salesforce repo cannot be checked against in five
 # more, and splits the entries three ways in a summary table. All of it is prose
-# moved by hand, and a missed site reads perfectly well: a description saying
-# twenty-six over a table of twenty-seven is the number a router is handed.
+# moved by hand, and a missed site is invisible: a description saying twenty-six
+# over a table of twenty-seven reads perfectly well, and the wrong number is the
+# one it hands a router.
 #
 # The sites are compared against each other, never against a literal 26. A check
 # pinning the number goes red on every correct edit; this one goes red only when
@@ -240,6 +241,8 @@ done
 # Two numbers, and they move independently. The total moves whenever an entry is
 # added. The subtotal moves only when a Salesforce-only one is, and its source of
 # truth is the enumerated not-applicable row rather than any sentence spelling it.
+# That row and the still-reported row beside it partition the entries, so they are
+# held to cover every one rather than only counted.
 #
 # The counts are spelled rather than written, so this carries a spelling map —
 # the next entry turns the check red instead of waiting to be noticed.
@@ -261,7 +264,7 @@ out = []
 def bad(rule, detail): out.append(rule + "|" + detail)
 
 try:
-    lines = open(F).read().split("\n")
+    lines = open(F, encoding="utf-8").read().split("\n")
 except OSError as e:
     print("entry numbering|%s could not be read, so this check read nothing: %s" % (F, e))
     raise SystemExit
@@ -370,39 +373,58 @@ else:
         if summary and sum(summary.values()) != N:
             bad("observability split", "the summary table's counts sum to %d and the group tables carry %d entry rows" % (sum(summary.values()), N))
 
-        na = None
-        for i, l in enumerate(lines):
-            c = cells(l)
-            if c and len(c) == 2 and c[0].startswith("**Not applicable**"):
-                na = ([x.strip() for x in c[1].split("·")], i + 1)
-                break
-        if na is None:
-            bad("not applicable", "no table row opens '**Not applicable**', so the enumerated list of entries a non-Salesforce repo cannot be checked against went unread")
-        else:
-            members, ln = na
+        # One row an entry is still reported on, one it is excused from. An
+        # entry in neither is one a repo that is not Salesforce is handed no
+        # instruction for, and both rows still read as complete.
+        def row(opener, label):
+            for i, l in enumerate(lines):
+                c = cells(l)
+                if c and len(c) == 2 and c[0].startswith(opener):
+                    return ([x.strip() for x in c[1].split("·")], i + 1, label)
+            bad("not applicable", "no table row opens '%s', so the %s went unread" % (opener, label))
+            return None
+
+        def numbers(r):  # the row's entry numbers, or None if the row is not usable
+            members, ln, label = r
             junk = [x for x in members if not re.fullmatch(r'\d+', x)]
             ms = [int(x) for x in members if re.fullmatch(r'\d+', x)]
             strays = sorted(set(x for x in ms if x < 1 or x > N))
-            mdups = sorted(set(x for x in ms if ms.count(x) > 1))
+            twice = sorted(set(x for x in ms if ms.count(x) > 1))
             if junk:
-                bad("not applicable", "the not-applicable list (line %d) holds something that is not an entry number: %s" % (ln, ", ".join(junk)))
+                bad("not applicable", "the %s (line %d) holds something that is not an entry number: %s" % (label, ln, ", ".join(junk)))
             if strays:
-                bad("not applicable", "the not-applicable list (line %d) names %s, and the entries run 1 to %d" % (ln, ", ".join(str(x) for x in strays), N))
-            if mdups:
-                bad("not applicable", "the not-applicable list (line %d) names %s twice" % (ln, ", ".join(str(x) for x in mdups)))
-            M = len(set(ms))
-            if junk or strays or mdups:
-                pass  # a broken list implies no subtotal worth comparing
-            elif word(M) is None:
-                bad("not applicable", "the not-applicable list holds %d entries, and this check spells numbers up to ninety-nine only — extend the spelling map." % M)
-            else:
-                sites([
-                    (r'Never report the ([a-z-]+) as \*absent\*', "the never-report-absent rule"),
-                    (r'Reporting ([a-z-]+) absents', "the report-nobody-reads-twice line"),
-                    (r'at the top, not ([a-z-]+) times', "the stated-once rule"),
-                    (r'so ([a-z-]+) of the [a-z-]+ do not apply', "the not-applicable worked example"),
-                    (r'repeating it ([a-z-]+) times', "the report layout's stated-once rule"),
-                ], M, "subtotal", "the not-applicable list holds %s entries" % word(M))
+                bad("not applicable", "the %s (line %d) names %s, and the entries run 1 to %d" % (label, ln, ", ".join(str(x) for x in strays), N))
+            if twice:
+                bad("not applicable", "the %s (line %d) names %s twice" % (label, ln, ", ".join(str(x) for x in twice)))
+            return None if (junk or strays or twice) else ms
+
+        na = row("**Not applicable**", "not-applicable list")
+        still = row("**Still reported**", "still-reported list")
+        ms_na = numbers(na) if na else None
+        ms_still = numbers(still) if still else None
+
+        if ms_na is not None and ms_still is not None:
+            covered = set(ms_na) | set(ms_still)
+            gap = [n for n in range(1, N + 1) if n not in covered]
+            both = sorted(set(ms_na) & set(ms_still))
+            if gap:
+                bad("not applicable", "the two rows of the not-applicable table name %d of the %d entries, and neither row names %s — a repo that is not Salesforce is handed no instruction for it" % (len(covered), N, ", ".join(str(n) for n in gap)))
+            if both:
+                bad("not applicable", "the two rows of the not-applicable table both name %s, and an entry is reported or excused, not both" % ", ".join(str(n) for n in both))
+
+        if ms_na is None:
+            pass  # a row this check could not read leaves no subtotal worth comparing
+        elif word(len(set(ms_na))) is None:
+            bad("not applicable", "the not-applicable list holds %d entries, and this check spells numbers up to ninety-nine only — extend the spelling map." % len(set(ms_na)))
+        else:
+            M = len(set(ms_na))
+            sites([
+                (r'Never report the ([a-z-]+) as \*absent\*', "the never-report-absent rule"),
+                (r'Reporting ([a-z-]+) absents', "the report-nobody-reads-twice line"),
+                (r'at the top, not ([a-z-]+) times', "the stated-once rule"),
+                (r'so ([a-z-]+) of the [a-z-]+ do not apply', "the not-applicable worked example"),
+                (r'repeating it ([a-z-]+) times', "the report layout's stated-once rule"),
+            ], M, "subtotal", "the not-applicable list holds %s entries" % word(M))
 
         if not out:
             out.append("summary|%s fit-check entries agree with the counts stated over them" % word(N))
@@ -411,6 +433,9 @@ print("\n".join(out))
 PY
 )
 FITSUM=''
+if [ -z "$COUNTS" ]; then
+  fail 'fit-check counts' skills/fit-check/SKILL.md "this check produced no output at all, so its python did not run to the end and nothing here was compared"
+fi
 while IFS= read -r p; do
   [ -n "$p" ] || continue
   case "$p" in
