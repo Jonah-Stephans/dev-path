@@ -2,12 +2,13 @@
 # devpath — the structural checks: the things that break for somebody who
 # installed this plugin, none of which any prose assertion can see.
 #
-# Seven checks. That every skill still loads, that the hook blocks a repo pastes
+# Eight checks. That every skill still loads, that the hook blocks a repo pastes
 # are valid JSON and valid shell, that the three places the spec and slice
 # schemas are written still agree, that no schema heading has escaped its fence
 # into a skill's own outline, that the two human-invoked skills are the two, that
-# the manifests parse and name the same plugin, and that both files stating the
-# two triggers for a trap state both of them.
+# the manifests parse and name the same plugin, that both files stating the two
+# triggers for a trap state both of them, and that fit-check's spelled counts
+# agree with the entry tables under them.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -224,9 +225,205 @@ for f in skills/critique/SKILL.md README.md; do
   grep -qF "$T2" "$f" || fail 'trap triggers' "$f" "states no quotable-design trigger — expected: $T2"
 done
 
+# ----------------- 8. fit-check's stated counts agree with its own entry tables
+#
+# skills/fit-check/SKILL.md spells how many preconditions it carries in four
+# sentences, how many a non-Salesforce repo cannot be checked against in five
+# more, and splits the entries three ways in a summary table. All of it is prose
+# moved by hand, and a missed site reads perfectly well: a description saying
+# twenty-six over a table of twenty-seven is the number a router is handed.
+#
+# The sites are compared against each other, never against a literal 26. A check
+# pinning the number goes red on every correct edit; this one goes red only when
+# the file contradicts itself, which is the defect.
+#
+# Two numbers, and they move independently. The total moves whenever an entry is
+# added. The subtotal moves only when a Salesforce-only one is, and its source of
+# truth is the enumerated not-applicable row rather than any sentence spelling it.
+#
+# The counts are spelled rather than written, so this carries a spelling map —
+# the next entry turns the check red instead of waiting to be noticed.
+#
+# Document order does not ascend. Entry 26 was appended to ### Coexistence and
+# entry 25 sits alone under ### Culture, because renumbering would break every
+# citation already naming entry 25, so the numbers are sorted before gaps are
+# looked for. And the row scan is scoped to the ### tables under the entry
+# heading: the per-entry discussion below them holds a sub-property table
+# numbered 1 to 4.
+#
+# The site phrases below are part of the assertion. A rewording that no longer
+# matches goes red saying so, and the fix is to move the phrase into the list.
+COUNTS=$(python3 - <<'PY'
+import re
+
+F = "skills/fit-check/SKILL.md"
+out = []
+def bad(rule, detail): out.append(rule + "|" + detail)
+
+try:
+    lines = open(F).read().split("\n")
+except OSError as e:
+    print("entry numbering|%s could not be read, so this check read nothing: %s" % (F, e))
+    raise SystemExit
+
+ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+        "fourteen fifteen sixteen seventeen eighteen nineteen").split()
+TENS = [None, None, "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+def word(n):
+    if 0 <= n < 20: return ONES[n]
+    if 20 <= n < 100:
+        t, u = divmod(n, 10)
+        return TENS[t] if u == 0 else TENS[t] + "-" + ONES[u]
+    return None
+
+def cells(line):  # a markdown row's cells, with escaped pipes left inside them
+    s = line.replace("\\|", "\x00").strip()
+    if not s.startswith("|") or not s.endswith("|"): return None
+    return [c.replace("\x00", "|").strip() for c in s[1:-1].split("|")]
+
+def sites(specs, n, kind, source):
+    stale = {}
+    for pat, name in specs:
+        hits = [(i + 1, m.group(1)) for i, l in enumerate(lines) for m in [re.search(pat, l)] if m]
+        if not hits:
+            bad("spelled " + kind, "%s no longer reads as this check expects, so the %s spelled there went unread — the phrase is part of the assertion and a rewording has to move it here too" % (name, kind))
+            continue
+        for ln, got in hits:
+            if got != word(n):
+                stale.setdefault(got, []).append("%s (line %d)" % (name, ln))
+    for got in sorted(stale):
+        bad("spelled " + kind, "%s, and %s is still spelled at %s" % (source, got, ", ".join(stale[got])))
+
+hstart = None
+for i, l in enumerate(lines):
+    if re.match(r'^## The [a-z-]+, and how each is observed\s*$', l):
+        hstart = i
+        break
+
+if hstart is None:
+    bad("entry numbering", "no heading reads '## The <count>, and how each is observed', so the entry tables could not be found")
+else:
+    hend = len(lines)
+    for i in range(hstart + 1, len(lines)):
+        if lines[i].startswith("## "):
+            hend = i
+            break
+    sub = None
+    for i in range(hstart + 1, hend):
+        if lines[i].startswith("### "):
+            sub = i
+            break
+
+    entries = []  # (number, observability group, line)
+    if sub is None:
+        bad("entry numbering", "the entry-table section holds no ### group heading, so no group table could be read")
+    else:
+        for i in range(sub, hend):
+            c = cells(lines[i])
+            if not c or len(c) != 5 or not re.fullmatch(r'\d+', c[0]): continue
+            entries.append((int(c[0]), c[2].replace("*", "").strip(), i + 1))
+
+    nums = sorted(n for n, _, _ in entries)
+    N = len(nums)
+    dups = sorted(set(n for n in nums if nums.count(n) > 1))
+    missing = [n for n in range(1, N + 1) if n not in set(nums)]
+    over = sorted(set(n for n in nums if n > N))
+    tail = " Nothing else in this check ran, because it has no trustworthy total to compare the spelled sites against."
+
+    if not entries:
+        bad("entry numbering", "the group tables hold no entry row, so this check read nothing." + tail)
+    elif dups or missing or over:
+        parts = []
+        if missing: parts.append("no row is numbered " + ", ".join(str(n) for n in missing))
+        if dups: parts.append("two rows are numbered " + ", ".join(str(n) for n in dups))
+        if over: parts.append("a row is numbered above the total: " + ", ".join(str(n) for n in over))
+        bad("entry numbering", "the group tables carry %d entry rows, so they should be numbered 1 to %d, and %s.%s" % (N, N, "; ".join(parts), tail))
+    elif word(N) is None:
+        bad("entry numbering", "the group tables carry %d entry rows, and this check spells numbers up to ninety-nine only — extend the spelling map." % N)
+    else:
+        sites([
+            (r'^description: Check a repo against the ([a-z-]+) preconditions', "the front matter description"),
+            (r'are the same ([a-z-]+) checks', "the two moments, one skill line"),
+            (r'so [a-z-]+ of the ([a-z-]+) do not apply', "the not-applicable worked example"),
+            (r'^## The ([a-z-]+), and how each is observed', "the entry-table heading"),
+        ], N, "total", "the group tables carry %s entry rows" % word(N))
+
+        # The summary table splits the entries by observability group. The six ###
+        # tables partition them by topic instead — both sum to N, neither derives
+        # from the other, and this compares the first against the Group column.
+        summary = {}
+        for i in range(hstart, sub):
+            c = cells(lines[i])
+            if not c or len(c) != 3: continue
+            m = re.match(r'^\*{0,2}(\d+)\b', c[0])
+            v = c[2].replace("*", "").strip()
+            if m and re.fullmatch(r'\d+', v): summary[m.group(1)] = int(v)
+        tally = {}
+        for n, g, _ in entries: tally[g] = tally.get(g, 0) + 1
+        if not summary:
+            bad("observability split", "the group summary table above the first ### heading carries no readable counts, so the split went unchecked")
+        elif summary != tally:
+            for g in sorted(set(summary) | set(tally)):
+                if summary.get(g) != tally.get(g):
+                    bad("observability split", "the summary table puts %s entries in group %s and the Group column of the entry rows holds %s" % (summary.get(g, "no"), g, tally.get(g, "none")))
+        if summary and sum(summary.values()) != N:
+            bad("observability split", "the summary table's counts sum to %d and the group tables carry %d entry rows" % (sum(summary.values()), N))
+
+        na = None
+        for i, l in enumerate(lines):
+            c = cells(l)
+            if c and len(c) == 2 and c[0].startswith("**Not applicable**"):
+                na = ([x.strip() for x in c[1].split("·")], i + 1)
+                break
+        if na is None:
+            bad("not applicable", "no table row opens '**Not applicable**', so the enumerated list of entries a non-Salesforce repo cannot be checked against went unread")
+        else:
+            members, ln = na
+            junk = [x for x in members if not re.fullmatch(r'\d+', x)]
+            ms = [int(x) for x in members if re.fullmatch(r'\d+', x)]
+            strays = sorted(set(x for x in ms if x < 1 or x > N))
+            mdups = sorted(set(x for x in ms if ms.count(x) > 1))
+            if junk:
+                bad("not applicable", "the not-applicable list (line %d) holds something that is not an entry number: %s" % (ln, ", ".join(junk)))
+            if strays:
+                bad("not applicable", "the not-applicable list (line %d) names %s, and the entries run 1 to %d" % (ln, ", ".join(str(x) for x in strays), N))
+            if mdups:
+                bad("not applicable", "the not-applicable list (line %d) names %s twice" % (ln, ", ".join(str(x) for x in mdups)))
+            M = len(set(ms))
+            if junk or strays or mdups:
+                pass  # a broken list implies no subtotal worth comparing
+            elif word(M) is None:
+                bad("not applicable", "the not-applicable list holds %d entries, and this check spells numbers up to ninety-nine only — extend the spelling map." % M)
+            else:
+                sites([
+                    (r'Never report the ([a-z-]+) as \*absent\*', "the never-report-absent rule"),
+                    (r'Reporting ([a-z-]+) absents', "the report-nobody-reads-twice line"),
+                    (r'at the top, not ([a-z-]+) times', "the stated-once rule"),
+                    (r'so ([a-z-]+) of the [a-z-]+ do not apply', "the not-applicable worked example"),
+                    (r'repeating it ([a-z-]+) times', "the report layout's stated-once rule"),
+                ], M, "subtotal", "the not-applicable list holds %s entries" % word(M))
+
+        if not out:
+            out.append("summary|%s fit-check entries agree with the counts stated over them" % word(N))
+
+print("\n".join(out))
+PY
+)
+FITSUM=''
+while IFS= read -r p; do
+  [ -n "$p" ] || continue
+  case "$p" in
+    'summary|'*) FITSUM=${p#summary|}; continue ;;
+  esac
+  fail "${p%%|*}" skills/fit-check/SKILL.md "${p#*|}"
+done <<EOF
+$COUNTS
+EOF
+
 rm -rf "$BLK"
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files — clean"
+  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, $FITSUM — clean"
 fi
 exit "$FAIL"
