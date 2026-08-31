@@ -276,6 +276,27 @@ writing something fine. Both conditions are aimed at that.
 - **Not an artifact under `devpath/`.** The spec directory is what one piece of work left behind. A check
   outlives it.
 
+### Two reds land on this pull request, and condition 2 is about one of them
+
+**Condition 2 is about a check *this* pull request proposes.** It went red on the base branch, so either
+the check is wrong about code the repo already ships or the code is wrong. Somebody acts either way, which
+is what *not something to wait out* means.
+
+**The other red is the base branch's own CI, and it is not an alarm.** This branch is cut from
+`origin/$base`, so it runs the base branch's workflows **as the base branch has them** — which can be stale
+by exactly the CI fixes the spec these lessons came from has landed and not yet merged. **A field run made
+the shape concrete.** A slice had fixed a swallowed `--passWithNoTests`; the lessons branch ran the unfixed
+workflow and exited 1 on the bug that spec had already fixed. Nothing committed to the lessons branch fixes
+that, and it clears when the spec's own pull request merges.
+
+**One question separates the two, and it needs no workflow file opened: is the red job one this pull
+request proposes?** If it is, condition 2 applies and it is an alarm. If it is not, the job belongs to the
+base branch and the lessons are the wrong pull request to fix it in. **Say so in the reply, name the job,
+and leave it there.**
+
+**The two obvious fixes are both already ruled out below**, and this changes neither: the *Cut from* row
+keeps the branch cut from `origin/$base`, and the *Draft or ready* row keeps this pull request open ready.
+
 ## Cutting the branch and opening the pull request
 
 | | |
@@ -285,7 +306,7 @@ writing something fine. Both conditions are aimed at that.
 | **Title** | *Lessons from `<slug>`*. **Nothing parses it** |
 | **Draft or ready** | **ready.** A draft would be slightly worse than pointless: CI does not run on drafts, and a proposed check's whole point is that its test case runs |
 | **Author** | the engineer. Run `gh` with **their** credentials, so the pull request is theirs and the repo's own branch protection governs who reviews it |
-| **Body** | one line per proposed entry with its link, plus one line naming each proposed check and the test case it ships with |
+| **Body** | one line per proposed entry with its link, one line naming each proposed check and the test case it ships with, and one line saying this branch is cut from `origin/$base` and runs the base branch's workflows, **so a red job this pull request does not propose is the base's**. That last line goes in at open, before any job has run, because that is when it is knowable |
 | **On a re-run** | **push to the same branch and add to the same pull request** if one is open for that slug. Only if it is closed or merged do you open another. **There is never a third** |
 
 **The tree must be clean before you cut**, which is why a dirty tree is a refusal above. This skill runs at
