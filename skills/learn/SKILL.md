@@ -291,7 +291,7 @@ that, and it clears when the spec's own pull request merges.
 
 **One question separates the two, and it needs no workflow file opened: is the red job one this pull
 request proposes?** If it is, condition 2 applies and it is an alarm. If it is not, the job belongs to the
-base branch and the lessons are the wrong pull request to fix it in. **Say so in the reply, name the job,
+base branch and the lessons are the wrong pull request to fix it in. **Say so in the report, name the job,
 and leave it there.**
 
 **The two obvious fixes are both already ruled out below**, and this changes neither: the *Cut from* row

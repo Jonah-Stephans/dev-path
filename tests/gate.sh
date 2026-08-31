@@ -23,6 +23,14 @@
 # nothing. Both halves are asserted below, each in a case the other half cannot
 # carry.
 #
+# The grep has a third failure that is neither of those. grep -r exits 2 on a
+# path that is not there and the leading ! turns that into a pass — for the whole
+# run, so a box it matched and printed in a live directory goes green beside the
+# missing one. git diff --name-only names files a pull request deleted, so the
+# diff half can put a directory in the sweep that the tree no longer holds. The
+# [ -d ] filter is what closes that, and a case below pairs a retired spec with
+# an open box in a live one to hold the filter there.
+#
 # Two things about the fixture, both load-bearing:
 #
 # It is a real git repository with a real base commit, because the gate diffs.
@@ -109,13 +117,26 @@ commit() {  # commit <message>
   git -C "$FIX" commit -q --no-verify -m "$1" >/dev/null 2>&1
 }
 
-# The base every case branches from: some code, and a neighbouring spec that is
-# mid-build. Nothing below ever touches that spec, so any case that reports its
-# box has swept something it was not asked to.
+# The base every case branches from: some code, a neighbouring spec that is
+# mid-build, and the spec under test with its boxes closed. Nothing below ever
+# touches the neighbour, so any case that reports its box has swept something it
+# was not asked to.
+#
+# The spec under test is in the base rather than added by each case, and that is
+# load-bearing for one case rather than tidiness. git pairs a delete with an add
+# as a rename and reports only the new path, and every spec.md here comes off one
+# template, so a case that retires one spec and adds another gets them collapsed
+# into a rename at around half similarity — leaving the retired path out of the
+# diff and out of the sweep, which is the whole of what that case exists to put
+# there. A delete never pairs with a modify. Cases go on calling mkspec freely;
+# it overwrites.
 mkdir -p "$FIX/src"
 echo 'echo hello' > "$FIX/src/app.sh"
 mkspec neighbour-spec <<'EOF'
 - [ ] the neighbouring spec is mid-build, and this box is open
+EOF
+mkspec fixture-spec <<'EOF'
+- [x] fixed — the spec under test starts with its boxes closed
 EOF
 commit base
 BASE=$(git -C "$FIX" rev-parse HEAD 2>/dev/null)
@@ -252,6 +273,40 @@ commit 'a flat branch with no spec directory'
 passes 'a flat branch with no spec directory' "$BASE" readme-typo \
   "the recommended gate was red on a docs fix, which touches no spec directory:"
 
+# --- a directory the diff names that the tree no longer holds
+#
+# The [ -d ] filter, in the case that tells it from no filter at all. This pull
+# request retires the neighbouring spec and opens a box in the spec under test, so
+# one sweep holds a path that is gone and a box that is really there. grep -r
+# exits 2 for the missing one having already printed the box, and the leading !
+# turns that into a pass. Drop the filter and this case is green with the box it
+# should have failed on sitting in its own output.
+#
+# The retirement is a delete against a spec the base already held, never a delete
+# paired with an add — see the base above for why that distinction is the case
+# rather than incidental to it.
+reset
+git -C "$FIX" rm -rq devpath/neighbour-spec >/dev/null 2>&1
+mkspec fixture-spec <<'EOF'
+- [ ] bulk path still throws above 200 rows
+EOF
+commit 'retire one spec, open a box in another'
+catches 'a spec retired alongside an open box' "$BASE" fixture-spec \
+  "the recommended gate passed on an open box it had already printed, because the
+same pull request retired another spec directory and grep -r exits 2 on a path
+that is gone:"
+
+# Retiring a spec on its own stays green, which is the answer this job wants for
+# it. Both halves name the retired directory here — the diff because it was
+# touched, the fallback because the branch is named for it — so green has to come
+# from having nothing left to sweep.
+reset
+git -C "$FIX" rm -rq devpath/neighbour-spec >/dev/null 2>&1
+commit 'retire a spec'
+passes 'a pull request that only retires a spec' "$BASE" neighbour-spec \
+  "the recommended gate was red on a pull request whose only spec directory is the
+one it retired, so a spec cannot be retired without a red:"
+
 # --- and loud, rather than quiet, when it cannot work out what to sweep
 #
 # An empty head ref is what a push event hands the gate. Unguarded, the fallback
@@ -295,6 +350,20 @@ misconfigured trigger reads as a shallow checkout:
 $NOBASE" ;;
 esac
 
+# And the same assertion the other way round, because red is not enough here
+# either. A merge-base failure that prints nothing leaves a shallow checkout as an
+# unexplained red, and the summary line below would go on calling this job loud
+# about it. Delete the echo from the || branch and only this catches it.
+BADBASE=$( ( cd "$FIX" && BASE=0000000000000000000000000000000000000000 \
+  GITHUB_HEAD_REF=fixture-spec sh -c "$GATE" ) 2>&1 )
+case $BADBASE in
+  *'merge base'*) ;;
+  *) fail gate 'a base the clone does not hold' \
+    "the gate was red on a base it could not resolve without naming the merge base,
+so a shallow checkout ships as a red with no reason on it:
+$BADBASE" ;;
+esac
+
 rm -rf "$FIX"
 
 # ------------------------------------------- 5. no copy has been narrowed back
@@ -320,6 +389,6 @@ for f in README.md skills/integrate/SKILL.md; do
 done
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "gate: the recommended grep sweeps what the pull request touched, is red on an indented box, green on a branch with no spec, loud on a base it cannot resolve, and narrowed nowhere — clean"
+  echo "gate: the recommended grep sweeps what the pull request touched and only what is still on disk, is red on an indented box, green on a branch with no spec, loud on a base it cannot resolve, and narrowed nowhere — clean"
 fi
 exit "$FAIL"

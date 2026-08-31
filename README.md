@@ -54,12 +54,10 @@ the pull request touches:
 : "${BASE:?not a pull request build}"
 MB=$(git merge-base "$BASE" HEAD) || { echo "no merge base with $BASE — checkout needs fetch-depth: 0"; exit 1; }
 SPECS=$(git diff --name-only "$MB" HEAD | grep -oE '^devpath/[^/]+/' | sed 's:/$::')
-if [ -n "$GITHUB_HEAD_REF" ] && [ -d "devpath/$GITHUB_HEAD_REF" ]; then
-  SPECS="$SPECS devpath/$GITHUB_HEAD_REF"
-fi
-SPECS=$(printf '%s\n' $SPECS | sort -u)
-if [ -z "$SPECS" ]; then echo "no spec directory in this diff — nothing to sweep"; exit 0; fi
-! grep -rn '^[[:space:]]*- \[ \]' $SPECS
+if [ -n "$GITHUB_HEAD_REF" ]; then SPECS="$SPECS devpath/$GITHUB_HEAD_REF"; fi
+SWEEP=; for d in $(printf '%s\n' $SPECS | sort -u); do [ -d "$d" ] && SWEEP="$SWEEP $d"; done
+if [ -z "$SWEEP" ]; then echo "no spec directory in this diff — nothing to sweep"; exit 0; fi
+! grep -rn '^[[:space:]]*- \[ \]' $SWEEP
 ```
 
 **Still one job, and still one grep.** Every line above the last works out *which* directory to sweep, and
@@ -80,16 +78,21 @@ exactly like a clean spec, and that is the worst thing this job can do.
 
 **The branch-name fallback is additive, and it is guarded on a non-empty head ref.** A spec's pull request
 that edits only code touches no file under `devpath/<slug>/`, so the diff alone would sweep nothing; the
-fallback adds the directory the branch is named for whenever one exists. **The `[ -n "$GITHUB_HEAD_REF" ]`
-half is load-bearing, not padding.** With an empty head ref, `[ -d "devpath/$GITHUB_HEAD_REF" ]` tests
-`[ -d "devpath/" ]`, which is true, and the sweep collapses to the whole of `devpath/` — the unscoped sweep
-that fails this spec on a neighbouring spec's open boxes.
+fallback adds the directory the branch is named for, and the `[ -d ]` filter below drops it again when
+there is no such directory. **The `[ -n "$GITHUB_HEAD_REF" ]` guard is load-bearing, not padding.** With an
+empty head ref the fallback appends `devpath/`, the filter finds that on disk and keeps it, and the sweep
+collapses to every spec in the repo — the unscoped sweep that fails this spec on a neighbouring spec's open
+boxes. **The filter cannot stand in for the guard**, because `devpath/` is precisely a directory that
+exists.
 
-**Nothing here greps a directory that does not exist, and that is deliberate.** `grep -r` on a missing path
-exits 2, the leading `!` turns that into 0, and the job passes having tested nothing. Both halves of
-`$SPECS` name paths that exist: the diff half lists files that were touched, and the fallback half sits
-behind `[ -d ]`. The one case that still reaches the grep with a missing path is a pull request that
-deletes a spec directory outright, where green is the right answer.
+**Every path the grep is handed exists, and the `[ -d ]` filter is what makes that true.** `grep -r` on a
+missing path exits 2, the leading `!` turns that into 0, and the job passes having tested nothing. It does
+that for the **whole run** rather than for the missing path alone: a box matched and printed in a live
+directory goes green beside it, which is the one thing this job exists to prevent. So the filter runs over
+both halves rather than over the fallback alone — `git diff --name-only` names files a pull request
+**deleted**, so the diff half can put a directory in the sweep that the tree no longer holds. A pull request
+that retires a spec directory outright falls through to *nothing to sweep*, where green is the right answer,
+and it gets there without a grep error the `!` swallowed.
 
 **`[[:space:]]*` is what makes an indented box red.** Anchored at `^` alone, this job goes green on a spec
 holding `  - [ ] excess`, because a formatter that renests a list indents the box and the anchor stops
