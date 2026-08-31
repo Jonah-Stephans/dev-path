@@ -47,23 +47,64 @@ full end-to-end run on a small real change is the right *second* use.
 behaviour from `devpath`, just less attended. Everything below is a repo's own choice, pasted into the
 repo's `.claude/settings.json`.
 
-**The recommended default is one check, not a suite** — the open-box grep, as a job on the pull request:
+**The recommended default is one job, not a suite** — the open-box grep, scoped to the spec directories
+the pull request touches:
 
 ```bash
-SPEC="devpath/${GITHUB_HEAD_REF:?not a pull request build}"; test -d "$SPEC" && ! grep -rn '^[[:space:]]*- \[ \]' "$SPEC/"
+: "${BASE:?not a pull request build}"
+MB=$(git merge-base "$BASE" HEAD) || { echo "no merge base with $BASE — checkout needs fetch-depth: 0"; exit 1; }
+SPECS=$(git diff --name-only "$MB" HEAD | grep -oE '^devpath/[^/]+/' | sed 's:/$::')
+if [ -n "$GITHUB_HEAD_REF" ]; then SPECS="$SPECS devpath/$GITHUB_HEAD_REF"; fi
+SWEEP=; for d in $(printf '%s\n' $SPECS | sort -u); do [ -d "$d" ] && SWEEP="$SWEEP $d"; done
+if [ -z "$SWEEP" ]; then echo "no spec directory in this diff — nothing to sweep"; exit 0; fi
+! grep -rn '^[[:space:]]*- \[ \]' $SWEEP
 ```
 
-**The slug comes from the pull request's head ref, never from `git branch --show-current`** — this job
-runs on a detached HEAD, where that command returns empty and the path collapses to `devpath/`, an
-unscoped sweep that fails this spec on a neighbouring spec's open boxes. `GITHUB_HEAD_REF` is GitHub
-Actions' name for the source branch; substitute the one your CI sets. **`test -d` is what makes a wrong
-slug red:** `grep -r` on a missing directory exits 2, the leading `!` turns that into 0, and the job
-passes having tested nothing.
+**Still one job, and still one grep.** Every line above the last works out *which* directory to sweep, and
+the last line is the only one that can turn the job red on a box.
+
+**Scope comes from the diff, never from the branch name alone.** The short version of this job read
+`devpath/$GITHUB_HEAD_REF` and required a directory of that name. A lessons branch
+(`devpath/lessons/<slug>`), a `ci/<name>` branch, a docs fix and a dependency bump all have no such
+directory, so all four were red on a job whose only subject is an open box. Deriving the scope from the
+files a pull request touches makes those four green, because there is nothing for them to sweep, and
+leaves a spec's pull request swept.
+
+**`$BASE` is the pull request's base SHA** — `github.event.pull_request.base.sha` on GitHub Actions;
+substitute the one your CI sets. **The checkout needs `fetch-depth: 0`**, because a shallow clone holds no
+merge base to diff against. Get either wrong and the `git merge-base` line is red with the reason printed.
+**A gate that cannot work out what to sweep has to be loud about it.** Exiting 0 having swept nothing reads
+exactly like a clean spec, and that is the worst thing this job can do.
+
+**The branch-name fallback is additive, and it is guarded on a non-empty head ref.** A spec's pull request
+that edits only code touches no file under `devpath/<slug>/`, so the diff alone would sweep nothing; the
+fallback adds the directory the branch is named for, and the `[ -d ]` filter below drops it again when
+there is no such directory. **The `[ -n "$GITHUB_HEAD_REF" ]` guard is load-bearing, not padding.** With an
+empty head ref the fallback appends `devpath/`, the filter finds that on disk and keeps it, and the sweep
+collapses to every spec in the repo — the unscoped sweep that fails this spec on a neighbouring spec's open
+boxes. **The filter cannot stand in for the guard**, because `devpath/` is precisely a directory that
+exists.
+
+**Every path the grep is handed exists, and the `[ -d ]` filter is what makes that true.** `grep -r` on a
+missing path exits 2, the leading `!` turns that into 0, and the job passes having tested nothing. It does
+that for the **whole run** rather than for the missing path alone: a box matched and printed in a live
+directory goes green beside it, which is the one thing this job exists to prevent. So the filter runs over
+both halves rather than over the fallback alone — `git diff --name-only` names files a pull request
+**deleted**, so the diff half can put a directory in the sweep that the tree no longer holds. A pull request
+that retires a spec directory outright falls through to *nothing to sweep*, where green is the right answer,
+and it gets there without a grep error the `!` swallowed.
 
 **`[[:space:]]*` is what makes an indented box red.** Anchored at `^` alone, this job goes green on a spec
 holding `  - [ ] excess`, because a formatter that renests a list indents the box and the anchor stops
 matching. Widened, the pattern also matches a box nested under another list item. That is the intended
 reading. A nested open box is still an open box, and the box grammar never writes one.
+
+**The gap this leaves, written down rather than left as a false green nobody goes looking for:** a spec's
+pull request that touches no file under its own spec directory, on a branch not named for that directory,
+passes unswept. Both halves have to miss at once for that. `devpath` names the branch for the directory, so
+the way there is a branch that was renamed or never took the slug, carrying a pull request that touches
+only code. Integrate's step 3 refuses on the same boxes in-session, so this job is a second reader rather
+than the only one.
 
 <details>
 <summary><b>The menu — seven blocks over six properties</b></summary>
@@ -72,7 +113,7 @@ reading. A nested open box is still an open box, and the box grammar never write
 
 | Rule | Repo-enforceable? | Mechanism |
 | --- | --- | --- |
-| No undispositioned `- [ ]` reaches the base branch | **hard** | the open-box grep above, as a job on the pull request, scoped to the spec's directory by the pull request's head ref. **Not section-blind at push time** — `## Acceptance criteria` boxes are open by design mid-build, so block 1 is narrower |
+| No undispositioned `- [ ]` reaches the base branch | **hard** | the open-box grep above, as a job on the pull request, scoped to the spec directories that pull request touches. **Not section-blind at push time** — `## Acceptance criteria` boxes are open by design mid-build, so block 1 is narrower |
 | `fix_cycles >= 2` opens no unattended fix pass | **the rule holds; no block ships** | the grant is *spoken and never stored*, so a hook reading the field cannot tell a capped slice from a granted lap. A repo can only buy this by giving up the granted lap |
 | A gate field is `true` before the next stage runs | **hard** | block 2 |
 | Spec and slice files match the schema | **hard** | block 4 |
