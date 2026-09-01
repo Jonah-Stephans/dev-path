@@ -184,9 +184,8 @@ finding left open on a finished slice is a real stop. The message names which of
 because the two mean different things.
 
 **A pause commit can write that box too, and the block is right to deny that push.** `git add -A` stages
-what is on disk whether the slice finished or not, so a paused slice can carry both boxes — the pause,
-untagged, and the audit's, tagged. No `done: true`, nothing skipped, push denied, which is what a pause
-wants anyway.
+what is on disk whether the slice finished or not, so a paused slice can carry both boxes — the pause and
+the audit's. No `done: true`, nothing skipped, push denied, which is what a pause wants anyway.
 
 **That box also carries a `- [ ] excess` tag, and this block deliberately does not read it.** A block
 deciding whether your push goes through reads `done: true`, because a field nothing else writes beats a
@@ -550,10 +549,10 @@ write them.
   box in the directory.
 - **`## Deviations`** — Build records; Integrate counts into the pull request body; the human sees it at
   merge. Recording is mandatory; whether to stop is the engineer's call. Slice appends one plain sentence
-  here, with no tag and no box, when a re-cut changes the behaviour a built slice deployed. **Two kinds of
-  open box live here and the tag separates them**: an untagged `- [ ]` is a pause, and `- [ ] excess` is
-  the commit audit's note on files a commit swept in past this slice's `touches`. **Both can be open on
-  one slice.**
+  here, with no tag and no box, when a re-cut changes the behaviour a built slice deployed. **Three kinds
+  of open box live here and the tag separates them**: an untagged `- [ ]` is a pause, `- [ ] blocked` is a
+  pause on a write a foreign hook refused, and `- [ ] excess` is the commit audit's note on files a commit
+  swept in past this slice's `touches`. **More than one can be open on one slice.**
 - **`## Critique findings`** — Critique's slice pass. Appends across cycles.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
@@ -695,7 +694,7 @@ matter is unchanged and hook block 4's heading list is unchanged.
 | Marker | Means |
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
-| `- [ ] unmet` / `- [ ] excess` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope. **What follows is what was observed, never the Outcome or the criterion restated** — under `## Outcome checks` the tag is followed by the Outcome's ID and then the observation. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches both |
+| `- [ ] unmet` / `- [ ] excess` / `- [ ] blocked` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope, `blocked` where a foreign hook refused a write a slice needs. **What follows is what was observed, never the Outcome or the criterion restated** — under `## Outcome checks` the tag is followed by the Outcome's ID and then the observation. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches all three |
 | `- [x] fixed` / `- [x] met` | the code does it. **A `met` line under `## Outcome checks` is the tag and the ID, and stops there** |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway**. **Under `## Outcome checks` the tag is followed by the Outcome's ID and then the reason** |
@@ -717,8 +716,10 @@ it*. **Two readings of one test** — the grep answers *is anything open*, the s
 about this one*.
 
 **Inside `## Deviations` the tag says who clears it, and that is not a third reading.** An untagged box is
-the pause, closed by the `devpath:technical-design` session that resolves it; `- [ ] excess` is the commit
-audit's, closed by the human at merge. Both hold every check open until they close.
+the pause, closed by the `devpath:technical-design` session that resolves it; `- [ ] blocked` is a pause a
+human clears outside the run, closed by the `devpath:build` worker that resumes the slice on what it finds;
+`- [ ] excess` is the commit audit's, closed by the human at merge. All three hold every check open until
+they close.
 
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
 it may not have been, and **only `fixed` and `met` mean the code changed.**

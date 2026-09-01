@@ -405,20 +405,30 @@ whether a change was *wanted*. Verticality has no mechanical gate in this design
 
 ## Clearing a pause
 
-**A pause box under a slice's `## Deviations` is cleared by the `devpath:technical-design` session that
-resolves it, before that session ends.** Build writes the box and stops; this is where it gets closed.
-Resolve the question, tick the box in the disposition grammar, and say which slice it unblocks — leaving
-it open means `devpath:build` will refuse the slice again on the next run.
+**An untagged pause box under a slice's `## Deviations` is cleared by the `devpath:technical-design`
+session that resolves it, before that session ends.** Build writes the box and stops; this is where it
+gets closed. Resolve the question, tick the box in the disposition grammar, and say which slice it
+unblocks — leaving it open means `devpath:build` will refuse the slice again on the next run.
 
 **Commit the tick before this session ends.** The next act is `devpath:build` on the slice this just
 unblocked, and `devpath:build` refuses on a dirty tree — so a disposition left on disk stops the run it
 was written to release. Every stage that writes commits before it hands on, and this is that stage
 handing on.
 
-**The pause is the untagged box, and it is the only one here that is yours.** A `- [ ] excess` box under
-the same heading is the commit audit's — a note on files a commit swept in — and its disposition belongs
-to the human at merge. **The slice you are clearing can carry both**, because the pause commit staged
-whatever was on disk: close the untagged one, and **leave a tagged box open.**
+**The pause you clear is the untagged box, and the two tagged ones are not yours.** A `- [ ] excess` box
+under the same heading is the commit audit's — a note on files a commit swept in — and its disposition
+belongs to the human at merge. **A `- [ ] blocked` box is a pause and still not yours**: a foreign guard
+refused a write the slice needs, a human clears that outside the run, and the `devpath:build` worker that
+resumes the slice closes the box on what it finds. `devpath:build`'s `## A foreign hook's refusal` sets
+its shape and carries that branch.
+
+**Ticking a `blocked` box here clears nothing.** Nothing said in this session moves another repo's hook, so
+the next `devpath:build` walks into the same refusal and pauses again, and nothing bounds how many times.
+**And a `devpath:build` worker closing that box is not a stage closing its own pause** — it closes on a
+change a human made outside the run, and it stops the run again where nothing moved.
+
+**The slice you are clearing can carry more than one box**, because the pause commit staged whatever was on
+disk: close the untagged one, and **leave a tagged box alone.**
 
 **`devpath:build`'s pause box is deliberately not one of the stops that asks through a question tool, and
 it stays prose.** The intent gate, the design gate, the slice layout and Integrate's refusal each end a
