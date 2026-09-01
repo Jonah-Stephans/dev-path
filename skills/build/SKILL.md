@@ -749,9 +749,9 @@ the slice has finished.
 
 ### A rejected commit
 
-> **A commit the repo's own checks reject is the slice not being finished. Dispatch one fresh Build worker
-> on that slice, handed the rejection as it arrived, and attempt the commit again on its return. Refused a
-> second time, write the `- [ ] blocked` box and stop the run.**
+> **On a `done: true` return, a commit the repo's own checks reject is the slice not being finished.
+> Dispatch one fresh Build worker on that slice, handed the rejection as it arrived, and attempt the
+> commit again on its return. Refused a second time, write the `- [ ] blocked` box and stop the run.**
 
 **Same species as a failing test, which is the rule this extends.** *A failed deploy or a failing test is
 the slice not being finished, and you keep working* is in the worker prompt below, and a commit-time check
@@ -779,21 +779,22 @@ deploy rule — that a threshold gets loosened — is why this is not written as
 is not an allowance; it is what tells the two cases apart. A refusal a worker can fix goes green on the
 retry, one it cannot comes back identical, and **there is no separate test anywhere that decides which you
 are holding before the retry runs.** Adding one would have this plugin form an opinion about what a guard
-it did not write meant, which `## A foreign hook's refusal` forbids — and against the one refusal this rule
-came from it answers backwards, because the repo's own checks were green while the commit failed.
+it did not write meant, which is what `## A foreign hook's refusal` refuses to do, for the same reason —
+and against the one refusal this rule came from it answers backwards, because the repo's own checks were
+green while the commit failed.
+
+**The critic dispatch is still owed, and it waits.** It keys on the first worker's `done: true`, and that
+return has not been discharged — the commit it earned failed. The retry worker rewrites neither field, so
+its return neither re-arms nor discharges it. **Commit the retry, then dispatch.**
 
 **Refused a second time, write the `- [ ] blocked` box under `## Deviations` on that slice and stop the
 run. A worker that returns unable to reproduce the refusal is the same stop**, reached without a second
 commit attempt — the worker prompt below says why spending one buys nothing, and there is nothing left
 for you to try with it. The refusal goes in verbatim, for the reason `## A foreign hook's refusal` gives:
-the box states an obstacle this plugin has no standing to summarise. Its grammar, its one-box-per-slice
-rule and who clears it are set there and hold here unchanged.
-
-**The `done: true` on that slice is on disk and never on the branch, and both halves matter.** Every commit
-attempt failed, so the code, the field the first worker wrote and the box you just wrote are all sitting
-uncommitted. The field misleads nothing downstream, because nothing downstream ever reads it. **Neither
-does the box**, which is the half worth saying out loud — *One pause cannot commit* above carries what
-catches that, and it is a later `devpath:build` refusing on a dirty tree.
+the box states an obstacle this plugin has no standing to summarise. Its grammar and its one-box-per-slice
+rule are set there and hold here; its resume does not, because this box names no file to read against.
+**The first worker's `done: true` sits on that slice on disk and never reaches the branch either**, so
+nothing downstream reads it.
 
 ## Dispatch a critic on that same return
 
