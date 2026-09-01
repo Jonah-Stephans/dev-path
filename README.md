@@ -265,6 +265,20 @@ disjoint-`touches` exception is deliberately not in the paste — a repo that wa
 **4 — Spec and slice files stay inside the schema.** It warns rather than denies, because `PostToolUse`
 cannot deny. The blocking variant is the same script on `PreToolUse` reading `.tool_input.content`.
 
+**Its reader is the model that made the write, so the warning goes out as
+`hookSpecificOutput.additionalContext` on exit 0**, which reaches that model. Plain stdout on exit 0 reaches
+a debug log, so a block that echoes its sentence warns nobody. `additionalContext` is not a denial and does
+not become one — `PostToolUse` still cannot deny, and the write has already happened either way.
+
+**The offending headings ride inside the message rather than beside it.** The JSON has to be the only thing
+on stdout, so `$B` holds what the `grep` found and the message carries it — *which* heading is outside the
+schema is the part the model can act on. Empty `$B` exits 0 saying nothing, and the `jq -n` building the
+message takes on nothing new — `jq -r` already reads the event on the first clause.
+
+**It ends `exit 0` whatever `jq` did.** A non-zero exit at `PostToolUse` is an error rather than a warning,
+and exit 2 is fed to the model as a blocking one — so a repo that reworks the message, and is therefore
+editing a `jq` program, gets no warning rather than an error on every write to a spec.
+
 ```json
 {
   "hooks": {
@@ -274,7 +288,7 @@ cannot deny. The blocking variant is the same script on `PreToolUse` reading `.t
         "hooks": [
           {
             "type": "command",
-            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *devpath/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|devpath feedback\";; *devpath/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\" && echo \"devpath: $F carries a heading outside the schema\"; exit 0",
+            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *devpath/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|devpath feedback\";; *devpath/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; B=$(grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\"); [ -n \"$B\" ] || exit 0; jq -n --arg f \"$F\" --arg b \"$B\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:(\"devpath: \" + $f + \" carries a heading outside the schema: \" + $b)}}'; exit 0",
             "timeout": 10
           }
         ]
@@ -366,6 +380,13 @@ touches the repo's CI configuration and no rules file, so these blocks do not se
 **7 — the same thing as a warning**, for a repo that does not accept that trade. Identical condition, no
 denial: it puts the sentence in front of the engineer and stops there.
 
+**Which channel it speaks on is the whole of the difference, and each was measured.** At exit 0 a `Stop`
+hook's plain stdout reaches a debug log, its stderr reaches nobody, and a JSON `systemMessage` reaches the
+engineer, rendered on Claude Code 2.1.221 as `Stop says: <message>` — the routing is the hook contract,
+the label is a string a release can rename. The engineer is the only reader a `Stop` hook has, and
+`systemMessage` is the one warning route to them, so that is what this block emits. **`printf` writes it,
+not `jq`** — nothing is interpolated into the message, so the block takes on no dependency it does not need.
+
 ```json
 {
   "hooks": {
@@ -374,7 +395,7 @@ denial: it puts the sentence in front of the engineer and stops there.
         "hooks": [
           {
             "type": "command",
-            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; [ \"$(gh pr list --head \"$SLUG\" --json isDraft --jq '.[0].isDraft')\" = false ] || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; echo 'devpath: the pull request for this spec is out of draft and no lessons pull request is open.'",
+            "command": "SLUG=$(git branch --show-current); S=\"devpath/$SLUG/spec.md\"; [ -f \"$S\" ] || exit 0; [ \"$(gh pr list --head \"$SLUG\" --json isDraft --jq '.[0].isDraft')\" = false ] || exit 0; for n in $(gh pr list --state open --head \"devpath/lessons/$SLUG\" --json number --jq '.[].number'); do gh pr diff \"$n\" --name-only | grep -q '^\\.claude/rules/' && exit 0; done; printf '%s' '{\"systemMessage\":\"devpath: the pull request for this spec is out of draft and no lessons pull request is open. Run devpath:learn before the merge.\"}'",
             "timeout": 30
           }
         ]
@@ -386,10 +407,17 @@ denial: it puts the sentence in front of the engineer and stops there.
 
 ---
 
-**Two things are unverified, and which rather than a count.** Running shell cannot test whether the
-harness honours a block's wrapper: the `if` key is settled against the official hooks reference, the
-`Stop` event's `{"decision":"block"}` shape is not. And blocks 6 and 7 were exercised against a **stubbed**
-`gh` — the draft read, the enumeration, the scoping and the release were tested, the live API was not.
+**Which channel a wrapper reaches is settled by probe rather than by test.** `sh tests/*.sh` cannot ask the
+harness whether it honours a block's wrapper, and a probe session can: `PreToolUse` exit 2 reaches the
+caller, `PostToolUse` `additionalContext` at exit 0 reaches the model, `Stop` `systemMessage` at exit 0
+reaches the engineer, and plain stdout at exit 0 reaches a debug log and nobody else. The `if` key is
+settled against the official hooks reference rather than by probe.
+
+**Two things are still unverified, and which rather than a count.** Block 6's `{"decision":"block"}` is the
+shape no probe has run, and it is narrower than it was: a `Stop` hook's stdout at exit 0 *is* read as JSON,
+so what is open is whether that shape denies rather than whether the wrapper is read at all. And blocks 6
+and 7 were exercised against a **stubbed** `gh` — the draft read, the enumeration, the scoping and the
+release were tested, the live API was not.
 
 **The post-merge Learn runner is not on this menu.** A workflow file plus a stored credential plus a
 decision to run an agent in CI is a procedure, not a paste. It is named here and not specified.

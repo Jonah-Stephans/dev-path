@@ -1,14 +1,20 @@
 #!/bin/sh
-# devpath — hook blocks 6 and 7, run rather than read.
+# devpath — the hook blocks that speak to somebody, run rather than read.
 #
-# Four checks. That README still ships exactly two of them to extract and that
-# neither reads `## Outcome checks`, that each one is silent on every state where
-# Learn is not owed, that each one fires on a pull request out of draft with no
-# lessons pull request open, and that block 6 emits the JSON the harness reads.
-# Every run also counts the `gh` calls, because a second draft read is paid at
+# Blocks 6 and 7 warn or deny at the end of a turn and block 4 warns after a
+# write. All three reach their reader through a wrapper the harness parses, and
+# whether a wrapper is well formed is the one thing reading README cannot tell.
+#
+# Five checks. That README still ships exactly two of the Learn blocks to extract
+# and that neither reads `## Outcome checks`, that each one is silent on every
+# state where Learn is not owed, that each one fires on a pull request out of
+# draft with no lessons pull request open, that blocks 6 and 7 emit the JSON the
+# harness reads, and that block 4 does too and exits 0 either way. Every run of a
+# Learn block also counts the `gh` calls, because a second draft read is paid at
 # the end of every turn rather than once.
 #
-# Both blocks are Stop hooks, so they run at the end of every turn on the branch.
+# Blocks 6 and 7 are Stop hooks, so they run at the end of every turn on the
+# branch.
 # Detecting Integrate's completion by anything written into `spec.md` puts that
 # detection six steps and one hard exit too early: `## Outcome checks` is written
 # at step 1, Learn runs at step 7, and step 3 in between is a refusal that ends
@@ -37,23 +43,30 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-# Block 6 builds its denial with `jq -n`, so jq is the thing under test's
-# dependency rather than this file's. Without it check 3 still passes on jq's
-# own error text and check 4 reports no JSON, which reads as a README defect.
+# Blocks 4 and 6 build their message with `jq -n`, so jq is the thing under
+# test's dependency rather than this file's. Without it check 3 still passes on
+# jq's own error text and checks 4 and 5 report no JSON, which reads as a README
+# defect. Check 5 puts a deliberately broken jq in front of this one, and it
+# needs a working jq behind it to exec.
 if ! command -v jq >/dev/null 2>&1; then
-  echo "FAIL subject: jq is not on PATH, and block 6 builds its denial with it"
+  echo "FAIL subject: jq is not on PATH, and blocks 4 and 6 build their message with it"
   exit 1
 fi
 
 W=$(mktemp -d) || exit 1
 trap 'rm -rf "$W"' EXIT
 
-# --------------------------------------- 1. README still ships the two blocks
+# --------------------------------------- 1. README still ships the three blocks
 #
 # Selected by content rather than by position: the scoped `devpath/lessons/`
-# enumeration is what makes a command one of these two, so a block that moves
+# enumeration is what makes a command one of the Learn pair, and a `P=` list
+# under a `spec.md` case label is what makes one block 4 — so a block that moves
 # still gets tested and a block deleted fails here rather than leaving the
 # checks below testing nothing.
+#
+# Block 4's fixtures are cut from its own `P=` lists rather than typed out, so no
+# fourth copy of the spec and slice schemas is born in this file for
+# tests/schema.sh to then have to police.
 ERR=$(python3 - "$W" <<'PY' 2>&1
 import json, re, sys
 
@@ -64,7 +77,7 @@ cmds = []
 def walk(o):
     if isinstance(o, dict):
         c = o.get("command")
-        if isinstance(c, str) and "devpath/lessons/" in c:
+        if isinstance(c, str):
             cmds.append(c)
         for v in o.values():
             walk(v)
@@ -75,14 +88,31 @@ def walk(o):
 for b in blocks:
     walk(json.loads(b))
 
-if len(cmds) != 2:
-    sys.exit("README ships %d command(s) enumerating devpath/lessons/, not 2" % len(cmds))
-for i, c in enumerate(cmds, 6):
+learn = [c for c in cmds if "devpath/lessons/" in c]
+if len(learn) != 2:
+    sys.exit("README ships %d command(s) enumerating devpath/lessons/, not 2" % len(learn))
+for i, c in enumerate(learn, 6):
     if "Outcome checks" in c:
         sys.exit("block %d detects Integrate by reading ## Outcome checks, which is true from step 1" % i)
     if "isDraft" not in c:
         sys.exit("block %d reads no draft state, so it cannot tell Integrate finished from Integrate refused" % i)
     open("%s/b%d.sh" % (out, i), "w").write(c + "\n")
+
+schema = [c for c in cmds if 'spec.md) P="' in c]
+if len(schema) != 1:
+    sys.exit("README ships %d command(s) casing on a spec.md heading list, not 1" % len(schema))
+open("%s/b4.sh" % out, "w").write(schema[0] + "\n")
+
+for label, name in (("spec.md", "spec"), ("slices/*.md", "slice")):
+    m = re.search(re.escape(label) + r'\) P="([^"]+)"', schema[0])
+    if not m:
+        sys.exit("block 4 carries no %s heading list to cut fixtures from" % name)
+    open("%s/%s-headings" % (out, name), "w").write(m.group(1).replace("|", "\n") + "\n")
+
+BAD = "Notes"
+if BAD in schema[0]:
+    sys.exit("## %s is in block 4's own lists, so it cannot be the fixture's offending heading" % BAD)
+open("%s/bad-heading" % out, "w").write(BAD + "\n")
 PY
 )
 if [ -n "$ERR" ]; then
@@ -178,11 +208,16 @@ DRAFT_STUB=false LESSONS_PRS=77 DIFF_STUB=.github/workflows/tests.yml \
 LESSONS_PRS=
 DIFF_STUB=
 
-# ------------------------------------------ 4. block 6 denies the way it says
+# --------------------------- 4. blocks 6 and 7 speak the way each of them says
 #
 # The wrapper is what the harness reads. A block emitting prose where the Stop
 # event wants `{"decision":"block"}` is a block that prints and never denies,
 # and nothing else here would tell the two apart.
+#
+# Block 7 is here and not only block 6 because its warning is JSON too. Check 3
+# reads output as non-empty, and malformed JSON is non-empty — so one unescaped
+# quote in a reworded message emits a payload the harness cannot parse, the
+# engineer is told nothing, and every check above this line stays green.
 GH_LOG=$W/log DRAFT_STUB=false sh "$W/b6.sh" > "$W/payload" 2>"$W/payload.err"
 [ -s "$W/payload.err" ] && fail 'hook blocks' 'README.md block 6' \
   "block 6 wrote to stderr, which is not where the harness reads:
@@ -194,7 +229,94 @@ if d.get("decision") != "block": sys.exit("block 6 emitted decision=%r, not bloc
 if not d.get("reason"): sys.exit("block 6 denies with no reason, so the engineer is told nothing")' "$W/payload" 2>&1)
 [ -n "$ERR" ] && fail 'hook blocks' 'README.md block 6' "$ERR"
 
+GH_LOG=$W/log DRAFT_STUB=false sh "$W/b7.sh" > "$W/payload7" 2>"$W/payload7.err"
+[ -s "$W/payload7.err" ] && fail 'hook blocks' 'README.md block 7' \
+  "block 7 wrote to stderr, which at exit 0 reaches nobody at all:
+$(cat "$W/payload7.err")"
+ERR=$(python3 -c 'import json, sys
+try: d = json.load(open(sys.argv[1]))
+except Exception as e: sys.exit("block 7 emitted no JSON to warn with: %s" % e)
+if not d.get("systemMessage"): sys.exit("block 7 emitted the key(s) %r, and systemMessage is its one route to the engineer" % sorted(d))' "$W/payload7" 2>&1)
+[ -n "$ERR" ] && fail 'hook blocks' 'README.md block 7' "$ERR"
+
+# --------------------------- 5. block 4 reaches the model, and never does worse
+#
+# Block 4 is the block nothing else on this build runs: check 1's other selector
+# is `devpath/lessons/`, which block 4 does not carry, and tests/schema.sh reads
+# its `P=` lists as text rather than running them. Before this check, a jq
+# program error in block 4 shipped green.
+#
+# Its reader is the model that made the write and its route is
+# `hookSpecificOutput.additionalContext` on exit 0, so the event name is part of
+# the assertion: the harness routes the context by that name.
+mkdir -p "$W/repo/devpath/b-spec/slices" "$W/repo/devpath/c-spec/slices"
+BAD="## $(cat "$W/bad-heading")"
+sed 's/^/## /' "$W/spec-headings"  > "$W/repo/devpath/c-spec/spec.md"
+sed 's/^/## /' "$W/slice-headings" > "$W/repo/devpath/c-spec/slices/01.md"
+{ sed 's/^/## /' "$W/spec-headings";  printf '%s\n' "$BAD"; } > "$W/repo/devpath/b-spec/spec.md"
+{ sed 's/^/## /' "$W/slice-headings"; printf '%s\n' "$BAD"; } > "$W/repo/devpath/b-spec/slices/01.md"
+
+run4() {  # run4 <file_path> <fires: yes|no> <what that path is>
+  OUT=$(printf '{"tool_input":{"file_path":"%s"}}' "$1" | sh "$W/b4.sh" 2>"$W/b4.err")
+  RC=$?
+  GOT=no
+  [ -n "$OUT" ] && GOT=yes
+  if [ "$RC" -ne 0 ]; then
+    fail 'hook blocks' "block 4 on $3" \
+      "it exited $RC, and anything but 0 at PostToolUse is an error rather than a warning"
+  elif [ -s "$W/b4.err" ]; then
+    fail 'hook blocks' "block 4 on $3" "it wrote to stderr, which is not where the harness reads:
+$(cat "$W/b4.err")"
+  elif [ "$GOT" != "$2" ]; then
+    if [ "$2" = yes ]; then WANT="fire here"; else WANT="stay silent here"; fi
+    fail 'hook blocks' "block 4 on $3" "it should $WANT, and it did not: ${OUT:-(silent)}"
+  fi
+}
+
+run4 devpath/b-spec/spec.md      yes "a spec carrying a heading outside the schema"
+ERR=$(printf '%s' "$OUT" | python3 -c 'import json, sys
+try: d = json.load(sys.stdin)
+except Exception as e: sys.exit("block 4 emitted no JSON to reach the model with: %s" % e)
+h = d.get("hookSpecificOutput") or {}
+if h.get("hookEventName") != "PostToolUse":
+    sys.exit("block 4 named the event %r, and the harness routes the context by that name" % h.get("hookEventName"))
+c = h.get("additionalContext") or ""
+if not c:
+    sys.exit("block 4 emitted the key(s) %r, and additionalContext is its one route to the model" % sorted(h))
+if sys.argv[1] not in c:
+    sys.exit("block 4 named no offending heading, which is the part the model can act on: %r" % c)' \
+  "$(cat "$W/bad-heading")" 2>&1)
+[ -n "$ERR" ] && fail 'hook blocks' 'README.md block 4' "$ERR"
+
+run4 devpath/b-spec/slices/01.md yes "a slice carrying a heading outside the schema"
+run4 devpath/c-spec/spec.md      no  "a spec wholly inside the schema"
+run4 devpath/c-spec/slices/01.md no  "a slice wholly inside the schema"
+run4 docs/notes.md               no  "a path that is neither, and does not exist"
+
+# The `exit 0` the command ends on, tested by breaking the jq underneath it.
+# Without it the block's status is jq's, and jq exits 2 on a usage error and 3 on
+# a compile error — 2 being the code PostToolUse reads as a blocking error fed to
+# the model. A block README says cannot deny would acquire the ability by typo,
+# and the repo that hits it is the one that reworded the message.
+REALJQ=$(command -v jq)
+mkdir -p "$W/badjq"
+cat > "$W/badjq/jq" <<EOJ
+#!/bin/sh
+# The block's first clause reads the event with \`jq -r\`, which has to keep
+# working, or it leaves before it ever builds a message. \`jq -n\` builds it.
+for a in "\$@"; do
+  [ "\$a" = "-n" ] && { echo 'jq: error: syntax error at <top-level>' >&2; exit 3; }
+done
+exec "$REALJQ" "\$@"
+EOJ
+chmod +x "$W/badjq/jq"
+OUT=$(printf '{"tool_input":{"file_path":"devpath/b-spec/spec.md"}}' \
+  | PATH="$W/badjq:$PATH" sh "$W/b4.sh" 2>/dev/null)
+RC=$?
+[ "$RC" -ne 0 ] && fail 'hook blocks' 'README.md block 4' \
+  "with a jq that errors the block exited $RC rather than 0, so a typo in its message denies the write"
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec — clean"
+  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec; blocks 4, 6 and 7 each emit the wrapper their event reads, and block 4 exits 0 even where jq does not — clean"
 fi
 exit "$FAIL"
