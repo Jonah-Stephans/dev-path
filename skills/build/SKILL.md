@@ -475,7 +475,9 @@ happens, of which one real session's was 99% pasted history.
 **So a dispatch carries, and carries nothing else:** the fixed first line; the spec's path; what the
 worker is being asked to do this pass — build the slice, fix these named findings, or critique — and the
 findings themselves when it is a fix pass, because those are what Critique already wrote down and what the
-pass is *for*. **No conversation history, no prior worker's output, no file contents.**
+pass is *for*. **A rejected commit's refusal rides along on the same footing** and for the same reason: it
+is what that pass is *for*, it is the guard's own words rather than a prior worker's, and no worker can
+re-derive it from disk. **No conversation history, no prior worker's output, no file contents.**
 
 **Where the generalisation goes instead, because the list above is right to keep it out.** A run learns
 things no one slice holds: *the fixtures in this repo are uniform in a way that lets a passing test prove
@@ -518,6 +520,11 @@ that breaks precisely when that upgrade is taken. **A failed commit needs a huma
 reach one.** It agrees with how the adjacent tooling in this estate already reasons about commits. And it
 is immune to how a foreign guard identifies the caller.
 
+**The second of those is a reason and not a disposition, and it is the only sentence here that reads like
+one.** It says why the actor holding the commit step has to be the one who can reach a human. It does not
+say that every refused commit needs one. What a refusal means, and what you do about it, is
+`### A rejected commit` below.
+
 **Nothing observable changes: one code commit per slice, plus one for a pause.** The worker writes
 `done: true` and returns; commit on that return. **A pause returns too, and you commit on that return as
 well** — the worker wrote its box and stopped, and what it built before stopping is on disk. **The
@@ -526,13 +533,15 @@ division, and **a trap or a struck note it wrote on `spec.md` rides in that comm
 one of its own — so *one commit per slice* is a claim about code, and it is written that way wherever it
 is claimed.
 
-**One pause cannot commit, and it is the one a refused commit wrote.** Where another plugin's hook rejects
-the commit itself on grounds this slice cannot satisfy — a foreign refusal, under
-`## A foreign hook's refusal` in the worker prompt — `git add -A` stages the same content straight back
-into the same refusal. The `- [ ] blocked` box reaches disk and never reaches the branch, and **nothing
-else for that slice reaches it either: no code, no `done: true`, no box.** Name every path left in the
-working tree when you stop, because the only thing behind this is a later `devpath:build` reaching *the
-working tree is dirty*, which prints those paths and asks a human. There is no second backstop.
+**One pause cannot commit, and it is the one a refused commit wrote.** Two routes reach it and the reason
+is the same on both: another plugin's hook rejects the commit itself on grounds this slice cannot satisfy
+— a foreign refusal, under `## A foreign hook's refusal` in the worker prompt — or the repo's own
+commit-time check rejects it twice over a defect in the slice, under `### A rejected commit` below. Either
+way `git add -A` stages the same content straight back into the same refusal. The `- [ ] blocked` box
+reaches disk and never reaches the branch, and **nothing else for that slice reaches it either: no code,
+no `done: true`, no box.** Name every path left in the working tree when you stop, because the only thing
+behind this is a later `devpath:build` reaching *the working tree is dirty*, which prints those paths and
+asks a human. There is no second backstop.
 
 **Say which of those paths is the slice file, and that it holds the only copy of the pause.** That stop
 offers *restore `HEAD`'s version* on a tracked modified path, and taking it there deletes the refusal and
@@ -737,6 +746,55 @@ engineer at the terminal that just stopped, holding this run's report and the sl
 request is not in that loop — a repo that took README's first hook block denies exactly this push while a
 box is open. **The pause commit reaches the remote on the next push**, once a human has cleared the box and
 the slice has finished.
+
+### A rejected commit
+
+> **On a `done: true` return, a commit the repo's own checks reject is the slice not being finished.
+> Dispatch one fresh Build worker on that slice, handed the rejection as it arrived, and attempt the
+> commit again on its return. Refused a second time, write the `- [ ] blocked` box and stop the run.**
+
+**Same species as a failing test, which is the rule this extends.** *A failed deploy or a failing test is
+the slice not being finished, and you keep working* is in the worker prompt below, and a commit-time check
+is a check the repo runs over code this slice just wrote: failing one means the code is not right yet,
+nothing has diverged from the design, and there is nothing here for a human to decide. That paragraph
+enumerates a deploy and a test rather than a commit because it is addressed to a worker, and the commit is
+yours.
+
+**And *you keep working* has no addressee at the moment a commit is refused**, which is the whole of what
+this section adds. The worker returned before you committed, so continuing the slice means dispatching
+another one.
+
+**That worker could not have seen it coming, which is what makes a second one worth dispatching.** It
+deployed the slice and ran its tests before it wrote `done: true`, and its green was honest: what rejects
+the commit runs at commit time, over the staged set, and reaches paths the repo's own scripts do not. You
+are not sending a worker back at something it skipped.
+
+**It is not a fix pass, and nothing counts it.** No critic has run and no finding exists. `fix_cycles` is
+Critique's field and Critique's write, so a refused commit increments nothing, the fix cap does not bound
+this, and the retry does not spend one of the passes that cap counts. Dispatch it as a build of that slice,
+with the rejection attached.
+
+**One retry, and one is a rule rather than a cap.** The objection to a retry count under the worker's
+deploy rule — that a threshold gets loosened — is why this is not written as a maximum. The second attempt
+is not an allowance; it is what tells the two cases apart. A refusal a worker can fix goes green on the
+retry, one it cannot comes back identical, and **there is no separate test anywhere that decides which you
+are holding before the retry runs.** Adding one would have this plugin form an opinion about what a guard
+it did not write meant, which is what `## A foreign hook's refusal` refuses to do, for the same reason —
+and against the one refusal this rule came from it answers backwards, because the repo's own checks were
+green while the commit failed.
+
+**The critic dispatch is still owed, and it waits.** It keys on the first worker's `done: true`, and that
+return has not been discharged — the commit it earned failed. The retry worker rewrites neither field, so
+its return neither re-arms nor discharges it. **Commit the retry, then dispatch.**
+
+**Refused a second time, write the `- [ ] blocked` box under `## Deviations` on that slice and stop the
+run. A worker that returns unable to reproduce the refusal is the same stop**, reached without a second
+commit attempt — the worker prompt below says why spending one buys nothing, and there is nothing left
+for you to try with it. The refusal goes in verbatim, for the reason `## A foreign hook's refusal` gives:
+the box states an obstacle this plugin has no standing to summarise. Its grammar and its one-box-per-slice
+rule are set there and hold here; its resume does not, because this box names no file to read against.
+**The first worker's `done: true` sits on that slice on disk and never reaches the branch either**, so
+nothing downstream reads it.
 
 ## Dispatch a critic on that same return
 
@@ -960,6 +1018,38 @@ the predicate the field carries. Value is always `true`; absence is how you say 
 a deviation and **not** a pause — nothing has diverged from the design and nothing needs a human yet.
 **No retry count**: a cap on deploy attempts is a threshold that gets loosened, and the real bound is
 already there in the fix cap.
+
+**A commit the repo's own checks reject is the same species, and it is how you can be dispatched onto a
+slice that already reads finished.** You never see that rejection yourself: the orchestrator commits on
+your return, so the refusal lands after you are gone, and `### A rejected commit` above is where it sends a
+fresh worker back with the refusal attached. What follows is for that worker.
+
+**Reproduce the refusal before you change anything, and reproduce the *check*, not the hook.** Hook scripts
+routinely read git's own environment variables and do not run standalone, so invoking one proves nothing in
+either direction. **Reconstruct what to run from the hook's own configuration** — the globs it matches, the
+paths it passes and the flags it sets — rather than from the repo's script of the same name. The two
+differ, and that difference is what produced the refusal you were handed: in the run this came from, the
+repo's `lint` was green at the moment the commit-time check failed, because the hook aimed the same tool at
+a wider set of files.
+
+**The index is already staged, and you leave it alone.** A rejected commit aborts without unstaging, so
+`git add -A`'s work is intact and a staged-set check reproduces faithfully with no index write from you.
+**Do not stage and do not commit.** git's index is a shared write and the orchestrator owns it — the first
+of the four reasons under `## Committing` — so a worker that staged would break the reason that division
+exists. You fix and you verify; it re-stages on the next attempt.
+
+**Cannot reproduce it → change nothing, say so, and return.** A commit-message policy checks a message you
+never write. A signing key, an identity setting, a protected branch and a write permission are facts about
+the environment that no edit to this slice moves. None of them is reachable from here and none is a
+red-then-green loop, so an attempt buys nothing and leaves edits behind that nothing verified. **That
+return is where the run stops**, and the orchestrator writes the box.
+
+**You carry every obligation an ordinary build carries, and it is said again here because none of its
+triggers is in front of you.** The sequence above is written for a slice built from scratch, and you
+arrive at one whose criteria are already ticked. So, explicitly: **deploy the slice, run its tests, and
+do not hand back red.** **Criteria already ticked stay ticked** — *do not write them and do not rewrite
+them* holds here exactly as it does above. **`done: true` is already on the slice and you do not rewrite
+it**: the first worker wrote it, the field says the acceptance criteria are ticked, and they still are.
 
 ## Deviations, and the pause test
 
