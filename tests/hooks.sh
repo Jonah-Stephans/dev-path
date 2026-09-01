@@ -1,17 +1,19 @@
 #!/bin/sh
 # devpath — the hook blocks that speak to somebody, run rather than read.
 #
-# Blocks 6 and 7 warn or deny at the end of a turn and block 4 warns after a
-# write. All three reach their reader through a wrapper the harness parses, and
-# whether a wrapper is well formed is the one thing reading README cannot tell.
+# Blocks 6 and 7 warn or deny at the end of a turn, block 4 warns after a write,
+# and block 8 warns after a dispatch. All four reach their reader through a
+# wrapper the harness parses, and whether a wrapper is well formed is the one
+# thing reading README cannot tell.
 #
-# Five checks. That README still ships exactly two of the Learn blocks to extract
+# Six checks. That README still ships exactly two of the Learn blocks to extract
 # and that neither reads `## Outcome checks`, that each one is silent on every
 # state where Learn is not owed, that each one fires on a pull request out of
 # draft with no lessons pull request open, that blocks 6 and 7 emit the JSON the
-# harness reads, and that block 4 does too and exits 0 either way. Every run of a
-# Learn block also counts the `gh` calls, because a second draft read is paid at
-# the end of every turn rather than once.
+# harness reads, that block 4 does too and exits 0 either way, and that block 8
+# fires on a built slice no critic has read and is silent everywhere else. Every
+# run of a Learn block also counts the `gh` calls, because a second draft read is
+# paid at the end of every turn rather than once.
 #
 # Blocks 6 and 7 are Stop hooks, so they run at the end of every turn on the
 # branch.
@@ -56,13 +58,13 @@ fi
 W=$(mktemp -d) || exit 1
 trap 'rm -rf "$W"' EXIT
 
-# --------------------------------------- 1. README still ships the three blocks
+# ---------------------------------------- 1. README still ships the four blocks
 #
 # Selected by content rather than by position: the scoped `devpath/lessons/`
-# enumeration is what makes a command one of the Learn pair, and a `P=` list
-# under a `spec.md` case label is what makes one block 4 — so a block that moves
-# still gets tested and a block deleted fails here rather than leaving the
-# checks below testing nothing.
+# enumeration is what makes a command one of the Learn pair, a `P=` list under a
+# `spec.md` case label is what makes one block 4, and reading `fix_cycles` is
+# what makes one block 8 — so a block that moves still gets tested and a block
+# deleted fails here rather than leaving the checks below testing nothing.
 #
 # Block 4's fixtures are cut from its own `P=` lists rather than typed out, so no
 # fourth copy of the spec and slice schemas is born in this file for
@@ -97,6 +99,13 @@ for i, c in enumerate(learn, 6):
     if "isDraft" not in c:
         sys.exit("block %d reads no draft state, so it cannot tell Integrate finished from Integrate refused" % i)
     open("%s/b%d.sh" % (out, i), "w").write(c + "\n")
+
+critic = [c for c in cmds if "fix_cycles" in c]
+if len(critic) != 1:
+    sys.exit("README ships %d command(s) reading fix_cycles, not 1" % len(critic))
+if "devpath slice: " not in critic[0]:
+    sys.exit("block 8 parses no dispatch first line, so it reads the prompt of every dispatch")
+open("%s/b8.sh" % out, "w").write(critic[0] + "\n")
 
 schema = [c for c in cmds if 'spec.md) P="' in c]
 if len(schema) != 1:
@@ -316,7 +325,66 @@ RC=$?
 [ "$RC" -ne 0 ] && fail 'hook blocks' 'README.md block 4' \
   "with a jq that errors the block exited $RC rather than 0, so a typo in its message denies the write"
 
+# ------------------- 6. block 8 fires on a built slice no critic has read, only
+#
+# Block 8 is the second `jq -n` message on this menu that nothing else runs, and
+# it fires far more often than block 4 does — on every ordinary builder return —
+# so a malformed wrapper here is a sentence the orchestrator never sees on the
+# one edge with a demonstrated failure history.
+#
+# Its condition is Integrate's step 3 test 2. Two of the silent fixtures are
+# states a session actually produces — a slice a critic has already read, and a
+# slice not built yet. The other two are the shapes where reading the prompt any
+# further would be wrong: a first line naming a path that is not there, and a
+# dispatch that is not a slice dispatch at all.
+mkdir -p "$W/repo/devpath/d-spec/slices"
+
+mkslice() {  # mkslice <file> <done line> [fix_cycles line]
+  { printf -- '---\n'; printf '%s\n' "$2"; [ -n "$3" ] && printf '%s\n' "$3"
+    printf -- '---\n\n## Critique findings\n'; } > "$1"
+}
+mkslice "$W/repo/devpath/d-spec/slices/01.md" "done: true"
+mkslice "$W/repo/devpath/d-spec/slices/02.md" "done: true" "fix_cycles: 0"
+mkslice "$W/repo/devpath/d-spec/slices/03.md" "depends_on: 01"
+
+run8() {  # run8 <prompt first line> <fires: yes|no> <what state this is>
+  OUT=$(printf '{"tool_input":{"prompt":"%s\\nbuild it"}}' "$1" | sh "$W/b8.sh" 2>"$W/b8.err")
+  RC=$?
+  GOT=no
+  [ -n "$OUT" ] && GOT=yes
+  if [ "$RC" -ne 0 ]; then
+    fail 'hook blocks' "block 8 on $3" \
+      "it exited $RC, and anything but 0 at PostToolUse is an error rather than a warning"
+  elif [ -s "$W/b8.err" ]; then
+    fail 'hook blocks' "block 8 on $3" "it wrote to stderr, which is not where the harness reads:
+$(cat "$W/b8.err")"
+  elif [ "$GOT" != "$2" ]; then
+    if [ "$2" = yes ]; then WANT="fire here"; else WANT="stay silent here"; fi
+    fail 'hook blocks' "block 8 on $3" "it should $WANT, and it did not: ${OUT:-(silent)}"
+  fi
+}
+
+run8 "devpath slice: devpath/d-spec/slices/01.md" yes "a builder returning on a slice no critic has read"
+ERR=$(printf '%s' "$OUT" | python3 -c 'import json, sys
+try: d = json.load(sys.stdin)
+except Exception as e: sys.exit("block 8 emitted no JSON to reach the orchestrator with: %s" % e)
+h = d.get("hookSpecificOutput") or {}
+if h.get("hookEventName") != "PostToolUse":
+    sys.exit("block 8 named the event %r, and the harness routes the context by that name" % h.get("hookEventName"))
+c = h.get("additionalContext") or ""
+if not c:
+    sys.exit("block 8 emitted the key(s) %r, and additionalContext is its one route to the orchestrator" % sorted(h))
+if sys.argv[1] not in c:
+    sys.exit("block 8 named no slice, which is the part the orchestrator dispatches on: %r" % c)' \
+  devpath/d-spec/slices/01.md 2>&1)
+[ -n "$ERR" ] && fail 'hook blocks' 'README.md block 8' "$ERR"
+
+run8 "devpath slice: devpath/d-spec/slices/02.md" no "a slice a critic has already read"
+run8 "devpath slice: devpath/d-spec/slices/03.md" no "a slice not built yet"
+run8 "devpath slice: devpath/d-spec/slices/99.md" no "a first line naming a slice that is not there"
+run8 "go and read the codebase"                   no "a dispatch that is not a slice dispatch"
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec; blocks 4, 6 and 7 each emit the wrapper their event reads, and block 4 exits 0 even where jq does not — clean"
+  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec; blocks 4, 6, 7 and 8 each emit the wrapper their event reads, block 4 exits 0 even where jq does not, and block 8 fires only on a built slice no critic has read — clean"
 fi
 exit "$FAIL"

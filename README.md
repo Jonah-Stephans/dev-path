@@ -107,9 +107,9 @@ only code. Integrate's step 3 refuses on the same boxes in-session, so this job 
 than the only one.
 
 <details>
-<summary><b>The menu — seven blocks over six properties</b></summary>
+<summary><b>The menu — eight blocks over seven properties</b></summary>
 
-**What a repo can make hard, and what it cannot.** Nine properties; seven have a block below.
+**What a repo can make hard, and what it cannot.** Ten properties; the eight blocks below cover seven.
 
 | Rule | Repo-enforceable? | Mechanism |
 | --- | --- | --- |
@@ -121,11 +121,14 @@ than the only one.
 | A missed `fix_cycles` increment is caught | **withdrawn — there is nothing to catch** | a slice carrying `- [x] fixed` with the field at `0` is the **legal mid-cycle state**, and a missed increment is byte-identical to it on disk. **A missing line is a different thing and is caught** — Integrate's step 3 refuses on a built slice that has none |
 | A lesson entry carries a resolving link | **hard** | block 5 |
 | Learn runs before the merge | **hard** | blocks 6 and 7 |
+| A built slice is critiqued before the walk moves on | **not hard; a block still ships** | block 8 — a reminder at the moment the act is due, rather than detection after the act is missed. It cannot deny, **it fires on every ordinary builder return by design**, and it cannot tell a deliberate hand-back from a forgotten dispatch |
 | **A per-worker token budget** | **NOT AVAILABLE** | no hook input carries token counts |
 
-**Three of those nine rows ship no block**, and the README says so rather than leaving you to notice the
-table is longer than the menu: the `fix_cycles` cap has no honest hook, the missed-increment row is not a
-rule any more, and the token budget is unavailable.
+**Four of those ten rows are not hard**, and the README says so rather than leaving you to notice the
+table is longer than the menu. Three of the four ship no block at all: the `fix_cycles` cap has no honest
+hook, the missed-increment row is not a rule any more, and the token budget is unavailable. The fourth
+ships block 8, which reminds and cannot deny — it lowers the odds of a skipped critique and guarantees
+nothing.
 
 **One markdown trap: the matcher is `Task|Agent`.** Where you see a backslash before the pipe in prose,
 it is markdown escaping a table column separator — it is not part of the string. The blocks below carry
@@ -135,8 +138,8 @@ it is markdown escaping a table column separator — it is not part of the strin
 hook **denies by exiting 2**, and its message goes to whoever made the call. A `PostToolUse` hook **cannot
 deny**, because the write it is reacting to has already happened.
 
-**Merge the blocks rather than repeating the `hooks` key.** Two of the seven parse the dispatch first line
-`devpath slice: <path>` and are silently inert on any other dispatch.
+**Merge the blocks rather than repeating the `hooks` key.** Three of the eight parse the dispatch first
+line `devpath slice: <path>` and are silently inert on any other dispatch.
 
 **Blocks 1, 6 and 7 find the spec with `git branch --show-current`, which is empty under a detached
 HEAD** — they go inert rather than wrong. They are hooks, running in a session where a branch is normally
@@ -404,6 +407,65 @@ not `jq`** — nothing is interpolated into the message, so the block takes on n
   }
 }
 ```
+
+---
+
+**8 — a built slice gets its critic.** `PostToolUse` on the dispatch, so it fires the instant a worker
+returns, inside the orchestrator's turn. It reads the slice path off the fixed first line as blocks 2 and 3
+do, and everything after that off disk: `done: true` with no `fix_cycles:` line is Integrate's step 3 test
+2, asked at the moment the dispatch is due instead of at the merge gate. **Between a skipped dispatch and
+that refusal, the walk can build every remaining slice on top of code no critic has read.**
+
+**Its reader is the orchestrator, which is why it speaks the way block 4 does** — on exit 0, through
+`hookSpecificOutput.additionalContext`, which reaches the model that made the call. That model is the only
+reader worth having, because **a worker cannot dispatch anything**. It ends `exit 0` whatever `jq` did, for
+block 4's reason.
+
+**It fires on every ordinary builder return, and that is the design rather than a false positive.** At the
+instant a builder returns, `done: true` is written and `fix_cycles` is legitimately absent, so the condition
+is true on every normal slice. The alternative is reading the dispatch prose to tell a builder's return from
+a critic's, which is parsing prose for something the front matter already says. **It is self-clearing**: the
+critic's dispatch carries the same first line, and by the time that one returns `fix_cycles` is on disk, so
+the block finds the field there and says nothing. There is no state to reset.
+
+**It cannot tell a deliberate hand-back from a forgotten dispatch.** The bottom rung of Build's worker
+lifecycle — finish the pass in hand, say the remaining slices want a fresh session, say the uncritiqued
+state, hand back — writes the identical bytes, and Build calls that a legitimate way to run rather than a
+failure. The hand-back is *spoken and never stored*, the same shape as the `fix_cycles >= 2` row above.
+Here it costs nothing: `PostToolUse` cannot deny, so the run continues either way.
+
+**Neither `SubagentStop` nor `Stop` is the event, and both are worth saying out loud.** Exit 2 on
+`SubagentStop` *prevents the subagent from stopping*, so it would hold the builder open and instruct it to
+do the one thing the design forbids it. A `Stop` hook can deny, and denying here would take the bottom rung
+away — which is why this is a reminder and the menu ships no block that refuses.
+
+**This block does nothing for a skipped second or later critique.** `fix_cycles` is present by then and the
+fixed box is checked, so the condition is false and the block stays silent. Build states that gap outright
+and carries it on an instruction alone.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Task|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "SLICE=$(jq -r '.tool_input.prompt // \"\"' | head -1 | sed -n 's|^devpath slice: ||p'); [ -n \"$SLICE\" ] || exit 0; [ -f \"$SLICE\" ] || exit 0; grep -q '^done:[[:space:]]*true' \"$SLICE\" || exit 0; grep -q '^fix_cycles:' \"$SLICE\" && exit 0; jq -n --arg s \"$SLICE\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:(\"devpath: \" + $s + \" carries done: true and no fix_cycles: line, so the slice pass has not run on it. Dispatch the critic on it before building the next slice.\")}}'; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**The `[ -f "$SLICE" ]` clause buys quiet rather than correctness.** Without it, a first line naming a path
+that is not there still exits 0 — the `done` grep fails and the `||` takes it out — but that grep writes
+*No such file or directory* to stderr on the way, and a block that says nothing should say it on both
+channels.
 
 ---
 
@@ -902,14 +964,27 @@ be dishonest.
 no event that fires on a skill finishing. Claude reads the instruction and normally follows it, and
 **nothing in the harness makes it certain.** Both ways it can fail are visible in the artifact.
 
-**The Build → Critique edge is the one with a demonstrated failure, and its detection test is
-`fix_cycles`.** For one release `devpath:build` described a Build ↔ Critique loop and instructed nobody to
-run one — three of the four compositions were imperatives, that one was implicit, and the first real spec
-built seven slices, six of them to `done: true`, with an empty `## Critique findings` on every one and a
-real correctness defect among them. The imperative exists now, and what catches a session skipping it is
-that **`fix_cycles` absent on a slice that carries code is the slice pass never having run**, which
-Integrate refuses on. **That pairing is the answer everywhere in this design**: an instruction a session
-may skip is made visible in the artifact rather than shouted louder.
+**The Build → Critique edge is the one with a demonstrated failure history, and it has failed twice.** The
+first time the imperative was missing. For one release `devpath:build` described a Build ↔ Critique loop and
+instructed nobody to run one — three of the four compositions were imperatives, that one was implicit, and
+the first real spec built seven slices, six of them to `done: true`, with an empty `## Critique findings` on
+every one and a real correctness defect among them.
+
+**The second time the imperative was in front of the session and it skipped the call anyway.** The build
+turn reported three unticked criteria and a mutation result, closed on the line *Dispatching the critic
+now*, and ended. No error and no rejection: the call was never emitted, and the sentence describing the act
+stood in for the act. `devpath:build` names that shape now, where the report is long and the dispatch is one
+clause at the end of it, and **an instruction is what that change is, so it lowers the odds and guarantees
+nothing.**
+
+**What catches either is that `fix_cycles` absent on a slice that carries code is the slice pass never
+having run**, which Integrate refuses on. **That pairing is the answer almost everywhere in this design**:
+an instruction a session may skip is made visible in the artifact rather than shouted louder. *Almost*,
+because it answers at the merge gate — between a skipped dispatch and that refusal, the walk can build every
+remaining slice on top of code no critic has read, and **an instruction cannot be the answer to an
+instruction being skipped.** That is what the second failure argues for and the first did not: **block 8 on
+the menu**, a reminder fired at the moment the act is due, on a channel that cannot deny. It is a third
+answer rather than a guarantee, and the menu row says so.
 
 **`devpath` has no bypass, because it never blocked anything.** Non-use is always available and always
 free — which is why choosing not to use it is an adoption question, not evidence against the design.

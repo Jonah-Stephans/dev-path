@@ -48,7 +48,7 @@ done
 
 # ----------------------------------- 2. the hook blocks a repo pastes are valid
 #
-# README ships seven json blocks as copy-paste into a repo's settings.json, each
+# README ships eight json blocks as copy-paste into a repo's settings.json, each
 # carrying shell inside a JSON string. Both halves are hand-edited — the rename
 # in #44 moved 150 lines of this file — and a repo that pastes a broken one gets
 # a settings file that does not parse, or a hook that never fires.
