@@ -534,6 +534,11 @@ else for that slice reaches it either: no code, no `done: true`, no box.** Name 
 working tree when you stop, because the only thing behind this is a later `devpath:build` reaching *the
 working tree is dirty*, which prints those paths and asks a human. There is no second backstop.
 
+**Say which of those paths is the slice file, and that it holds the only copy of the pause.** That stop
+offers *restore `HEAD`'s version* on a tracked modified path, and taking it there deletes the refusal and
+leaves the slice reading *not started* to the next run, which walks into the same hook holding nothing
+about why the last one stopped. **The exit is *commit it here*.**
+
 **A pause commit is not a claim that the slice works.** What claims that is `done: true`, and a paused
 worker writes no such field. **Nothing mechanical reads the commit either** — the frozen test below joins
 the absence of `done` to an open box under `## Deviations`, Integrate refuses on that box, and neither
@@ -580,11 +585,11 @@ Build's: *a hit cut at the line break drops the end of the sentence.*
 
 **The tag is mandatory, and it closes a real ambiguity rather than decorating one.** An untagged open box
 under `## Deviations` is a pause: *this slice does not proceed until a human answers*. This one is a note
-about files a commit swept in. Untagged, the two are the same three characters in a diff, and **`done` in
-the front matter does not always tell you which** — a pause commits and stages the same way, so both boxes
-can be open on one slice carrying no `done: true`, where the field answers nothing. And nobody skimming
-seven slice files on a pull request is joining anything anyway. **`excess` names the shortfall in the box
-itself**, exactly as `- [ ] unmet` names it on an Outcome check.
+about files a commit swept in. Untagged, they are the same three characters in a diff, and **`done` in
+the front matter does not always tell you which** — a pause commits and stages the same way, so more than
+one box can be open on one slice carrying no `done: true`, where the field answers nothing. And nobody
+skimming seven slice files on a pull request is joining anything anyway. **`excess` names the shortfall in
+the box itself**, exactly as `- [ ] unmet` names it on an Outcome check.
 
 **It adds no state, and nothing over a spec directory reads it.** Every existing test matches
 `^[[:space:]]*- \[ \]` and still matches this one:
@@ -1029,9 +1034,10 @@ and holding one slice to build another was already *on request only*.
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.
 
 **A `- [ ] blocked` box is closed by a later `devpath:build` worker, and that is a different act rather
-than this rule bending.** What that worker closes on is a file a human changed outside the run, read at the
-moment of closing, and a read that finds the file unchanged stops the run again. Answering your own
-question is the thing that would not be a stop. `## A foreign hook's refusal` below carries the read.
+than this rule bending.** What that worker closes on is a change a human made outside the run — the file
+they edited, or the guard they moved — established at the moment of closing, and where nothing moved the
+run stops again. Answering your own question is the thing that would not be a stop.
+`## A foreign hook's refusal` below carries both establishing acts.
 
 **So an open `- [ ] blocked` box is the brief for the next dispatch rather than a bar on it.** Building the
 slice a pause box sits on is never the thing denied, above, and here the box is what the worker reads the
@@ -1045,6 +1051,11 @@ already names the findings and carries them, so you have the list you are dispos
 ***Fixed* is a claim about work just done, which only the pass that did it can make** — the same rule as
 ticking a criterion as you satisfy it and never before. Critique owns `false positive`; `won't fix` is
 the human's decision, written in the seat where they are.
+
+**That is `## Critique findings`, and under `## Deviations` the same tag claims the file instead.** A
+`- [ ] blocked` box closes on what the resuming worker establishes about the file rather than on work that
+worker did, so *fixed* there says the code now does what the box named. It is the one closed tag an
+establishing act can earn, and `## A foreign hook's refusal` below is where it is written.
 
 ## How you reach a human
 
@@ -1112,16 +1123,32 @@ another repo's hook, and none to send an engineer at a protected file by hand. *
 never how to get there:** the file, the change, and that the run stops until the file carries it.
 
 **The slice resumes in a fresh worker, and that worker reads before it writes.** Read the file against what
-the box named. **Already carries the change** → tick the box closed in the disposition grammar, with what
-you read on the line, and go on building the slice. **Does not** → attempt the write. It goes through,
-because the guard moved, or it is denied again, and then this section runs from the top: a fresh
-`- [ ] blocked` box, verbatim, and the run stops.
+the box named. **Three branches, and every one of them ends somewhere:**
+
+**Already carries the change** → write `- [x] fixed — <what you read>` and go on building the slice.
+**Here *fixed* is a claim about the file rather than about who edited it** — the code does what the box
+said it needed to, and the read is what establishes that. It is the one closed tag this act can earn:
+`false positive` says there was nothing there, `won't fix` says shipping without it, and neither is true
+of a file that now carries the change.
+
+**Does not, and the write goes through** — because the guard moved rather than the file → close the box
+the same way, on what the write did, and go on building the slice. **This branch is why the read is not
+the only thing that closes the box**: an engineer who lifted the guard or granted the path an exception
+has cleared the obstacle without touching the file, and a worker that only ever closed on a read would
+leave that box open with nobody left who may close it.
+
+**Does not, and the write is denied again** → the box you already have is still the true statement of the
+obstacle. **Replace the refusal on it with the new one, verbatim**, and stop the run. **One `- [ ] blocked`
+box per slice, always** — appending a second one naming the same file is a second copy of one question,
+and *read the file against what the box named* has no referent once there are two.
 
 **Read first, because both shortcuts fail.** Going straight to the write puts you back at the write that was
 denied. Assuming the human got it right is how a bad hand-edit reaches a commit — in the run this came from
 the edit happened to be correct, and nothing here would have caught it if it had not been.
 
-**Ticking that box closed is not closing your own pause.** *You do not close your own pause* holds and keeps
-its reason: a stage that could answer its own question is not a stop. This worker answers nothing. It
-confirms a state a human changed outside the run, and it stops the run again where that state is wrong. **A
-human never ticks the box** — they change the file, and the read is what closes the box.
+**Closing that box is not closing your own pause.** *You do not close your own pause* holds and keeps its
+reason: a stage that could answer its own question is not a stop. This worker answers nothing. It confirms
+a state a human changed outside the run, and it stops the run again where that state is wrong. **A guard
+that moved is that same change**, made by the same human in the same place, and the write going through is
+what confirms it exactly as the read confirms an edited file. **A human never ticks the box** — they change
+the file or they move the guard, and this worker is what closes it.

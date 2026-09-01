@@ -189,8 +189,14 @@ fi
 # `excess` and a second copy of this scan is how one of the two goes quiet.
 #
 # Two subjects. The executable files, minus this one — README's fenced json and
-# sh blocks are shipped code a repo pastes, so they count as mechanical, and the
-# scan of them names the tools those blocks actually run on.
+# sh blocks are shipped code a repo pastes, so they count as mechanical.
+#
+# Both subjects are asked one question — is a tool reading the word — rather than
+# whether the word appears. A string that only says `blocked` reads nothing, and
+# `blocked` is the ordinary English word for what these hook blocks do to a push,
+# so scanning for the bare word here goes red on a test that merely says it. The
+# tool list is what a read looks like in a shell file, a workflow or a block a
+# repo pastes.
 CODE=$(ls scripts/*.sh .github/workflows/ci.yml tests/*.sh 2>/dev/null | grep -vx 'tests/lint.sh')
 MECH=$(
   awk '
@@ -201,6 +207,7 @@ MECH=$(
     }
   ' README.md
   [ -n "$CODE" ] && grep -nE '(excess|blocked)([^a-z]|$)' $CODE \
+    | grep -E 'grep|awk|sed|jq|case|rg|"command"' \
     | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
 )
 if [ -n "$MECH" ]; then

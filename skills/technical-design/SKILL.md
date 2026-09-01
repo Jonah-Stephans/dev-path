@@ -419,16 +419,16 @@ handing on.
 under the same heading is the commit audit's — a note on files a commit swept in — and its disposition
 belongs to the human at merge. **A `- [ ] blocked` box is a pause and still not yours**: a foreign guard
 refused a write the slice needs, a human clears that outside the run, and the `devpath:build` worker that
-resumes the slice closes the box on what it reads. `devpath:build`'s `## A foreign hook's refusal` sets its
-shape and carries that read.
+resumes the slice closes the box on what it finds. `devpath:build`'s `## A foreign hook's refusal` sets
+its shape and carries that branch.
 
 **Ticking a `blocked` box here clears nothing.** Nothing said in this session moves another repo's hook, so
 the next `devpath:build` walks into the same refusal and pauses again, and nothing bounds how many times.
 **And a `devpath:build` worker closing that box is not a stage closing its own pause** — it closes on a
-file a human changed outside the run, and it stops the run again where the file did not change.
+change a human made outside the run, and it stops the run again where nothing moved.
 
 **The slice you are clearing can carry more than one box**, because the pause commit staged whatever was on
-disk: close the untagged one, and **leave a tagged box open.**
+disk: close the untagged one, and **leave a tagged box alone.**
 
 **`devpath:build`'s pause box is deliberately not one of the stops that asks through a question tool, and
 it stays prose.** The intent gate, the design gate, the slice layout and Integrate's refusal each end a

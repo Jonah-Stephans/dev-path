@@ -247,6 +247,11 @@ decision rather than whether one is owed. `- [ ] excess` is the commit audit's n
 swept in, closed on the human's decision at merge: `- [x] false positive` where the files were in scope
 and `touches` was incomplete, or `- [x] won't fix — <reason>` where they were not.
 
+**`- [ ] blocked` is the other tagged box, and its exit is not a tick.** A foreign guard refused a write
+a slice needs; a human clears the obstacle outside the run and the next `devpath:build` closes the box on
+what it finds. **Neither disposition above applies to it** — offering them here is how a merge gets armed
+on an obstacle nobody cleared. Print the slice path and say what the box is waiting on.
+
 **Print every unmet Outcome's block in full, all of them, before you ask about any of them.** A table of
 meanings is not a handover — the engineer in the seat needs a next act, and for two of these three exits
 there was nowhere to go. The question that separates them is **did we fall short of the target, or was

@@ -717,7 +717,7 @@ about this one*.
 
 **Inside `## Deviations` the tag says who clears it, and that is not a third reading.** An untagged box is
 the pause, closed by the `devpath:technical-design` session that resolves it; `- [ ] blocked` is a pause a
-human clears outside the run, closed by the `devpath:build` worker that resumes the slice on what it reads;
+human clears outside the run, closed by the `devpath:build` worker that resumes the slice on what it finds;
 `- [ ] excess` is the commit audit's, closed by the human at merge. All three hold every check open until
 they close.
 
