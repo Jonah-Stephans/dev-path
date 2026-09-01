@@ -272,7 +272,12 @@ not become one — `PostToolUse` still cannot deny, and the write has already ha
 
 **The offending headings ride inside the message rather than beside it.** The JSON has to be the only thing
 on stdout, so `$B` holds what the `grep` found and the message carries it — *which* heading is outside the
-schema is the part the model can act on. Empty `$B` exits 0 saying nothing.
+schema is the part the model can act on. Empty `$B` exits 0 saying nothing, and the `jq -n` building the
+message takes on nothing new — `jq -r` already reads the event on the first clause.
+
+**It ends `exit 0` whatever `jq` did.** A non-zero exit at `PostToolUse` is an error rather than a warning,
+and exit 2 is fed to the model as a blocking one — so a repo that reworks the message, and is therefore
+editing a `jq` program, gets no warning rather than an error on every write to a spec.
 
 ```json
 {
@@ -283,7 +288,7 @@ schema is the part the model can act on. Empty `$B` exits 0 saying nothing.
         "hooks": [
           {
             "type": "command",
-            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *devpath/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|devpath feedback\";; *devpath/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; B=$(grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\"); [ -n \"$B\" ] || exit 0; jq -n --arg f \"$F\" --arg b \"$B\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:(\"devpath: \" + $f + \" carries a heading outside the schema: \" + $b)}}'",
+            "command": "F=$(jq -r '.tool_input.file_path // \"\"'); case \"$F\" in *devpath/*/spec.md) P=\"Intent|Outcomes|Out of scope|Open questions|Evidence|Current state|Design|Traps|Outcome checks|devpath feedback\";; *devpath/*/slices/*.md) P=\"What to build|Acceptance criteria|Deviations|Critique findings\";; *) exit 0;; esac; B=$(grep -n '^## ' \"$F\" | grep -Ev \"^[0-9]+:## ($P)$\"); [ -n \"$B\" ] || exit 0; jq -n --arg f \"$F\" --arg b \"$B\" '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:(\"devpath: \" + $f + \" carries a heading outside the schema: \" + $b)}}'; exit 0",
             "timeout": 10
           }
         ]
@@ -377,7 +382,8 @@ denial: it puts the sentence in front of the engineer and stops there.
 
 **Which channel it speaks on is the whole of the difference, and each was measured.** At exit 0 a `Stop`
 hook's plain stdout reaches a debug log, its stderr reaches nobody, and a JSON `systemMessage` reaches the
-engineer, rendered as `Stop says: <message>`. The engineer is the only reader a `Stop` hook has, and
+engineer, rendered on Claude Code 2.1.221 as `Stop says: <message>` — the routing is the hook contract,
+the label is a string a release can rename. The engineer is the only reader a `Stop` hook has, and
 `systemMessage` is the one warning route to them, so that is what this block emits. **`printf` writes it,
 not `jq`** — nothing is interpolated into the message, so the block takes on no dependency it does not need.
 
@@ -401,16 +407,17 @@ not `jq`** — nothing is interpolated into the message, so the block takes on n
 
 ---
 
-**Two things are unverified, and which rather than a count.** `sh tests/*.sh` cannot test whether the
-harness honours a block's wrapper, but a probe session can, and that is how these were settled: `PreToolUse`
-exit 2 reaches the caller, `PostToolUse` `additionalContext` at exit 0 reaches the model, `Stop`
-`systemMessage` at exit 0 reaches the engineer, and plain stdout at exit 0 reaches a debug log and nobody
-else. The `if` key is settled against the official hooks reference rather than by probe.
+**Which channel a wrapper reaches is settled by probe rather than by test.** `sh tests/*.sh` cannot ask the
+harness whether it honours a block's wrapper, and a probe session can: `PreToolUse` exit 2 reaches the
+caller, `PostToolUse` `additionalContext` at exit 0 reaches the model, `Stop` `systemMessage` at exit 0
+reaches the engineer, and plain stdout at exit 0 reaches a debug log and nobody else. The `if` key is
+settled against the official hooks reference rather than by probe.
 
-**Block 6's `{"decision":"block"}` is the shape no probe has run**, and it is narrower than it was: a `Stop`
-hook's stdout at exit 0 *is* read as JSON, so what is open is whether that shape denies rather than whether
-the wrapper is read at all. And blocks 6 and 7 were exercised against a **stubbed** `gh` — the draft read,
-the enumeration, the scoping and the release were tested, the live API was not.
+**Two things are still unverified, and which rather than a count.** Block 6's `{"decision":"block"}` is the
+shape no probe has run, and it is narrower than it was: a `Stop` hook's stdout at exit 0 *is* read as JSON,
+so what is open is whether that shape denies rather than whether the wrapper is read at all. And blocks 6
+and 7 were exercised against a **stubbed** `gh` — the draft read, the enumeration, the scoping and the
+release were tested, the live API was not.
 
 **The post-merge Learn runner is not on this menu.** A workflow file plus a stored credential plus a
 decision to run an agent in CI is a procedure, not a paste. It is named here and not specified.
