@@ -1147,6 +1147,25 @@ the human's decision, written in the seat where they are.
 worker did, so *fixed* there says the code now does what the box named. It is the one closed tag an
 establishing act can earn, and `## A foreign hook's refusal` below is where it is written.
 
+**Mandated: run the check before you change anything, and it has to fail.** What discriminates a finding
+is a test or a mutation of the line it names, and never the suite. **A check that passes against the
+unfixed code is the finding disproved**, not a check written wrong.
+
+**Then fix it and run the same check green. Both runs in this pass** — a red you remember is not a run,
+because the code has moved since.
+
+**Green before the fix → change nothing and return saying which check you ran and what it did**, the route
+`### A rejected commit` above already takes on a refusal you cannot reproduce.
+
+**Where nothing can be run, `- [x] fixed` carries `unverified: <why>`.** `devpath:critique`'s
+`## What no check reaches` names those slices and no runner exists for any of them. The code changed, so
+*fixed* is honest; nothing proved it, so the line says so — and that is what makes **a bare `- [x] fixed`
+a check that went red and then green.** No new tag, and the closed set is unchanged.
+
+```markdown
+- [x] fixed — `Tolerance_Config__c` permission corrected; unverified: no runner exists for permission sets
+```
+
 ## How you reach a human
 
 > **A worker can reach the orchestrator. Only the orchestrator can reach the human.**

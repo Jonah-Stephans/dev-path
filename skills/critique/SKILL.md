@@ -68,8 +68,20 @@ language, would need a plugin release to change, and would be the copy that rots
 
 ### Triage first
 
-**Real / false positive / won't fix, each verified against the actual call path.** Hand only confirmed
-items onward.
+**Real / false positive / won't fix.** Hand only confirmed items onward.
+
+**Confirmed means a run came back the way the finding says, never that the call path reads that way.** On
+the spec this rule comes from, arguments closed 55 findings of which 11 changed nothing — revert each fix
+and all 564 tests stay green. An argument is how you choose what to run, never what confirms it.
+
+**A claim about the whole suite is paid for by whoever makes it.** *Nothing catches this* is not
+establishable from one file, so it costs one run of everything: mutate the line, run the suite, put it
+back. **Too expensive to run is too expensive to claim** — no threshold is written here, because the price
+rides on the claim rather than on the repo.
+
+**Everything else is one check in one file, and whether it is yours turns on one question: does proving
+this need test code written?** No — mutate the line and run the tests that exist, which is an experiment
+rather than a fix. Yes — hand it on, because writing that test is the fix's own deliverable.
 
 **Critique owns *false positive*** — a factual claim it can verify. ***Won't fix* needs the human** — a
 judgment about what is worth doing.
@@ -108,6 +120,10 @@ from it.
 - [x] won't fix — hard-coded org id in the test; fixture is scratch-org-local
 - [ ] bulk path still throws above 200 rows
 ```
+
+**A finding says what would be observed, never what is wrong with the mechanism** — the line goes in
+front of the human approving the pull request, and *two rows where the user owns one* tells them what *the
+create-adoption guard is redundant* does not.
 
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
 it may not have been, and **only `fixed` and `met` mean the code changed.** Pin that apostrophe in
@@ -187,6 +203,17 @@ and this section carries no mechanism that touches it.
 **A trap is written off a finding, never hunted for.** Both triggers are facts about a finding already
 confirmed on this slice, and nothing here sends you looking for a class of defect. That would be this
 skill writing a check instead of reading the repo's standard, which is the line the section above draws.
+
+**Mandated: reach the mutation before you write the entry**, which is the whole-suite claim above and
+costs the run. **Reachable:** you can state the sequence of acts, against the code as it stands, that gets
+to the branch and makes it observable. **And green:** where a test already fails on it, there is nothing
+here for the next worker to write.
+
+**Reachable is the half that fails**, and a mutation nothing can reach still loads into every later
+worker, where it reads as a live gap. An entry written here on 31 August said collapsing one guard moved
+the client's checked entry; a lockout landing on 1 September closed the pairing that guard
+arbitrated, and collapsing it now moves nothing. **An entry gets its one run when it is written**, and
+nothing goes back.
 
 **Write the mutation, as a target.** An entry states what a test here must be able to fail on, which is
 something the next worker can go and write. A prohibition — *fixtures should not all look alike* — hands
