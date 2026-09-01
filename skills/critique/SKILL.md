@@ -133,10 +133,11 @@ proceed on this slice until a human clears it** — **a pause box is never groun
 readings of one test: the grep answers *is anything open*, the section answers *what do I do about this
 one*.
 
-**One box under `## Deviations` carries its own tag, and it is not a pause.** `- [ ] excess` is the commit
-audit's note on files a commit swept in past the slice's `touches`, and review is exactly where it gets
-closed. **Leave it as you found it**: not a finding to fix, and not yours to close. The human closes it at
-review.
+**Two boxes under `## Deviations` carry a tag, and neither is yours.** `- [ ] excess` is the commit audit's
+note on files a commit swept in past the slice's `touches`, and review is exactly where it gets closed — by
+the human, in front of the diff. `- [ ] blocked` is a pause — a foreign guard refused a write the slice
+needs — and the `devpath:build` worker that resumes the slice closes it. **Leave both as you found them**:
+neither is a finding to fix, and neither is yours to close.
 
 ### Traps
 
