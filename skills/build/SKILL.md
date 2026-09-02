@@ -713,9 +713,10 @@ open at review, and the later one is the whole of it rather than the second inst
 
 ### The commit message
 
-**Suggested, with its reason. The subject line is the slice's title; the body names the slice file's path.
-Nothing else. Where the repo's standards rule says otherwise, the repo's rule wins and this line retires
-for that repo.**
+**Suggested, with its reason. The subject line is the slice's title; the body names the slice file's path,
+and may also carry the fix narrative for a finding this commit closes or the reasoning behind a deviation
+this commit writes. Nothing else. Where the repo's standards rule says otherwise, the repo's rule wins and
+this line retires for that repo.**
 
 ```
 Tolerance comparison in the invoice's currency
@@ -729,6 +730,24 @@ builder's, the slice file's `## Critique findings` in a critic's. **A pause comm
 the commit that finishes the slice after a human clears the box. **Intended rather than overlooked**, and
 a repo that wants them distinguishable in `git log --oneline` has its own standards rule, which wins here
 as above.
+
+**Why *nothing else* became a closed set of two.** `## How long a finding and a deviation may run` below
+caps what a box and a bullet may run to, and the words it displaces have to have somewhere to be. **The
+commit that made the fix is the honest home for why the fix was right**: the reasoning sits next to the
+diff it is about, where a reader who wants it is already looking, rather than in an append-only ledger
+every later reader has to read past. **A cap with no named route out is a quota, and a quota gets gamed.**
+
+**The field run behind those caps wrote 43 words a commit against the approved project's 94**, because
+here the body is a path. **This is not asking anyone to write less. It is asking them to write where the
+reference process already writes.**
+
+**One clause covers both halves, because both writers commit.** `devpath:build` and `devpath:slice` are the
+two that write under `## Deviations`, and each commits what it wrote. `devpath:integrate` writes nothing
+there — it reads Build's bullet and prints it into the pull request body.
+
+**A worker does not commit, so a fix narrative reaches the body through its return.** The words a fix
+pass is told to keep out of the box go into what it hands back, and this is the orchestrator putting them
+where they belong.
 
 **Why the path in the body rather than a prefix or a trailer.** `git log -- devpath/<slug>/` already finds
 a spec's commits, so the path is for the human reading one commit in isolation and asking *which slice was
@@ -1191,6 +1210,84 @@ a check that went red and then green.** No new tag, and the closed set is unchan
 ```markdown
 - [x] fixed — any user could edit `Tolerance_Config__c`; unverified: no runner exists for permission sets
 ```
+
+**And a disposition does not re-argue the fix.** The line above is why: a bare `- [x] fixed` already says a
+check went red and then green, so the case for the fix being right is made by those two runs rather than by
+prose sitting beside them. **Write the tag, and where nothing could be run the reason nothing did. Stop
+there.**
+
+**This is the clause the exemption above made possible and nobody has collected.** Before it, a
+disposition had to argue that the fix was right, and that argument is what a box 374 words long is made of.
+A field run wrote 114 of them across five slices. Splitting each at the point the fix narrative starts, 70%
+of those 29,129 words are the narrative and the disposition: **written after the fix had already landed, so
+none of it can have helped the fix.** The other 30% is the finding and its reproduction, which is the half
+the next fixer reads.
+
+**The prohibition is the lever, and `## How long a finding and a deviation may run` below is only its
+backstop.** A word cap on its own tells you *compress the argument*; it never tells you the argument is no
+longer owed, and a worker who believes it is owed compresses 374 words to 250 and leaves the file 250 words
+of the wrong thing.
+
+**The displaced words are not lost. They go in your return, and the orchestrator commits them.**
+`### The commit message` above now takes a fix narrative in the commit body, which is the honest home for
+why a fix was right: next to the diff that is the reason.
+
+## How long a finding and a deviation may run
+
+> **A box under `## Critique findings` runs to 250 words. A bullet under `## Deviations` runs to 150
+> words, and every bullet on one slice file to 1,500 words. A box under `## Deviations` is exempt from
+> both.**
+
+**Mandated, and the writer is the whole of the enforcement.** Nothing in a run counts words and nothing
+blocks on a count. `devpath` ships no hook enforcement and never depends on any, and a gate that failed a
+run for prose length would teach a worker to shave words rather than think about them. README carries an
+optional job a repo may paste if it wants the numbers refused at the pull request; the rule reads
+identically in a repo that pastes nothing.
+
+**250 is the only one of the three anchored outside `devpath`.** An approved Salesforce project built
+with plain Claude Code carries its whole review ledger in one structured file: 38 findings, 6,249 words,
+every entry holding a severity, a recommendation and a verdict. Its longest single entry is 267 words. The
+field run above averaged 374 words a box on its first slice and ran to 1,058 at the worst, and **that one
+slice's ledger is 14,355 words, more than twice the approved project's complete review.**
+
+**150 and 1,500 come from `devpath`'s own distribution, and this says so rather than dressing them up.**
+Nothing outside `devpath` writes deviations, so there is no outside number to anchor against. Over 61
+observed bullets the median is 154 words and the longest is 763: 150 leaves about half of them untouched,
+and 1,500 bites two slice files in five and nothing else.
+
+**What the next fixer needs is never what binds.** Across those 114 boxes the finding and its
+reproduction average 76 words. That half carries the evidence citation, which is the axis `devpath` beats
+the reference process on: the approved ledger pins its findings to a class that has since moved 553 lines,
+so most of its anchors now resolve to the wrong code. **250 is sized so the reproduction is never the
+constraint.**
+
+**250 caps the whole box rather than the post-fix half of it**, because capping a half needs a splitter,
+and the string this run split on is one it invented. The shipped grammar is *a box entry is one line
+beginning `- [` at column zero, with nothing nested under it*, so capping the half would mean mandating an
+internal box structure `devpath` does not have.
+
+**1,500 is per slice file.** *Section budget* on its own reads either way, and a check has to pick one.
+
+**A box under `## Deviations` is exempt because its length is not the writer's to choose.** A
+`- [ ] blocked` box reproduces a foreign guard's refusal **verbatim, by mandate**, and a cap over a
+verbatim reproduction is a contradiction the first time a refusal runs long. A `- [ ] excess` box is
+generated one per swept-in path, and **both its length and its count are set by the diff**: 53 of them on
+one run, for a `.gitignore` the repo did not have. And a pause box is a brief the next dispatch acts on,
+rather than the note for the human at merge that the cap is about.
+
+**The rule keys on the box marker, and that is deliberate.** The marker is the signal under these two
+sections and the words after it are not. Nothing mechanical reads a tag word, so *tagged* is not a line a
+check can draw. Keying on the marker draws it one item wider, taking the untagged pause box in with the two
+that carry a tag, and every item in that set is one a run reads rather than one written for merge.
+
+**No section budget on `## Critique findings`, deliberately.** A budget there caps how many defects a
+critic may report, which is a perverse incentive the deviations budget does not have. Bounding that section
+is already somebody's job: every closed box leaves the slice file for the archive at the next re-review, so
+the two compose rather than overlap.
+
+**`devpath:slice` writes plain bullets under `## Deviations` too**, one sentence when a reworked design
+supersedes a built slice, and the same numbers hold for them. One convention, two writers, as
+`### The cut` above says of the shape.
 
 ## How you reach a human
 

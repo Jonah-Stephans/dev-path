@@ -48,7 +48,7 @@ behaviour from `devpath`, just less attended. Everything below is a repo's own c
 repo's `.claude/settings.json`.
 
 **The recommended default is one job, not a suite** — the open-box grep, scoped to the spec directories
-the pull request touches:
+the pull request touches, with the prose caps as an optional second half of the same job:
 
 ```bash
 : "${BASE:?not a pull request build}"
@@ -57,11 +57,111 @@ SPECS=$(git diff --name-only "$MB" HEAD | grep -oE '^devpath/[^/]+/' | sed 's:/$
 if [ -n "$GITHUB_HEAD_REF" ]; then SPECS="$SPECS devpath/$GITHUB_HEAD_REF"; fi
 SWEEP=; for d in $(printf '%s\n' $SPECS | sort -u); do [ -d "$d" ] && SWEEP="$SWEEP $d"; done
 if [ -z "$SWEEP" ]; then echo "no spec directory in this diff — nothing to sweep"; exit 0; fi
-! grep -rn '^[[:space:]]*- \[ \]' $SWEEP
+RC=0
+if grep -rn '^[[:space:]]*- \[ \]' $SWEEP; then RC=1; fi
+
+# Optional from here down to exit. Delete it and the job is the open-box grep alone.
+CHANGED=$(git diff --unified=0 "$MB" HEAD -- $SWEEP | awk '
+  /^\+\+\+ b\// { f = substr($0, 7); next }
+  /^@@ /        { split(substr($3, 2), h, ",")
+                  c = (h[2] == "" ? 1 : h[2] + 0)
+                  for (i = 0; i < c; i++) print f ":" h[1] + i }' | tr '\n' ',')
+FILES=$(find $SWEEP -name '*.md' -type f)
+if [ -n "$FILES" ]; then
+  OVER=$(awk -v changed="$CHANGED" -v findingcap=250 -v bulletcap=150 -v budget=1500 '
+    function count(s) { return split(s, drop, " ") }
+    function enditem() {
+      if (!live) return
+      if (touched && sect == "f" && w > findingcap)
+        print at ": a finding box runs to " w " words, over " findingcap
+      if (touched && sect == "d" && !boxed) {
+        if (w > bulletcap) print at ": a deviation bullet runs to " w " words, over " bulletcap
+        sum += w
+      }
+      live = 0
+    }
+    function endfile() {
+      enditem()
+      if (sum > budget)
+        print path ": this pull request writes " sum " words of deviation bullets, over " budget
+      sum = 0
+    }
+    BEGIN { n = split(changed, a, ","); for (i = 1; i <= n; i++) seen[a[i]] = 1 }
+    FNR == 1 { endfile(); path = FILENAME; sect = "" }
+    /^#/ { enditem(); sect = ""
+           if ($0 == "## Critique findings") sect = "f"
+           if ($0 == "## Deviations")        sect = "d"
+           next }
+    substr($0, 1, 2) == "- " {
+      enditem()
+      live = 1; at = FILENAME ":" FNR; boxed = (substr($0, 1, 3) == "- [")
+      s = substr($0, 3)
+      if (substr(s, 1, 1) == "[") { p = index(s, "]"); if (p) s = substr(s, p + 1) }
+      w = count(s); touched = ((FILENAME ":" FNR) in seen); next
+    }
+    live { w += count($0); if ((FILENAME ":" FNR) in seen) touched = 1 }
+    END { endfile() }
+  ' $FILES)
+  if [ -n "$OVER" ]; then printf '%s\n' "$OVER"; RC=1; fi
+fi
+exit $RC
 ```
 
-**Still one job, and still one grep.** Every line above the last works out *which* directory to sweep, and
-the last line is the only one that can turn the job red on a box.
+**Still one job, and still one sweep.** Every line above `RC=0` works out *which* directories to sweep,
+and both halves under it read exactly those: the grep for an open box, the `awk` for an item longer than
+its cap. **The first half is the recommended default and the second is optional.** Delete from the comment
+down to `exit $RC` and you have the grep alone, which is what this section shipped before the caps existed.
+
+**Both exits are captured and combined, and that is not tidiness.** GitHub Actions runs a `run:` step under
+`bash -e`, so the older last line, `! grep -rn … $SWEEP`, aborted the step the moment it matched a box, and
+anything appended after it never ran. A spec over its caps *and* holding an open box would report the box
+alone, and the caps would look clean for exactly as long as they were being broken.
+
+**What the second half does, in plain English.** It sweeps the same directories, finds every box under
+`## Critique findings` and every bullet under `## Deviations` whose text this pull request **added or
+changed**, counts the words in each one, following a bullet across the lines it wraps onto, and is red on
+any that is over its cap. **A box under `## Deviations` is skipped**, and prose this pull request did not
+touch is not counted.
+
+| the item | cap | anchored outside `devpath`? |
+| --- | --- | --- |
+| a box under `## Critique findings` | 250 words | **yes.** An approved project's longest single finding entry, holding a severity, a recommendation and a verdict, is 267 words |
+| a bullet under `## Deviations` | 150 words | **no.** `devpath`'s own distribution, and it leaves about half the observed bullets untouched |
+| every bullet under `## Deviations`, per slice file | 1,500 words | **no.** The same distribution, and it bites two slice files in five |
+
+**The numbers are the writers' rule, and this job only refuses them.** `devpath:build` and
+`devpath:critique` carry them as a mandate, and no run counts words or blocks on a count, because a gate
+that failed a run for prose length teaches a worker to shave words rather than think about them. This job
+is a repo choosing to refuse the numbers at the pull request, exactly like every other block on this
+page.
+
+**An item runs from a `- ` at column zero to the next one**, because bullets under `## Deviations` wrap
+and boxes under `## Critique findings` do not. A per-line `wc -w` gets the second section wrong. **A
+formatter that renests a list indents an item's first line, and this counter then reads it as a
+continuation of the item above.** It under-counts rather than over-counting, which is the direction an
+optional check should fail in. The open-box grep above is widened for the same formatter and fails the
+other way, deliberately.
+
+**A box under `## Deviations` is skipped on its marker rather than on its tag word**, for the reason
+*Every section above is a signal or a written trace* gives below: the marker is the signal and the words
+after it are not. That draws the skipped set one item wider than the two boxes that carry a tag, taking the
+untagged pause box in with them, and `devpath:build` argues that widening where it states the rule.
+
+**Diff-scoped, and a maintainer must not "simplify" it to the whole file.** Both sections are append-only.
+*Open boxes append and are never deleted*, and a bullet under `## Deviations` is never deleted either, so a
+whole-file check turns a repo permanently red on prose written before the caps existed, with no legal way
+to shorten it. Archiving rescues the findings half; `## Deviations` is not archived, and that omission is
+deliberate. So the check has to read changed lines, and `devpath` names the technique already: `fit-check`
+entry 17 is *CI can run a diff-scoped check evaluating changed lines*, observed by
+`git diff --unified=0` in a `run:`.
+
+**The section budget is what this pull request adds, not what the section holds**, for the same reason.
+`devpath:build`'s mandate bounds the section; a diff-scoped job can only see the part this pull request
+wrote. A section already over budget stays green until somebody adds to it.
+
+**The archive files pass through unread, correctly.** They sit inside the spec directory, so the sweep
+reaches them, and they carry no `## ` heading — so no item in them is ever in either section. Re-checking
+immutable history buys nothing.
 
 **Scope comes from the diff, never from the branch name alone.** The short version of this job read
 `devpath/$GITHUB_HEAD_REF` and required a directory of that name. A lessons branch
@@ -109,11 +209,12 @@ than the only one.
 <details>
 <summary><b>The menu — eight blocks over seven properties</b></summary>
 
-**What a repo can make hard, and what it cannot.** Ten properties; the eight blocks below cover seven.
+**What a repo can make hard, and what it cannot.** Eleven properties; the eight blocks below cover seven.
 
 | Rule | Repo-enforceable? | Mechanism |
 | --- | --- | --- |
 | No undispositioned `- [ ]` reaches the base branch | **hard** | the open-box grep above, as a job on the pull request, scoped to the spec directories that pull request touches. **Not section-blind at push time** — `## Acceptance criteria` boxes are open by design mid-build, so block 1 is narrower |
+| No box or bullet over its cap is added or changed | **hard** | the second half of the open-box job above. **Diff-scoped, and not to be widened** — both sections are append-only, so a whole-file check is permanently red on prose written before the caps and there is no legal way to shorten it |
 | `fix_cycles >= 2` opens no unattended fix pass | **the rule holds; no block ships** | the grant is *spoken and never stored*, so a hook reading the field cannot tell a capped slice from a granted lap. A repo can only buy this by giving up the granted lap |
 | A gate field is `true` before the next stage runs | **hard** | block 2 |
 | Spec and slice files match the schema | **hard** | block 4 |
@@ -124,7 +225,7 @@ than the only one.
 | A built slice is critiqued before the walk moves on | **not hard; a block still ships** | block 8 — a reminder at the moment the act is due, rather than detection after the act is missed. It cannot deny, **it fires on every ordinary builder return by design**, and it cannot tell a deliberate hand-back from a forgotten dispatch |
 | **A per-worker token budget** | **NOT AVAILABLE** | no hook input carries token counts |
 
-**Four of those ten rows are not hard**, and the README says so rather than leaving you to notice the
+**Four of those eleven rows are not hard**, and the README says so rather than leaving you to notice the
 table is longer than the menu. Three of the four ship no block at all: the `fix_cycles` cap has no honest
 hook, the missed-increment row is not a rule any more, and the token budget is unavailable. The fourth
 ships block 8, which reminds and cannot deny — it lowers the odds of a skipped critique and guarantees
