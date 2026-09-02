@@ -146,9 +146,10 @@ it is dropped at compaction and not re-injected until another matching read. So:
 
 **The residual cost is permanent, not one fix cycle** — a lesson Build never sees is re-learned at review
 every time. Two things soften it and neither removes it: Build reads existing code to orient, so any
-matching file it opens loads the scoped set; and coverage improves as the repo fills up, which means **the
-hole is worst on a young greenfield repo and closes as code accumulates** — the opposite of where
-`devpath` aims.
+matching file it opens **through `Read` or `Edit`** loads the scoped set — **which is why Build mandates
+that read rather than leaving it to a worker's habit**; and coverage improves as the repo fills up, which
+means **the hole is worst on a young greenfield repo and closes as code accumulates** — the opposite of
+where `devpath` aims.
 
 ## Routing: not everything found becomes a rule
 
