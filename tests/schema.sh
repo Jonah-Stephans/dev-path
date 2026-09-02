@@ -513,9 +513,10 @@ done
 # devpath/<slug>/archive/<nn>-<name>.md. The two halves are one rule. The archive
 # is only safe because an open box never moves: an open box moved out of the slice
 # file is one no fix pass will ever look at, and Integrate then refuses on it
-# forever. And the append is only bounded because a closed one goes. Two files state them: skills/critique/SKILL.md, which the
-# critic acts on, and README's on-disk contract, which is where everyone else
-# learns the shape of the file they are reading.
+# forever. And the append is only bounded because a closed one goes. Two files
+# state them: skills/critique/SKILL.md, which the critic acts on, and README's
+# on-disk contract, which is where everyone else learns the shape of the file
+# they are reading.
 #
 # Checks 7 and 9's kind of drift, and the same argument for holding it here.
 # Neither copy derives from the other, so a half dropped from one is invisible in

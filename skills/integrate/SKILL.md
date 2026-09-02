@@ -967,8 +967,9 @@ observation as data — because merging the voices breaks bound 4.
 **It runs before the arming, and the order is deliberate.** Arming auto-merge is irreversible: on a pull
 request already carrying its approval, a required check that finishes fast can merge it while a later
 step is still running. **Nothing is lost by running Learn first** — its two available inputs are
-`devpath`'s own files, `## Critique findings` and `## Deviations`, and both are complete before this
-command started. Learn reads nothing the ready transition produces.
+`devpath`'s own files, `## Critique findings` with the archive Critique moved its closed boxes to,
+and `## Deviations`, and both are complete before this command started. Learn reads nothing the ready
+transition produces.
 
 ## 8 · Mark ready, then arm auto-merge
 

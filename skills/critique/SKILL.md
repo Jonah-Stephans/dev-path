@@ -122,9 +122,9 @@ context whose input is the branch state plus the findings, **never the tail of t
 
 ### Write `## Critique findings` on the slice file
 
-**The section runs in one direction. Open boxes append and are never deleted, and
-a closed one leaves at the next re-review**, into the archive below. A `won't fix` from cycle 1 must
-still reach Integrate, and the archive is inside the spec directory, so it does.
+**Open boxes append and are never deleted, and a closed one leaves at the next re-review**, into the
+archive below. One direction, and nothing comes back. A `won't fix` from cycle 1 must still reach
+Integrate, and the archive is inside the spec directory, so it does.
 
 ```markdown
 ## Critique findings
@@ -228,6 +228,25 @@ for the life of the spec. **A `# <nn>-<name>` heading and the box lines under it
 **Open boxes never move.** A closed finding you dispute is archived with the rest and then **raised again
 as a new open box** — that is what re-arms the loop, and the raising grammar above is how the new line is
 written.
+
+**A disposition three passes back is one grep away, and two of them are decisions rather than work.**
+`- [x] won't fix` is a human's call on a defect that is real, and `- [x] false positive` is a claim an
+earlier pass verified — so a finding matching either has been answered, and the slice file stopped
+carrying the answer one pass after it was written:
+
+```sh
+grep -n "won't fix\|false positive" devpath/<slug>/archive/<nn>-<name>.md
+```
+
+**Two tags rather than the file, because the file is what the archive exists to keep out of a context**,
+and a grep for two tags is a handful of lines at any size. **`- [x] fixed` is deliberately not one of
+them:** re-deriving a finding a fix pass closed means the fix regressed, which is a new finding rather
+than a repeat. **Nothing branches on the tag** — the two lines go in front of you, exactly as Integrate's
+step 4 counts them and the standing `grep -rn "won't fix" devpath/` lists them for a human.
+
+**Raise it anyway where the code says so, and name the earlier answer on the line.** Code changes under a
+`false positive`, and a `won't fix` is the human's to revisit. What this stops is the same defect reaching
+them a third time reading as new.
 
 **Every pass archives, including a `devpath:critique` run a human typed.** A pass always leaves the slice
 holding only what is live. Making it conditional on which `fix_cycles` row fired below would turn one act

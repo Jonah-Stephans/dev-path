@@ -200,8 +200,11 @@ fi
 #
 # Two subjects. The executable files, minus this one — README's fenced json and
 # sh blocks are shipped code a repo pastes, so they count as mechanical. The
-# fenced lines are pulled out and then asked the same two questions the files
-# are, rather than a second copy of the patterns being written for them.
+# fenced lines are pulled out and then asked the same questions the files are,
+# rather than a second copy of the patterns being written for them. A `#` line
+# reads nothing wherever it sits, so the fences drop theirs too — latent while
+# the tag list was two words, and a false report the first time a README comment
+# says `grep` and `fixed` on one line.
 #
 # Both subjects are asked one question — is a tool reading the word — rather than
 # whether the word appears. A string that only says `blocked` reads nothing, and
@@ -245,7 +248,7 @@ MECH=$(
   awk '
     /^```(json|sh|bash)$/ { fence = 1; next }
     /^```$/               { fence = 0; next }
-    fence                 { print FILENAME ": " $0 }
+    fence && !/^[[:space:]]*#/ { print FILENAME ": " $0 }
   ' README.md | grep -E "${L}(${TAGS})${R}" | grep -E "${L}(${TOOLS})${R}"
   [ -n "$CODE" ] && grep -nE "${L}(${TAGS})${R}" $CODE \
     | grep -E "${L}(${TOOLS})${R}" \
