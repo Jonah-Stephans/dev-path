@@ -695,7 +695,7 @@ matter is unchanged and hook block 4's heading list is unchanged.
 | --- | --- |
 | `- [ ]` | **still open** — Integrate refuses |
 | `- [ ] unmet` / `- [ ] excess` / `- [ ] blocked` | the same open box with its own shortfall spelled out — `unmet` where a check fell short, `excess` where a commit went past the slice's scope, `blocked` where a foreign hook refused a write a slice needs. **What follows is what was observed, never the Outcome or the criterion restated** — under `## Outcome checks` the tag is followed by the Outcome's ID and then the observation. **Not new states** — every check greps `^[[:space:]]*- \[ \]`, which matches all three |
-| `- [x] fixed` / `- [x] met` | the code does it. **A `met` line under `## Outcome checks` is the tag and the ID, and stops there.** **A `fixed` line is a check that went red and then green** — where nothing could be run the line says so, carrying `unverified: <why>` after the observation |
+| `- [x] fixed` / `- [x] met` | the code does it. **A `met` line under `## Outcome checks` is the tag and the ID, and stops there.** **A `fixed` line under `## Critique findings` is a check that went red and then green** — where nothing could be run the line says so, carrying `unverified: <why>` after the observation. **Under `## Deviations` the same tag closes a `blocked` box on what a read established, and carries no check** |
 | `- [x] false positive` | there was nothing there |
 | `- [x] won't fix` | **real, not done, shipping anyway**. **Under `## Outcome checks` the tag is followed by the Outcome's ID and then the reason** |
 
