@@ -122,8 +122,9 @@ context whose input is the branch state plus the findings, **never the tail of t
 
 ### Write `## Critique findings` on the slice file
 
-**It appends across cycles** — a `won't fix` from cycle 1 must reach Integrate. Nothing is ever deleted
-from it.
+**The section runs in one direction. Open boxes append and are never deleted, and
+a closed one leaves at the next re-review**, into the archive below. A `won't fix` from cycle 1 must
+still reach Integrate, and the archive is inside the spec directory, so it does.
 
 ```markdown
 ## Critique findings
@@ -137,6 +138,15 @@ from it.
 goes in front of the human approving the pull request, and *two rows where the user owns one* tells them
 what *the create-adoption guard is redundant* does not. **Raised, so the text carries through the tag:**
 closing a box replaces the tag rather than the line.
+
+**A reference names what it points at, never where it sits.** *The open finding above* resolves only
+while the target is open and the ordering holds — a live run watched its own pointers go stale and wrote
+down why. Name the behaviour the other finding is about and the sentence resolves wherever either line
+ends up. `## Traps` refuses a pointer of that shape already: an entry **never names a slice**. Archiving
+does not create this defect — it makes it impossible to ignore — and **no finding IDs and no pointer
+grammar are added for it**, because the archive's path is derivable from the slice's, so a worker that
+knows which finding it wants has one file to open. That deliberate second read is the trade. **Nothing
+migrates:** a spec already on disk keeps its references as written.
 
 **A disposition is a different act and this does not bind it.** `won't fix` is the human's words and no
 agent may shape them. **`false positive` replaces the raised text** — what was raised is the thing that
@@ -172,6 +182,91 @@ the human, in front of the diff. `- [ ] blocked` is a pause — a foreign guard 
 needs — and the `devpath:build` worker that resumes the slice closes it. **Leave both as you found them**:
 neither is a finding to fix, and neither is yours to close.
 
+### Archive the closed findings
+
+**Mandated. Every closed box that was under `## Critique findings` when you opened the slice file moves to
+`devpath/<slug>/archive/<nn>-<name>.md`.** The slice file keeps what is live: the open findings, plus
+whatever this pass itself just dispositioned.
+
+**The rule keys on `- [x]` and reads no tag word.** Every closed box goes: no exception, and nothing on the
+line for you to weigh. It is also the only form that holds on the boxes this grammar did not anticipate. A
+field run wrote 114 closed boxes and 27 of them carried a tag from outside the closed set `devpath`
+defines — 26 read `- [x] verified` — so a mechanism that read the tag would have had to decide what a
+quarter of that run's own artifact meant.
+
+```markdown
+## Critique findings
+- [x] fixed — a failed tolerance write reported success
+- [x] false positive — null guard at line 42; the caller guarantees non-null
+- [x] fixed — the bulk path swallowed the DML exception
+- [ ] two rows are created where the user owns one
+```
+
+**That leaves the slice file holding one line**, with the three closed ones now in
+`archive/04-tolerance-service.md`:
+
+```markdown
+## Critique findings
+- [ ] two rows are created where the user owns one
+```
+
+```markdown
+# 04-tolerance-service
+
+- [x] fixed — a failed tolerance write reported success
+- [x] false positive — null guard at line 42; the caller guarantees non-null
+- [x] fixed — the bulk path swallowed the DML exception
+```
+
+**One file per slice, mirroring the slice's number and name**, so the path is derivable from the slice's
+with no lookup — `devpath:slice` renumbers nothing and renames nothing, which is what keeps it derivable
+for the life of the spec. **A `# <nn>-<name>` heading and the box lines under it, in archive order.** No
+`## ` heading: this file sits outside the spec and slice schemas rather than adding a section to either.
+**Created on first archive**, so its absence means nothing has ever been archived on that slice, which is
+*nothing writes a placeholder* holding rather than an exception to it.
+
+**Open boxes never move.** A closed finding you dispute is archived with the rest and then **raised again
+as a new open box** — that is what re-arms the loop, and the raising grammar above is how the new line is
+written.
+
+**Every pass archives, including a `devpath:critique` run a human typed.** A pass always leaves the slice
+holding only what is live. Making it conditional on which `fix_cycles` row fired below would turn one act
+into two and hand a critic a branch to get wrong — and *read-only* is not a property this skill has, since
+a standalone run already writes findings, `fix_cycles`, `## Traps` and a strike through a wrong
+`## Current state` note.
+
+**What this buys `fix_cycles`.** With the closed set cleared at every re-review, a `- [x] fixed` box on the
+page can only have come from a fix pass since the last one, which is what row 2 of the table below always
+needed it to mean. **Nothing in that table moves.** What changes is that its third row is reachable rather
+than theoretical: a pass opening a slice that carries a `fix_cycles:` line and no `fixed` box is looking at
+an engineer running this skill again, or at a fix pass that disproved its finding and wrote no box, and it
+writes nothing. A disproof that used to spend a lap of the cap now costs none.
+
+**Why the re-review and not the tick.** A fix pass removing the box as it ticked it breaks the count in the
+other direction. Row 2 fires because **the next critic sees a `- [x] fixed` box** — take the box away at
+the tick and row 2 never matches, the field freezes at 0, and the two-cycle cap never trips. **A stub left
+behind fails the same way, less obviously:** a one-line stub still carrying the tag matches row 2 forever,
+and one that drops the tag to avoid that leaves `devpath:integrate` step 4 nothing to count, which is the
+thing the stub was bought for. **Whole line, no stub.**
+
+**Where the file sits, and the two placements it is not.** Inside `devpath/<slug>/`, so it lands on the base
+branch under squash, rebase and merge alike, stays inside the open-box gate's sweep, and keeps
+`grep -rn "won't fix" devpath/` whole. **Not under `slices/`:** `scripts/contention.sh` walks the working
+tree with `"devpath/$HERE/slices"/*.md`, one level deep, and remote branches with
+`case "$f" in */slices/*.md)`, whose `*` crosses `/` — so an archive in there is invisible to contention on
+your own branch and read as a slice on everyone else's. **And not a suffix on the slice's own name**, which
+is worse: both globs take it. `ls slices/` is also what answers *has this been sliced?* in every case, and a
+second kind of file in there ends that. **README's schema hook is not a reason either way** — measured, not
+assumed: it flags a heading that should not be there and is silent on a file carrying none, under `slices/`
+or anywhere else. What it does hold is the heading rule above, wherever this file sits: give it a `## `
+heading and the hook objects. **`devpath/<slug>/sketches/` is the precedent** — a sibling directory holding
+a different kind of artifact.
+
+**`## Deviations` is not archived, and the omission is deliberate.** It is named in the same breath as this
+section wherever the two are counted, and it grows the same way — but no pass verifies an entry and settles
+it, so there is no non-arbitrary moment to hang an archive on. Said here rather than left to read as an
+oversight.
+
 ### Traps
 
 **Mandated: read `## Traps` on `spec.md` before you review the tests, and go to the heading by name.**
@@ -203,8 +298,8 @@ mutation, and the sentence it came out of.
 
 **Both triggers fire on what this pass confirmed, and that is what makes them once-only.** Triage is
 something a pass does, so a finding already carrying a disposition was triaged by an earlier pass and is
-not yours to confirm again. `## Critique findings` appends and never deletes, and neither trigger reads
-it — the subject is the list you built this pass.
+not yours to confirm again. **And neither trigger reads `## Critique findings` anyway** — the subject is
+the list you built this pass, which is what leaves archiving the closed boxes invisible to both.
 
 **A quote that no longer resolves is still the entry doing its job.** `## Traps` survives a design
 withdrawal — `devpath:technical-design` deletes `design_approved` and rewrites `## Design` with this
@@ -393,11 +488,12 @@ slice complete*, and the pull-request reviewer for *is the diff readable*.
 
 ## Stop
 
-**Critique done ⇔ this pass has written its findings, or it stopped and named what stopped it — the
-slice on a tripped cap, the condition at `## Refuse first`.**
+**Critique done ⇔ this pass has written its findings and archived the closed boxes it opened the file on,
+or it stopped and named what stopped it — the slice on a tripped cap, the condition at `## Refuse first`.**
 
-Write the findings, write any trap this pass earned, strike any `## Current state` note this pass found a
-confirmed finding's cause in, write `fix_cycles` if this pass is one of the three cases above, and return.
+Write the findings, move the boxes that were already closed into the archive, write any trap this pass
+earned, strike any `## Current state` note this pass found a confirmed finding's cause in, write
+`fix_cycles` if this pass is one of the three cases above, and return.
 
 **Who commits that write is your role and never which skill called this one.** **A dispatched critic
 writes and returns; the session that dispatched it commits on that return.** **The session holding this

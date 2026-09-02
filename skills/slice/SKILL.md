@@ -226,8 +226,9 @@ that deployed.
 
 **Mandated.** Read the built slices and the new `## Design`, and cut only what the design needs that no
 built slice already covers. New slices take the next numbers. Nothing is renumbered and nothing is
-deleted: the number is authoring order, and renumbering breaks every `depends_on` path and every
-`## Deviations` entry that names a slice.
+deleted: the number is authoring order, and renumbering breaks every `depends_on` path, every
+`## Deviations` entry that names a slice, and the `devpath/<slug>/archive/<nn>-<name>.md` that mirrors a
+slice's number and name so `devpath:critique` can derive it.
 
 **The one write this skill makes to a built slice file is the `## Deviations` sentence below, and it
 appends.**
@@ -266,6 +267,7 @@ than about slice files. At N = 1 there is no delta to cut and in place is the on
 **The re-cut rewrites `## What to build` and `## Acceptance criteria`, and leaves the rest of the file
 alone.** `## Deviations`, `## Critique findings` and every front-matter field another stage wrote ride
 through untouched, because a slice carrying no `done: true` is not the same thing as an untouched slice.
+The slice's archive file is not in this file at all, so a re-cut never reaches it.
 `devpath:build` pauses by writing an open box under `## Deviations` and committing what is on disk, so the
 file can hold a pause and a `- [ ] excess` note from the commit audit, with committed code behind them.
 

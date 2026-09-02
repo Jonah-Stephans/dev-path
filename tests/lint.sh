@@ -2,8 +2,8 @@
 # devpath — repo-wide rules that hold no matter which file is edited next.
 #
 # Seven checks, all of them rules rather than paragraphs: the retired vocabulary,
-# the skill-to-skill call strings, the closed set of gate fields, the two
-# `## Deviations` tag words staying unread by anything mechanical, the Outcome
+# the skill-to-skill call strings, the closed set of gate fields, every tag word
+# in the disposition grammar staying unread by anything mechanical, the Outcome
 # handle grammar, every stage naming when the stage is over, and no gate or layout
 # prompt marking one of its options. What this file does not do is assert that a
 # given paragraph is still on a given page, which a diff already catches. Checks
@@ -178,18 +178,30 @@ if [ -n "$FIELDS" ]; then
 $FIELDS"
 fi
 
-# ------------------------------------------ 4. the `## Deviations` tags are prose
+# ------------------------------------- 4. nothing mechanical reads a tag word
 #
-# `- [ ] excess` and `- [ ] blocked` are each the same open box with its
-# shortfall named, exactly as `- [ ] unmet` is, so every existing check matches
-# them and no new check exists. The moment something mechanical reads either tag
-# word, that tag has become a sixth state and the frozen test has two answers.
+# skills/integrate/SKILL.md states the rule over the whole set: the closed set of
+# tags stays five, and nothing mechanical reads a tag word. The moment something
+# mechanical reads one, that tag has become a state of its own and the frozen
+# test has two answers. `- [ ] excess` and `- [ ] blocked` are each the same open
+# box with its shortfall named, so every existing check matches them and no new
+# check exists — and that is the property, held over every word rather than two.
 #
-# Both words, one check, because they fail identically: `blocked` arrived after
-# `excess` and a second copy of this scan is how one of the two goes quiet.
+# Six words, one check, because they fail identically and a second copy of this
+# scan is how one of them goes quiet. `blocked` arrived after `excess`, and this
+# check read those two alone, so the four words a disposition is actually written
+# in went unscanned.
+#
+# `unmet` is the seventh word and is deliberately not one of them. The grammar
+# has readers that key on it by design — devpath:build cuts one slice per
+# `- [ ] unmet` line, and devpath:integrate carries every one into the pull
+# request body whole — so it is the one tag word a program is meant to find. The
+# other six have no such reader.
 #
 # Two subjects. The executable files, minus this one — README's fenced json and
-# sh blocks are shipped code a repo pastes, so they count as mechanical.
+# sh blocks are shipped code a repo pastes, so they count as mechanical. The
+# fenced lines are pulled out and then asked the same two questions the files
+# are, rather than a second copy of the patterns being written for them.
 #
 # Both subjects are asked one question — is a tool reading the word — rather than
 # whether the word appears. A string that only says `blocked` reads nothing, and
@@ -197,21 +209,52 @@ fi
 # so scanning for the bare word here goes red on a test that merely says it. The
 # tool list is what a read looks like in a shell file, a workflow or a block a
 # repo pastes.
+#
+# Both lists are bracketed as whole words, and the tool half is why. Unbounded,
+# `sed` matches inside the word `closed`, which made tests/gate.sh's fixture line
+# — a box that fixture starts closed — read as a mechanical read of a tag. Latent
+# while the tag list was two words that never met it, and a defect either way.
+#
+# `won't fix` is scanned as the tag rather than as `won`. A bare `won` catches a
+# grep for half the tag, and it also catches ordinary English in any failure
+# message that says something will not happen — and a test that cannot pass gets
+# deleted, which is the argument this file makes at every other floor.
+#
+# The cost, said out loud because it is what kills a check. This scan cannot tell
+# a search pattern from a failure label, so a tag word named in a message counts.
+# Over the 45 commits before this line was written, 17 non-comment lines carrying
+# a tag word landed under tests/ or scripts/, 8 of them also carrying a tool word
+# — and those 8 sit in 2 commits, because a commit that touches this vocabulary
+# touches it several times. The fix each time is a one-word reword that reads
+# better anyway: `a - [x] fixed box` becomes `a closed box`. The danger is not the
+# reword. It is somebody meeting this report pointed at an echo, deciding the
+# check is broken, and deleting it — so the report line says a label counts too.
+#
+# Blunt in that direction on purpose: a scan clever enough to tell a label from a
+# search pattern is a scan that can be fooled by a pattern dressed as a label.
+#
+# Narrowing the subject to code that runs against a spec directory would avoid
+# all of it, and it is refused on merits. A devpath test that searched for a tag
+# word would not merely break the rule, it would ratify it — and the rule would
+# then be dead with a green suite sitting on top. The tests are the last place to
+# stop looking.
+TAGS="fixed|met|false positive|won't fix|excess|blocked"
+TOOLS='grep|awk|sed|jq|case|rg|"command"'
 CODE=$(ls scripts/*.sh .github/workflows/ci.yml tests/*.sh 2>/dev/null | grep -vx 'tests/lint.sh')
 MECH=$(
   awk '
     /^```(json|sh|bash)$/ { fence = 1; next }
     /^```$/               { fence = 0; next }
-    fence && /(excess|blocked)([^a-z]|$)/ && /grep|awk|sed|jq|case|rg|"command"/ {
-      print FILENAME ": " $0
-    }
-  ' README.md
-  [ -n "$CODE" ] && grep -nE '(excess|blocked)([^a-z]|$)' $CODE \
-    | grep -E 'grep|awk|sed|jq|case|rg|"command"' \
+    fence                 { print FILENAME ": " $0 }
+  ' README.md | grep -E "${L}(${TAGS})${R}" | grep -E "${L}(${TOOLS})${R}"
+  [ -n "$CODE" ] && grep -nE "${L}(${TAGS})${R}" $CODE \
+    | grep -E "${L}(${TOOLS})${R}" \
     | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
 )
 if [ -n "$MECH" ]; then
-  report 'no new state' 'the excess and blocked tags' "something mechanical reads a tag word:
+  report 'no new state' 'the six tag words' "something mechanical reads a tag word — and a tag word
+inside a failure message counts, because this scan cannot tell a label from a search pattern and one
+that could be told apart could be fooled by a pattern dressed as a label. Reword a label; move a read:
 $MECH"
 fi
 
@@ -388,6 +431,6 @@ if [ "$PROMPTS" -lt 4 ]; then
 fi
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, two unread tags, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, six unread tag words, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
 fi
 exit "$FAIL"

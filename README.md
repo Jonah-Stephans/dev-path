@@ -507,6 +507,8 @@ devpath/tolerance-config/
 ├── slices/
 │   ├── 01-schema.md
 │   └── 02-validation.md
+├── archive/
+│   └── 01-schema.md
 └── sketches/
     ├── config-panel.png
     └── config-panel-decision.md
@@ -615,11 +617,25 @@ write them.
   of open box live here and the tag separates them**: an untagged `- [ ]` is a pause, `- [ ] blocked` is a
   pause on a write a foreign hook refused, and `- [ ] excess` is the commit audit's note on files a commit
   swept in past this slice's `touches`. **More than one can be open on one slice.**
-- **`## Critique findings`** — Critique's slice pass. Appends across cycles.
+- **`## Critique findings`** — Critique's slice pass. Open boxes append and are never deleted, and
+  a closed one leaves at the next re-review, into the archive below.
 
 **Zero-padding is not decoration** — `ls` sorts `10-` before `2-`. **The number is authoring order, never
 execution order;** `depends_on` owns execution order. **`depends_on` values are full paths** of the form
 `devpath/<slug>/slices/<nn>-<name>.md`; any flat form is wrong.
+
+**`devpath/<slug>/archive/<nn>-<name>.md`** holds the closed findings `devpath:critique` moved out of that
+slice. One file per slice, mirroring the slice's number and name, so the path is derivable from the slice's
+with no lookup — and nothing renumbers or renames a slice, which is what keeps it derivable. It carries a
+`# <nn>-<name>` heading and the box lines under it in archive order, and **no `## ` heading**: it sits
+outside the two skeletons above rather than adding a section to either. **Created on first archive**, so its
+absence means nothing has ever been archived on that slice, which is *Nothing writes a placeholder* below
+rather than an exception to it.
+
+**It is inside the spec directory, so every directory-wide grep already reaches it** — the open-box gate,
+Integrate's step 3, and `grep -rn "won't fix" devpath/`. **It is not under `slices/`**, because `ls slices/`
+is what answers *has this been sliced?* in every case, and because `scripts/contention.sh` reads every
+`*.md` on a `slices/` path as a slice. Only closed boxes are ever in here: an open one stays on the slice.
 
 **`devpath/<slug>/sketches/`** holds an artifact a later stage reads, plus its decision note. **This is
 the only place a non-text file exists anywhere in `devpath`.**

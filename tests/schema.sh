@@ -2,15 +2,16 @@
 # devpath — the structural checks: the things that break for somebody who
 # installed this plugin, none of which any prose assertion can see.
 #
-# Nine checks. That every skill still loads, that the hook blocks a repo pastes
+# Ten checks. That every skill still loads, that the hook blocks a repo pastes
 # are valid JSON and valid shell and name the event they speak on, that the
 # three places the spec and slice schemas are written still agree, that no
 # schema heading has escaped its fence into a skill's own outline, that the two
 # human-invoked skills are the two, that the manifests parse and name the same
 # plugin, that both files stating the two triggers for a trap state both of
 # them, that fit-check's spelled counts agree with the entry tables under them,
-# and that both files stating what a closed finding is worth state both halves
-# of it.
+# that both files stating what a closed finding is worth state both halves of
+# it, and that both files stating which way `## Critique findings` runs state
+# both halves of that.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -470,7 +471,14 @@ done <<EOF
 $COUNTS
 EOF
 
-# ---------------------- 9. both halves of the fixed clause, in both the files
+# --------------- 9. both halves of the closed-finding clause, in both the files
+#
+# Named for the finding rather than for the tag, deliberately. What this asserts
+# is what a *closed* finding claims — a check that went red and then green, or
+# `unverified: <why>` where nothing could be run — and it is not about the `fixed`
+# tag in particular. tests/lint.sh check 4 holds that nothing mechanical reads a
+# tag word, it reads this file, and a tag word in a label counts there on purpose.
+# So the label says what it means instead.
 #
 # A fix pass closes a finding on a check that went red and then green, and where
 # nothing could be run the line carries `unverified: <why>` instead. The two
@@ -491,16 +499,49 @@ F1='went red and then green'
 F2='unverified: <why>'
 for f in skills/build/SKILL.md README.md; do
   if [ ! -f "$f" ]; then
-    fail 'fixed clause' "$f" "does not exist, so this check read nothing"
+    fail 'closed-finding clause' "$f" "does not exist, so this check read nothing"
     continue
   fi
-  grep -qF "$F1" "$f" || fail 'fixed clause' "$f" "says nothing about what a bare closed finding claims — expected: $F1"
-  grep -qF "$F2" "$f" || fail 'fixed clause' "$f" "states no exemption for what no check reaches — expected: $F2"
+  grep -qF "$F1" "$f" || fail 'closed-finding clause' "$f" "says nothing about what a bare closed finding claims — expected: $F1"
+  grep -qF "$F2" "$f" || fail 'closed-finding clause' "$f" "states no exemption for what no check reaches — expected: $F2"
+done
+
+# ------------------ 10. which way the findings ledger runs, in both the files
+#
+# `## Critique findings` moves in one direction: an open box appends and stays
+# until it closes, and a closed one leaves at the next re-review, into
+# devpath/<slug>/archive/<nn>-<name>.md. The two halves are one rule. The archive
+# is only safe because an open box never moves: an open box moved out of the slice
+# file is one no fix pass will ever look at, and Integrate then refuses on it
+# forever. And the append is only bounded because a closed one goes. Two files state them: skills/critique/SKILL.md, which the
+# critic acts on, and README's on-disk contract, which is where everyone else
+# learns the shape of the file they are reading.
+#
+# Checks 7 and 9's kind of drift, and the same argument for holding it here.
+# Neither copy derives from the other, so a half dropped from one is invisible in
+# a diff of the other. Losing the archive half from the critic's copy is a critic
+# that never archives, and nothing downstream can see that: the field moved, the
+# boxes are closed, and every check reads what it expects.
+#
+# Literal phrases, one per half, chosen because nothing else in either file says
+# them. Each has to survive on one line: a rewrap that splits one goes red while
+# being correct, and the fix is to put the phrase back on one line. The append
+# half starts at `boxes` rather than at `open`, because both files open a
+# sentence with that word and grep -F is case-sensitive.
+I1='boxes append and are never deleted'
+I2='a closed one leaves at the next re-review'
+for f in skills/critique/SKILL.md README.md; do
+  if [ ! -f "$f" ]; then
+    fail 'ledger direction' "$f" "does not exist, so this check read nothing"
+    continue
+  fi
+  grep -qF "$I1" "$f" || fail 'ledger direction' "$f" "says nothing about what an open box does — expected: $I1"
+  grep -qF "$I2" "$f" || fail 'ledger direction' "$f" "says nothing about a closed one leaving — expected: $I2"
 done
 
 rm -rf "$BLK"
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, both halves of the fixed clause in two files, $FITSUM — clean"
+  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, both halves of the closed-finding clause and both halves of the ledger direction in two files, $FITSUM — clean"
 fi
 exit "$FAIL"

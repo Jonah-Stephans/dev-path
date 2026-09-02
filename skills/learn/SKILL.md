@@ -30,9 +30,9 @@ depends on none.
   and say *you are not on a branch***, which is what an empty return with exit code 0 actually means under
   a detached HEAD; the fix is one `git checkout -b <slug>`.
 - **`gh` is unavailable** → **propose nothing and say so.** Do not write lessons directly — that is the
-  one thing forbidden outright — and do not hold them anywhere. The findings are in `## Critique findings`
-  and `## Deviations`, which is where they already were, and the human-invoked re-run is how they get
-  proposed later.
+  one thing forbidden outright — and do not hold them anywhere. The findings are in
+  `## Critique findings`, the archive Critique moved the closed ones to, and `## Deviations`, which is
+  where they already were, and the human-invoked re-run is how they get proposed later.
 - **The working tree is dirty** — `git status --porcelain` prints anything → **stop, name what is
   uncommitted, and do not cut the branch.** See *cutting the branch* below for why this is a refusal and
   not something to work around.
@@ -45,7 +45,7 @@ depends on none.
 
 | Source | Available at Integrate |
 | --- | --- |
-| Critique's findings | **always** — `devpath`'s own file |
+| Critique's findings | **always** — `devpath`'s own files, the slice's `## Critique findings` **and `devpath/<slug>/archive/`** |
 | The recorded deviations | **always** — `devpath`'s own file |
 | The spec's traps | **always** — `devpath`'s own file |
 | CI bot findings | **never** |
@@ -59,6 +59,11 @@ been a CI run on this pull request to read, and no reviewer has seen it either.
 **That is a real hole, stated rather than promised away.** The human-invoked re-run covers both empty rows
 by the same mechanism: once the pull request is ready, CI has run and a reviewer has commented, and an
 engineer runs `devpath:learn` again pointed at it.
+
+**Nearly all of the findings are in the archive by the time this runs, so read it too.** Integrate refuses
+at step 3 while any box is open and reaches this skill at step 7, so every finding here is closed — and
+Critique moves a closed finding out of the slice file at the next re-review. `devpath/<slug>/archive/` is
+one file per slice, named for it, and a slice with no archive file has had nothing archived.
 
 **A trap arrives pre-sorted:** `## Traps` is already the generalisation this skill would otherwise have to
 make, written by the pass that was there while it was there. It enters the routing below as a candidate
