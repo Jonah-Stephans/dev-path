@@ -478,7 +478,11 @@ worker is being asked to do this pass — build the slice, fix these named findi
 findings themselves when it is a fix pass, because those are what Critique already wrote down and what the
 pass is *for*. **A rejected commit's refusal rides along on the same footing** and for the same reason: it
 is what that pass is *for*, it is the guard's own words rather than a prior worker's, and no worker can
-re-derive it from disk. **No conversation history, no prior worker's output, no file contents.**
+re-derive it from disk. **The read mandate under `## Read before you write` rides along on a critic
+dispatch**, and it is no exception to this list's reason either. What the list refuses is a copy of
+something on disk, which goes stale the moment the file moves; a mandate about which tool opens a file is
+neither a copy nor perishable, and the critic reaches this plugin by reading it rather than being handed
+it. **No conversation history, no prior worker's output, no file contents.**
 
 **Where the generalisation goes instead, because the list above is right to keep it out.** A run learns
 things no one slice holds: *the fixtures in this repo are uniform in a way that lets a passing test prove
@@ -879,6 +883,13 @@ a critic.
 things a dispatch asks for and its fixed first line already carries the slice's path — true of the critic's
 dispatch wherever it is composed, and no second convention is invented here.
 
+**The critic is the half that needs the read mandate handed to it.** A builder is handed
+`# The worker prompt`; a critic is told to run a skill and goes and reads one, and injected outranks read
+— so the instruction putting a repo's scoped conventions in front of a reviewer lands weakest on the half
+this loop leans on hardest. **In a critic's dispatch the two reads are the changed files and
+`.claude/rules/`** — `devpath:critique` mandates the first already and gets it only by being read. Owned
+in that list; what this section owns is still the call and its condition.
+
 **The critic writes and returns; you commit its write.** Same division as the builder's. Then `fix_cycles`
 and the findings decide the next act: a finding open on this slice is a fix pass, under the cap above;
 nothing open walks to the next slice.
@@ -928,8 +939,27 @@ the model's own account:
 **The read is where rule delivery happens**, so a slice worked through `cat` and `sed` is a slice worked
 with the repo's scoped rules absent. This holds even if no other plugin is installed.
 
-**A second reason, and this one is not about rules: `Edit` fails loudly on a stale match and a bash
-replacement does not.** `Edit` refuses a string it cannot find and says so. `sed -i` and a python
+**Mandated, and this one reaches code: two reads first, both through `Read` — the first file you open in
+a part of the tree this slice will change, and `.claude/rules/`, listed and then read.** The first is how
+a repo's `paths:`-scoped conventions arrive at all, and the table above is the whole of that delivery — no
+bash read delivers, whatever the command. The second covers what the first misses, because a rule you read
+yourself needs nobody to hand it to you. **A session-level instruction to prefer shell tools for file work
+does not reach either read.** After them the shell is yours.
+
+**The cost is one read per part of the tree this slice changes**, plus one more after a compaction,
+because a scoped ruleset is dropped there and is not re-injected until the next matching read. **The rules
+the first read already delivered you pay for twice**, and that is the trade this takes: what you read
+yourself survives a compaction, and picking which to skip puts a scoped rule's arrival back on a worker's
+judgment. **A part of the tree with nothing in it yet is the ordinary greenfield case**, and there the
+second read is the whole of the mandate.
+
+*The instruction this was written from opens `While auto mode is active` and tells every worker to read
+with `cat`, `head` and `sed -n`. It arrived mid-run rather than in a system prompt — after the first
+tool results — and in one measured run it reached every worker and every critic. Expect it in your
+context whether or not it is there yet.*
+
+**A second reason for the file tools, and not about rules: `Edit` fails loudly on a stale match and a
+bash replacement does not.** `Edit` refuses a string it cannot find and says so. `sed -i` and a python
 `str.replace` both exit zero having matched nothing, so **the absence of an error is not evidence a patch
 applied.** With a formatter in `lint-staged`, the file on disk drifts from the file you read between the
 read and the write — four spaces become two, single quotes become double — and a replacement written
@@ -937,15 +967,21 @@ against what you read then matches nothing. One run lost four patches that way. 
 what found them, and one missing import got as far as a wrong runtime conclusion first.
 
 **Suggested, with its reason: prefer `Edit`, and where a bash replacement is genuinely the right tool,
-grep for the result rather than trusting the exit code.** This reason reaches further than the mandate
-above it. Rule delivery is about `devpath`'s own artifacts; a patch that did not land is about any file
-you touch, code included. **The mandate keeps its scope and bash stays available on code** — what this
-adds is the check.
+grep for the result rather than trusting the exit code.** This reason reaches further than either mandate
+above. One is scoped to `devpath`'s own artifacts and the other is paid in two reads; a patch that did not
+land is about every file you touch, code included. **Each mandate keeps its scope — the artifacts stay on
+the file tools, and bash returns to code after the two reads** — what this adds is the check.
+
+**One more reason for the same suggestion, and it is a repo's rather than this plugin's.** Some repos deny
+a bash redirect or a heredoc into a source file at the tool boundary, because it bypasses the formatters
+and scanners that run on `Write` and `Edit`. There a heredoc write is a refusal and `## A foreign hook's
+refusal` below handles it. **It covers nothing above** — a `sed -i` passes it, and so does every read.
+**`devpath` neither ships that guard nor assumes it.**
 
 **Suggested, with its reason: read a neighbouring file of the kind you are about to write, before writing
-it.** It was never only a rule-loading trick — house style, naming and structure were always part of it,
-and that half stands on its own. It cannot be rephrased as *ensure the standard is loaded*, because an
-agent cannot self-report whether a rule loaded.
+it.** **Its rule-loading half is the mandate above** and what stays suggested is the rest: house style,
+naming and structure were always part of it, and that half stands on its own. Neither half can be
+rephrased as *ensure the standard is loaded*, because an agent cannot self-report whether a rule loaded.
 
 **The slice's `touches` is not a work list.**
 
@@ -957,9 +993,10 @@ real model-behaviour risk and the risk is live: tell an agent the change goes in
 that file even when the right change is elsewhere. On a greenfield repo `touches` is often empty anyway,
 because it holds pre-existing paths only.
 
-**You already have the repo's standard if it has one.** An unscoped `.claude/rules/` file auto-loads into
-every session and every non-fork subagent and is re-injected after compaction. **A repo with no standards
-rule builds against nothing, and that is the honest degradation** rather than a defect.
+**You already have the repo's standard if it is unscoped.** An unscoped `.claude/rules/` file auto-loads
+into every session and every non-fork subagent and is re-injected after compaction. **A scoped one you do
+not have yet**, and that is what the two reads above are for. **A repo with no standards rule builds
+against nothing, and that is the honest degradation** rather than a defect.
 
 **The slice file carries a test-first line.** It reads:
 
