@@ -813,16 +813,33 @@ line above names** — the sentence describing the dispatch stands in for the di
 where the report is long and the call is one clause at the end of it. Narration is not the act. Where both
 happen in one turn, the order is dispatch, then report.
 
-**Both returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
+**Three returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
 never `done: true` — that field was written when the slice was built — so a condition reading `done: true`
 alone would dispatch the first critic and none of the re-reviews. **And the re-review is the one the
 artifact cannot catch:** by then `fix_cycles` is present, so Integrate's step 3 is satisfied, and a fixed
 box is checked, so the box grep is too. A skipped re-review is the missed increment this design states
 outright it cannot detect — which is why this line carries it instead of a trace.
 
-**The condition is a return that wrote one of those two, and not merely a return.** A pause returns too,
-and a pause stops the whole run: no critic, no walk. **What that return does earn is its commit**, above
-— keeping the work is not the same act as judging it.
+**The third is a fix pass that disproved its finding.** `## On a fix pass` below sends a worker back
+having changed nothing where the check was green before it, and that return wrote neither field — so a
+condition reading only the writes leaves the finding open with nothing able to close it.
+
+**The condition is a return that wrote one of those two, or one reporting a check it ran and what the
+check did — never merely a return.** A pause returns having written nothing too, so *wrote nothing* cannot
+be the test; what separates them is the report, and a pause carries no check and no result. A pause stops
+the whole run: no critic, no walk. **What that return does earn is its commit**, above — keeping the work
+is not the same act as judging it.
+
+**A disproof dispatch carries the finding and not only the report.** `## Critique findings` appends and
+never deletes, so a critic that re-derives the finding rather than being handed it writes a second line
+beside the first and leaves the original open — which re-arms the loop this case exists to close. The
+warrant is the one a fix pass already has: the dispatch names the finding and carries it, and the critic
+disposes the line that is there.
+
+**Nothing about who writes what moves.** `false positive` is Critique's tag in Critique's seat, and a
+finding carrying no disposition is the one thing a pass may triage. **The loop ends on that disposition
+rather than on the cap** — the trigger is an undispositioned `- [ ]`, so closing the box stops it firing,
+and termination never waits on `fix_cycles` being right.
 
 **Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `devpath:critique` into *this*
 session, as the plugin's other three compositions do, and **that skill dispatches the critic** — *a fresh
@@ -1146,6 +1163,25 @@ the human's decision, written in the seat where they are.
 `- [ ] blocked` box closes on what the resuming worker establishes about the file rather than on work that
 worker did, so *fixed* there says the code now does what the box named. It is the one closed tag an
 establishing act can earn, and `## A foreign hook's refusal` below is where it is written.
+
+**Mandated: run the check before you change anything, and it has to fail.** What discriminates a finding
+is a test or a mutation of the line it names, and never the suite. **A check that passes against the
+unfixed code is the finding disproved**, not a check written wrong.
+
+**Then fix it and run the same check green. Both runs in this pass** — a red you remember is not a run,
+because the code has moved since.
+
+**Green before the fix → change nothing and return saying which check you ran and what it did**, the route
+`### A rejected commit` above already takes on a refusal you cannot reproduce.
+
+**Where nothing can be run, `- [x] fixed` carries `unverified: <why>`.** `devpath:critique`'s
+`## What no check reaches` names those slices and no runner exists for any of them. The code changed, so
+*fixed* is honest; nothing proved it, so the line says so — and that is what makes **a bare `- [x] fixed`
+a check that went red and then green.** No new tag, and the closed set is unchanged.
+
+```markdown
+- [x] fixed — any user could edit `Tolerance_Config__c`; unverified: no runner exists for permission sets
+```
 
 ## How you reach a human
 

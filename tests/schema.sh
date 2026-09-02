@@ -2,13 +2,14 @@
 # devpath — the structural checks: the things that break for somebody who
 # installed this plugin, none of which any prose assertion can see.
 #
-# Eight checks. That every skill still loads, that the hook blocks a repo pastes
+# Nine checks. That every skill still loads, that the hook blocks a repo pastes
 # are valid JSON and valid shell, that the three places the spec and slice
 # schemas are written still agree, that no schema heading has escaped its fence
 # into a skill's own outline, that the two human-invoked skills are the two, that
 # the manifests parse and name the same plugin, that both files stating the two
-# triggers for a trap state both of them, and that fit-check's spelled counts
-# agree with the entry tables under them.
+# triggers for a trap state both of them, that fit-check's spelled counts agree
+# with the entry tables under them, and that both files stating what a closed
+# finding is worth state both halves of it.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -446,9 +447,37 @@ done <<EOF
 $COUNTS
 EOF
 
+# ---------------------- 9. both halves of the fixed clause, in both the files
+#
+# A fix pass closes a finding on a check that went red and then green, and where
+# nothing could be run the line carries `unverified: <why>` instead. The two
+# halves are one rule: the clause is only worth writing because a bare
+# `- [x] fixed` means the check ran, and the check only means that because the
+# exemption is written down. Two files state them — skills/build/SKILL.md, which
+# the fix-pass worker acts on, and README's marker table, which is where a human
+# reading a spec learns what the tag claims.
+#
+# Check 7's kind of drift. Neither copy derives from the other, so a half dropped
+# from one is invisible in a diff of the other, and what a worker is told and what
+# an approver is promised come apart silently.
+#
+# Literal phrases, one per half, chosen because nothing else in either file says
+# them. Each has to survive on one line: a rewrap that splits one goes red while
+# being correct, and the fix is to put the phrase back on one line.
+F1='went red and then green'
+F2='unverified: <why>'
+for f in skills/build/SKILL.md README.md; do
+  if [ ! -f "$f" ]; then
+    fail 'fixed clause' "$f" "does not exist, so this check read nothing"
+    continue
+  fi
+  grep -qF "$F1" "$f" || fail 'fixed clause' "$f" "says nothing about what a bare closed finding claims — expected: $F1"
+  grep -qF "$F2" "$f" || fail 'fixed clause' "$f" "states no exemption for what no check reaches — expected: $F2"
+done
+
 rm -rf "$BLK"
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, $FITSUM — clean"
+  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, both halves of the fixed clause in two files, $FITSUM — clean"
 fi
 exit "$FAIL"
