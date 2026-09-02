@@ -61,7 +61,7 @@ RC=0
 if grep -rn '^[[:space:]]*- \[ \]' $SWEEP; then RC=1; fi
 
 # Optional from here down to exit. Delete it and the job is the open-box grep alone.
-CHANGED=$(git diff --unified=0 "$MB" HEAD -- $SWEEP | awk '
+CHANGED=$(git -c diff.noprefix=false diff --unified=0 "$MB" HEAD -- $SWEEP | awk '
   /^\+\+\+ b\// { f = substr($0, 7); next }
   /^@@ /        { split(substr($3, 2), h, ",")
                   c = (h[2] == "" ? 1 : h[2] + 0)
@@ -88,9 +88,12 @@ if [ -n "$FILES" ]; then
     }
     BEGIN { n = split(changed, a, ","); for (i = 1; i <= n; i++) seen[a[i]] = 1 }
     FNR == 1 { endfile(); path = FILENAME; sect = "" }
-    /^#/ { enditem(); sect = ""
-           if ($0 == "## Critique findings") sect = "f"
-           if ($0 == "## Deviations")        sect = "d"
+    /^#/ { enditem()
+           if (substr($0, 1, 3) == "## ") {
+             sect = ""
+             if ($0 == "## Critique findings") sect = "f"
+             if ($0 == "## Deviations")        sect = "d"
+           }
            next }
     substr($0, 1, 2) == "- " {
       enditem()
@@ -117,6 +120,10 @@ down to `exit $RC` and you have the grep alone, which is what this section shipp
 anything appended after it never ran. A spec over its caps *and* holding an open box would report the box
 alone, and the caps would look clean for exactly as long as they were being broken.
 
+**`-c diff.noprefix=false` is load-bearing too.** The `awk` finds a file by its `+++ b/` header, and a repo
+that set `diff.noprefix` gets `+++ path` — nothing then lands under a filename, nothing is counted, and the
+job is green having compared nothing.
+
 **What the second half does, in plain English.** It sweeps the same directories, finds every box under
 `## Critique findings` and every bullet under `## Deviations` whose text this pull request **added or
 changed**, counts the words in each one, following a bullet across the lines it wraps onto, and is red on
@@ -136,11 +143,13 @@ is a repo choosing to refuse the numbers at the pull request, exactly like every
 page.
 
 **An item runs from a `- ` at column zero to the next one**, because bullets under `## Deviations` wrap
-and boxes under `## Critique findings` do not. A per-line `wc -w` gets the second section wrong. **A
+and boxes under `## Critique findings` do not. **Any heading ends an item, and only a `## ` heading changes
+which section you are in**, so a `### ` under either one does not silently switch the counting off. A per-line `wc -w` gets the second section wrong. **A
 formatter that renests a list indents an item's first line, and this counter then reads it as a
-continuation of the item above.** It under-counts rather than over-counting, which is the direction an
-optional check should fail in. The open-box grep above is widened for the same formatter and fails the
-other way, deliberately.
+continuation of the item above.** Indent the whole list and nothing is counted at all; indent one item and
+its words are added to the one above it, which can report a breach against a bullet well inside its cap.
+**Neither direction is safe, and an optional check is where that is affordable** — the open-box grep above
+is widened for the same formatter, and it is the half a repo is told to keep.
 
 **A box under `## Deviations` is skipped on its marker rather than on its tag word**, for the reason
 *Every section above is a signal or a written trace* gives below: the marker is the signal and the words
@@ -225,11 +234,15 @@ than the only one.
 | A built slice is critiqued before the walk moves on | **not hard; a block still ships** | block 8 — a reminder at the moment the act is due, rather than detection after the act is missed. It cannot deny, **it fires on every ordinary builder return by design**, and it cannot tell a deliberate hand-back from a forgotten dispatch |
 | **A per-worker token budget** | **NOT AVAILABLE** | no hook input carries token counts |
 
-**Four of those eleven rows are not hard**, and the README says so rather than leaving you to notice the
-table is longer than the menu. Three of the four ship no block at all: the `fix_cycles` cap has no honest
-hook, the missed-increment row is not a rule any more, and the token budget is unavailable. The fourth
-ships block 8, which reminds and cannot deny — it lowers the odds of a skipped critique and guarantees
-nothing.
+**Four of those eleven rows are not hard, and four ship no block — and they are not the same four.** The
+README says both rather than leaving you to notice the table is longer than the menu. Three of the
+not-hard rows ship nothing at all: the `fix_cycles` cap has no honest hook, the missed-increment row is not
+a rule any more, and the token budget is unavailable. The fourth ships block 8, which reminds and cannot
+deny — it lowers the odds of a skipped critique and guarantees nothing. **The cap row is the one that is
+hard and still ships no block**, because a push-time denial over prose length is exactly the gate
+`devpath:build` refuses to be — *a gate that failed a run for prose length would teach a worker to shave
+words rather than think about them*. Refusing at the pull request is a different act, and it is where the
+job above sits.
 
 **One markdown trap: the matcher is `Task|Agent`.** Where you see a backslash before the pipe in prose,
 it is markdown escaping a table column separator — it is not part of the string. The blocks below carry
@@ -713,7 +726,7 @@ write them.
   it. One `- [ ]` per criterion, closed as `- [x] met`. They count toward *Critique clean* like every other
   box in the directory.
 - **`## Deviations`** — Build records; Integrate counts into the pull request body; the human sees it at
-  merge. Recording is mandatory; whether to stop is the engineer's call. Slice appends one plain sentence
+  merge. Recording is mandatory; whether to stop is the engineer's call. Slice appends one plain bullet
   here, with no tag and no box, when a re-cut changes the behaviour a built slice deployed. **Three kinds
   of open box live here and the tag separates them**: an untagged `- [ ]` is a pause, `- [ ] blocked` is a
   pause on a write a foreign hook refused, and `- [ ] excess` is the commit audit's note on files a commit
@@ -1213,6 +1226,22 @@ and git does nothing about it** — tell an agent the change goes in a named fil
 when the right change is elsewhere. So `creates:` is deleted, a spec-level paths field is deleted, and
 `touches` is declared as *what this slice will collide with, not where to work*. **The residual cost is a
 prose mitigation for a model-behaviour risk, which is weak: the anchoring risk is live.**
+
+**The prose caps did not lose their reasons.** The table under *What you can gate on* above carries the
+anchor for all three numbers, and `devpath:build`'s prohibition — *a disposition does not re-argue the fix*
+— is the lever those caps only backstop: across a field run's 114 boxes, **70% of 29,129 words of findings
+was fix narrative written after the fix had already landed**, so none of it can have helped the fix.
+**250 caps the whole box rather than its post-fix half**, because capping a half needs a splitter and the
+string that run split on is one it invented — the shipped grammar is *a box entry is one line beginning
+`- [` at column zero, with nothing nested under it*. **The exemption keys on the box marker rather than on
+a tag word**, because nothing mechanical reads a tag word, so *tagged* is not a line a check can draw —
+which takes the untagged pause box in with the two that carry a tag, and the wider set is the better rule
+anyway: a box under `## Deviations` is an item whose **marker** a run reads, since a repo taking block 1
+denies a push on it and Integrate's test 1 refuses on it, where a bullet is only ever read by the human at
+merge. **`## Critique findings` gets no section budget**, because a budget there caps how many defects a
+critic may report, and every closed box leaving for the archive at the next re-review bounds that section
+instead. **And widening the commit body to a closed set of two is not new headroom** — the field run behind
+the caps wrote 43 words a commit against the approved project's 94, because here the body is a path.
 
 **Which standard a repo uses is out of scope, and the plugin is built so the answer is swappable.** A repo
 with no standards rule builds against nothing, which is the honest degradation and not a defect.

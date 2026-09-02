@@ -182,20 +182,14 @@ the human, in front of the diff. `- [ ] blocked` is a pause — a foreign guard 
 needs — and the `devpath:build` worker that resumes the slice closes it. **Leave both as you found them**:
 neither is a finding to fix, and neither is yours to close.
 
-**A box you write runs to 250 words.** Mandated. The raised text is the half that has to fit: what would
-be observed, and enough of the reproduction that the next reader can get to it. Across a field run's 114
-boxes that half averaged 76 words, so the cap is not what binds it. **What it refuses is the box that
-argues its own case at length.** The number is anchored outside `devpath` — an approved project's longest
-single finding entry, holding a severity, a recommendation and a verdict, is 267 words — and
-`devpath:build` carries the measurement.
+**A box you write runs to 250 words.** Mandated. The half that has to fit is what would be observed and
+enough of the reproduction that the next reader can get to it — across a field run's 114 boxes that half
+averaged 76 words, so the cap is not what binds it. **What it refuses is the box that argues its own case
+at length.**
 
-**The overflow route is the commit body**, which `devpath:build`'s `### The commit message` names. The
-commit that carries a change is where the reasoning about that change belongs, and **a cap with no named
-route out is a quota, and a quota gets gamed.**
-
-**Nothing in a run counts words and nothing blocks on a count.** The writer is the whole of the
-enforcement, here as everywhere in `devpath`, and a repo that wants the number refused at the pull request
-pastes README's optional job.
+**The overflow route is the commit body**, which `devpath:build`'s `### The commit message` names. **A cap
+with no named route out is a quota, and a quota gets gamed.** Nothing in a run counts words and nothing
+blocks on a count; the writer is the whole of the enforcement, here as everywhere.
 
 **No budget on the section as a whole, deliberately.** A budget there would cap how many defects you may
 report. Bounding the file is the archive's job below.

@@ -304,9 +304,9 @@ subagent.
 
 **Neither exit is yours to pick.** The ask is the instruction; the answer is the human's.
 
-**Rework it** → cut a new slice whose `touches` covers the same files, and append one plain sentence to
-the built slice's `## Deviations`: *04 built a fixed 200-row cap; O2 was reworked and 07 changes that
-behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` stays, because 04 genuinely did
+**Rework it** → cut a new slice whose `touches` covers the same files, and append one plain bullet to the
+built slice's `## Deviations` — a `- ` at column zero and then the sentence: *04 built a fixed 200-row cap;
+O2 was reworked and 07 changes that behaviour.* No tag and no box, and nothing on 04 is deleted. `done: true` stays, because 04 genuinely did
 deploy. Integrate's step 4 counts this slice's deviations into the pull request body and gives the
 path, so the human at merge is sent to both slices.
 

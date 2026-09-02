@@ -334,8 +334,9 @@ the problem — so an entry quoting the statement would sit in front of the huma
 the spec stopped asking for. If O2 was later retired, this bullet naming a retired ID is the trace working.
 
 **That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
-plain untagged sentence under `## Deviations`, nothing deleted, counted into the pull request body by
-Integrate's step 4 and read at the path it gives. One convention, two writers.
+plain untagged bullet under `## Deviations`, nothing deleted, counted into the pull request body by
+Integrate's step 4 and read at the path it gives. One convention, two writers, and
+`## How long a finding and a deviation may run` below holds for both.
 
 > **A plain bullet, never `- [ ]`.** Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole spec
 > directory, so a box here holds this spec's merge open forever. **No new tag either** — the closed set is
@@ -736,10 +737,6 @@ caps what a box and a bullet may run to, and the words it displaces have to have
 commit that made the fix is the honest home for why the fix was right**: the reasoning sits next to the
 diff it is about, where a reader who wants it is already looking, rather than in an append-only ledger
 every later reader has to read past. **A cap with no named route out is a quota, and a quota gets gamed.**
-
-**The field run behind those caps wrote 43 words a commit against the approved project's 94**, because
-here the body is a path. **This is not asking anyone to write less. It is asking them to write where the
-reference process already writes.**
 
 **One clause covers both halves, because both writers commit.** `devpath:build` and `devpath:slice` are the
 two that write under `## Deviations`, and each commits what it wrote. `devpath:integrate` writes nothing
@@ -1216,21 +1213,12 @@ check went red and then green, so the case for the fix being right is made by th
 prose sitting beside them. **Write the tag, and where nothing could be run the reason nothing did. Stop
 there.**
 
-**This is the clause the exemption above made possible and nobody has collected.** Before it, a
-disposition had to argue that the fix was right, and that argument is what a box 374 words long is made of.
-A field run wrote 114 of them across five slices. Splitting each at the point the fix narrative starts, 70%
-of those 29,129 words are the narrative and the disposition: **written after the fix had already landed, so
-none of it can have helped the fix.** The other 30% is the finding and its reproduction, which is the half
-the next fixer reads.
-
 **The prohibition is the lever, and `## How long a finding and a deviation may run` below is only its
 backstop.** A word cap on its own tells you *compress the argument*; it never tells you the argument is no
-longer owed, and a worker who believes it is owed compresses 374 words to 250 and leaves the file 250 words
-of the wrong thing.
+longer owed, and a worker who believes it is owed leaves the file its cap's worth of the wrong thing.
 
-**The displaced words are not lost. They go in your return, and the orchestrator commits them.**
-`### The commit message` above now takes a fix narrative in the commit body, which is the honest home for
-why a fix was right: next to the diff that is the reason.
+**The displaced words are not lost. They go in your return, and the orchestrator commits them** into the
+commit body, which is the honest home for why a fix was right: next to the diff that is the reason.
 
 ## How long a finding and a deviation may run
 
@@ -1239,55 +1227,17 @@ why a fix was right: next to the diff that is the reason.
 > both.**
 
 **Mandated, and the writer is the whole of the enforcement.** Nothing in a run counts words and nothing
-blocks on a count. `devpath` ships no hook enforcement and never depends on any, and a gate that failed a
-run for prose length would teach a worker to shave words rather than think about them. README carries an
-optional job a repo may paste if it wants the numbers refused at the pull request; the rule reads
-identically in a repo that pastes nothing.
+blocks on a count. README carries an optional job a repo may paste if it wants the numbers refused at the
+pull request; the rule reads identically in a repo that pastes nothing.
 
-**250 is the only one of the three anchored outside `devpath`.** An approved Salesforce project built
-with plain Claude Code carries its whole review ledger in one structured file: 38 findings, 6,249 words,
-every entry holding a severity, a recommendation and a verdict. Its longest single entry is 267 words. The
-field run above averaged 374 words a box on its first slice and ran to 1,058 at the worst, and **that one
-slice's ledger is 14,355 words, more than twice the approved project's complete review.**
-
-**150 and 1,500 come from `devpath`'s own distribution, and this says so rather than dressing them up.**
-Nothing outside `devpath` writes deviations, so there is no outside number to anchor against. Over 61
-observed bullets the median is 154 words and the longest is 763: 150 leaves about half of them untouched,
-and 1,500 bites two slice files in five and nothing else.
-
-**What the next fixer needs is never what binds.** Across those 114 boxes the finding and its
-reproduction average 76 words. That half carries the evidence citation, which is the axis `devpath` beats
-the reference process on: the approved ledger pins its findings to a class that has since moved 553 lines,
-so most of its anchors now resolve to the wrong code. **250 is sized so the reproduction is never the
-constraint.**
-
-**250 caps the whole box rather than the post-fix half of it**, because capping a half needs a splitter,
-and the string this run split on is one it invented. The shipped grammar is *a box entry is one line
-beginning `- [` at column zero, with nothing nested under it*, so capping the half would mean mandating an
-internal box structure `devpath` does not have.
+**The reproduction is never what binds.** Across a field run's 114 boxes the finding and its reproduction
+averaged 76 words. What 250 refuses is the box that argues its own case at length, which `## On a fix pass`
+above already prohibits and this only backstops.
 
 **1,500 is per slice file.** *Section budget* on its own reads either way, and a check has to pick one.
 
-**A box under `## Deviations` is exempt because its length is not the writer's to choose.** A
-`- [ ] blocked` box reproduces a foreign guard's refusal **verbatim, by mandate**, and a cap over a
-verbatim reproduction is a contradiction the first time a refusal runs long. A `- [ ] excess` box is
-generated one per swept-in path, and **both its length and its count are set by the diff**: 53 of them on
-one run, for a `.gitignore` the repo did not have. And a pause box is a brief the next dispatch acts on,
-rather than the note for the human at merge that the cap is about.
-
-**The rule keys on the box marker, and that is deliberate.** The marker is the signal under these two
-sections and the words after it are not. Nothing mechanical reads a tag word, so *tagged* is not a line a
-check can draw. Keying on the marker draws it one item wider, taking the untagged pause box in with the two
-that carry a tag, and every item in that set is one a run reads rather than one written for merge.
-
-**No section budget on `## Critique findings`, deliberately.** A budget there caps how many defects a
-critic may report, which is a perverse incentive the deviations budget does not have. Bounding that section
-is already somebody's job: every closed box leaves the slice file for the archive at the next re-review, so
-the two compose rather than overlap.
-
-**`devpath:slice` writes plain bullets under `## Deviations` too**, one sentence when a reworked design
-supersedes a built slice, and the same numbers hold for them. One convention, two writers, as
-`### The cut` above says of the shape.
+**The displaced words go in the commit body**, which `### The commit message` above names. **A cap with no
+named route out is a quota, and a quota gets gamed.**
 
 ## How you reach a human
 
