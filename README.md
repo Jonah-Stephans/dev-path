@@ -731,9 +731,10 @@ honestly. **It accumulates**, so on the base branch `grep -rn "won't fix" devpat
 of everything the team knowingly shipped unresolved. **Pin that apostrophe as ASCII** — a typographic one
 silently empties the ledger.
 
-**`unverified: <why>` rides in the same way, and lands one heading above.** A finding closed carrying it
-is one no check in the repo can prove, so the set of them **is** the list a human has to check by hand —
-which is why `devpath:integrate` puts it under its own heading rather than inside the accounting. **Where
+**`unverified: <why>` rides in the same way, under `## Outside the Test Boundaries`, one heading above the
+`## Accepted Gaps` that carries the waivers.** A finding closed carrying it is one no check in the repo can
+prove, so the set of them **is** the list a human has to check by hand — which is why `devpath:integrate`
+gives it a heading of its own rather than a count inside the accounting. **Where
 the set is empty the heading says so in a sentence**, because a section that ran and found none and a
 section nobody filled are the same blank.
 
