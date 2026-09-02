@@ -820,6 +820,15 @@ artifact cannot catch:** by then `fix_cycles` is present, so Integrate's step 3 
 box is checked, so the box grep is too. A skipped re-review is the missed increment this design states
 outright it cannot detect — which is why this line carries it instead of a trace.
 
+**A pass that increments `fix_cycles` and forgets to archive is the same hole in the same place.**
+`devpath:critique` moves the boxes that were already closed out of the slice file at every re-review, and a
+pass that counts but does not move puts that slice back on the growth the archive step exists to stop.
+Nothing mechanical can catch it: the field moved, the boxes are closed, and every check downstream is
+satisfied by exactly what it reads. Named here, like the one above, rather than covered. **And there is no
+check to add for it** — `fix_cycles` at 1 or more with no archive file on that slice does mean the step was
+skipped, but `devpath:integrate` runs once at the end, so it would fire after every lap it could have
+protected, and there is no earlier home: Build cannot fix it, and Critique is the pass that skipped.
+
 **The third is a fix pass that disproved its finding.** `## On a fix pass` below sends a worker back
 having changed nothing where the check was green before it, and that return wrote neither field — so a
 condition reading only the writes leaves the finding open with nothing able to close it.
@@ -830,9 +839,9 @@ be the test; what separates them is the report, and a pause carries no check and
 the whole run: no critic, no walk. **What that return does earn is its commit**, above — keeping the work
 is not the same act as judging it.
 
-**A disproof dispatch carries the finding and not only the report.** `## Critique findings` appends and
-never deletes, so a critic that re-derives the finding rather than being handed it writes a second line
-beside the first and leaves the original open — which re-arms the loop this case exists to close. The
+**A disproof dispatch carries the finding and not only the report.** An open box is never moved and never
+deleted, so a critic that re-derives the finding rather than being handed it writes a second line beside
+the first and leaves the original open — which re-arms the loop this case exists to close. The
 warrant is the one a fix pass already has: the dispatch names the finding and carries it, and the critic
 disposes the line that is there.
 

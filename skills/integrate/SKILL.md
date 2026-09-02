@@ -229,12 +229,16 @@ then routes a human-typed run to the change-request pass instead. That pass tria
 and need not open the slices named here, so it does not clear this refusal. **Print the slice paths either
 way** — they are what the next run is for.
 
-**Why a second test earns its place at a step that was one grep.** An empty `## Critique findings` holds no
-box, so test 1 passes a spec no critic ever read and step 4 then names the heading empty — which reads as a
-slice a critic cleared. *Nothing was wrong* and *the pass never ran* are otherwise indistinguishable at
-every check downstream of Build. Shipping unreviewed slices is exactly the state a human at merge wants
-named. **And Build reaching Critique is model-driven**: the imperative is in `devpath:build` and nothing in
-the harness makes it certain, so what catches a skip is the trace, not a louder instruction.
+**Why a second test earns its place at a step that was one grep.** An empty `## Critique findings` is an
+ordinary end state rather than a signal — Critique archives the boxes that were already closed at every
+re-review, so what a finished slice holds is the last pass's dispositions and sometimes nothing at all.
+Test 1 passes it either way, and step 4 then names the heading empty on a slice no critic ever read exactly
+as it does on one a critic cleared. **What tells those two apart is test 2, the `fix_cycles:` line** — the
+slice pass's own trace, which is what this test was already for. *Nothing was wrong* and *the pass never
+ran* are otherwise indistinguishable at every check downstream of Build. Shipping unreviewed slices is
+exactly the state a human at merge wants named. **And Build reaching Critique is model-driven**: the
+imperative is in `devpath:build` and nothing in the harness makes it certain, so what catches a skip is
+the trace, not a louder instruction.
 
 **The cost, said rather than smoothed: step 3 is no longer one grep.** It is a grep and a walk, and *one
 grep, zero judgment* is now a claim about `- [ ]` alone.
@@ -742,7 +746,8 @@ part of the body whose whole job is to point.
 
 ### `## Outside the Test Boundaries` — what nothing proved
 
-**Every `- [x] fixed` line in the spec's slice files carrying `unverified:`, whole, with its slice path:**
+**Every `- [x] fixed` line in the spec directory carrying `unverified:`, whole, with the path it was read
+off:**
 
 ```markdown
 - [x] fixed — any user could edit `Tolerance_Config__c`; unverified: no runner exists for permission sets
@@ -754,8 +759,15 @@ finding no check in this repo can prove — and that set **is** the list a human
 Collecting it is a grep rather than a judgment, which is what makes it worth mandating:
 
 ```sh
-grep -rn 'unverified:' devpath/<slug>/slices/
+grep -rn 'unverified:' devpath/<slug>/
 ```
+
+**The spec directory rather than `slices/`, because a closed finding does not stay on the slice.** Critique
+moves it to `devpath/<slug>/archive/<nn>-<name>.md` at the next re-review, and every line this section
+wants is closed by definition — so a grep scoped to `slices/` finds fewer of them the closer a spec gets to
+finished, and then prints the empty-set sentence below over a spec full of fixes nothing proved. **The
+archive file's name is the slice's name**, so a hit in there still tells the reviewer which slice, which is
+the whole of what the path is for.
 
 **Read the entry rather than the match, which is this step's own rule about the grep one screen up.** The
 clause sits at the end of the line and a slice box wraps, so a hit can land on the continuation and carry
@@ -779,8 +791,8 @@ section gives below about `won't fix`.**
 
 **Blank is not a claim.** A section that ran and found none, and a section nobody filled, are the same
 emptiness on the page, and the reader cannot tell which one they are looking at — the trap step 3 already
-names one level down: *An empty `## Critique findings` holds no box, so test 1 passes a spec no critic
-ever read.*
+names one level down: on an empty `## Critique findings`, *test 1 passes it either way*, and only the
+`fix_cycles:` line separates a slice a critic cleared from one no critic read.
 
 **The sentence says what the slice files hold, and never that the reviewer can skip the diff.** *Nothing
 here needs your attention* would be `devpath` deciding that off a set it filled from its own writes.
@@ -799,6 +811,11 @@ and what catches a skip is a human reading the slice rather than a louder rule w
 ### `## Accepted Gaps` — the decisions ride in full
 
 **Every `- [x] won't fix` and `- [ ] unmet` line from anywhere in the spec directory, whole.**
+
+**That already reaches the archive and needs no edit for it.** `devpath/<slug>/archive/` is inside the spec
+directory, so a `won't fix` Critique moved out of a slice file rides here whole exactly as it did on the
+slice — and so does the standing `grep -rn "won't fix" devpath/` on the base branch. **Said because the
+archive is a second file and a reader will ask, not because the rule changed.**
 
 **Two extra lines by grammar, not two whole sections.** A criterion can close as `won't fix` under
 `## Acceptance criteria`, and exit 2 puts one under `## Outcome checks` — but carrying
@@ -855,7 +872,11 @@ reads to find what they are being asked to ratify.
 **One line per file, saying how many and where:**
 
 - **`## Critique findings`, per slice** — how many `- [x] fixed`, how many `- [x] false positive`, how
-  many `- [x] won't fix`, and the slice's path. **The `won't fix` count double-counts lines
+  many `- [x] won't fix`, and the slice's path. **The counts sum the slice file and its archive** at
+  `devpath/<slug>/archive/<nn>-<name>.md`, because Critique moves a closed finding there at the next
+  re-review, so one slice's ledger is the two files together. **The archive's path goes on its own line
+  under the slice's, carrying no counts of its own**; where there is no such file there is no such line,
+  which says nothing has ever been archived on that slice. **The `won't fix` count double-counts lines
   `## Accepted Gaps` carries whole and the `fixed` count double-counts lines
   `## Outside the Test Boundaries` carries whole, both deliberately** — a count that did not reconcile
   against the file at the path would send the reviewer to work out which of the two was lying.
@@ -866,6 +887,7 @@ reads to find what they are being asked to ratify.
 
 ```
 devpath/tolerance-config/slices/04-tolerance-service.md — 9 fixed, 21 false positive, 2 won't fix; 3 deviations
+  devpath/tolerance-config/archive/04-tolerance-service.md
 devpath/tolerance-config/slices/05-tolerance-ui.md — 2 fixed, 0 false positive, 0 won't fix; `## Deviations` empty
 devpath/tolerance-config/spec.md — `## Traps` empty
 ```
@@ -945,8 +967,9 @@ observation as data — because merging the voices breaks bound 4.
 **It runs before the arming, and the order is deliberate.** Arming auto-merge is irreversible: on a pull
 request already carrying its approval, a required check that finishes fast can merge it while a later
 step is still running. **Nothing is lost by running Learn first** — its two available inputs are
-`devpath`'s own files, `## Critique findings` and `## Deviations`, and both are complete before this
-command started. Learn reads nothing the ready transition produces.
+`devpath`'s own files, `## Critique findings` with the archive Critique moved its closed boxes to,
+and `## Deviations`, and both are complete before this command started. Learn reads nothing the ready
+transition produces.
 
 ## 8 · Mark ready, then arm auto-merge
 
