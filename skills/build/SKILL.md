@@ -940,18 +940,18 @@ the model's own account:
 with the repo's scoped rules absent. This holds even if no other plugin is installed.
 
 **Mandated, and this one reaches code: two reads first, both through `Read` — the first file you open in
-a part of the tree this slice will change, and `.claude/rules/`, listed, then the scoped ones bearing on
-this slice whose `paths:` your first read did not match.** The first is how a repo's `paths:`-scoped
-conventions arrive at all, and the table above is the whole of that delivery — no bash read delivers,
-whatever the command. The second covers what the first misses, because a rule you read yourself needs
-nobody to hand it to you. **An unscoped rule you already have, and one the first read matched arrived
-with it.** **A session-level instruction to prefer shell tools for file work does not reach either
-read.** After them the shell is yours.
+a part of the tree this slice will change, and `.claude/rules/`, listed and then read.** The first is how
+a repo's `paths:`-scoped conventions arrive at all, and the table above is the whole of that delivery — no
+bash read delivers, whatever the command. The second covers what the first misses, because a rule you read
+yourself needs nobody to hand it to you. **A session-level instruction to prefer shell tools for file work
+does not reach either read.** After them the shell is yours.
 
-**The cost is one read per part of the tree this slice changes**, plus the rules the first read leaves
-uncovered, plus one more after a compaction, because a scoped ruleset is dropped there and is not
-re-injected until the next matching read. **A part of the tree with nothing in it yet is the ordinary
-greenfield case**, and there the second read is the whole of the mandate.
+**The cost is one read per part of the tree this slice changes**, plus one more after a compaction,
+because a scoped ruleset is dropped there and is not re-injected until the next matching read. **The rules
+the first read already delivered you pay for twice**, and that is the trade this takes: what you read
+yourself survives a compaction, and picking which to skip puts a scoped rule's arrival back on a worker's
+judgment. **A part of the tree with nothing in it yet is the ordinary greenfield case**, and there the
+second read is the whole of the mandate.
 
 *The instruction this was written from opens `While auto mode is active` and tells every worker to read
 with `cat`, `head` and `sed -n`. It arrived mid-run rather than in a system prompt — after the first
