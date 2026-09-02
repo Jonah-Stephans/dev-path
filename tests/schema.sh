@@ -2,7 +2,7 @@
 # devpath — the structural checks: the things that break for somebody who
 # installed this plugin, none of which any prose assertion can see.
 #
-# Ten checks. That every skill still loads, that the hook blocks a repo pastes
+# Eleven checks. That every skill still loads, that the hook blocks a repo pastes
 # are valid JSON and valid shell and name the event they speak on, that the
 # three places the spec and slice schemas are written still agree, that no
 # schema heading has escaped its fence into a skill's own outline, that the two
@@ -10,8 +10,9 @@
 # plugin, that both files stating the two triggers for a trap state both of
 # them, that fit-check's spelled counts agree with the entry tables under them,
 # that both files stating what a closed finding is worth state both halves of
-# it, and that both files stating which way `## Critique findings` runs state
-# both halves of that.
+# it, that both files stating which way `## Critique findings` runs state both
+# halves of that, and that the three prose caps read the same number in every
+# place they are written.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -540,9 +541,110 @@ for f in skills/critique/SKILL.md README.md; do
   grep -qF "$I2" "$f" || fail 'ledger direction' "$f" "says nothing about a closed one leaving — expected: $I2"
 done
 
+# ---------------------- 11. the prose caps agree wherever they are written
+#
+# Three numbers bound how long an item under `## Critique findings` and under
+# `## Deviations` may run, and each is written in more than one place: the
+# mandate in skills/build/SKILL.md, the critic's copy of the box cap in
+# skills/critique/SKILL.md, README's table of the numbers, and the awk in
+# README's optional job — the last of which is the only copy anything runs.
+# Nothing derives from anything else. A cap moved in one place and not the others
+# is a rule whose own enforcement disagrees with it, and the reader left wrong is
+# whichever copy they happened to read.
+#
+# Checks 7, 9 and 10's kind of drift, with one difference that shapes the check.
+# What is compared is a number rather than the presence of a phrase, so the sites
+# are compared against each other and never against a literal. A check pinning
+# 250 goes red on every correct edit and gets deleted; this one goes red only
+# when the copies disagree, which is the defect. Moving a cap is therefore a
+# one-line change in three files, and this is what verifies you made it in all of
+# them.
+#
+# The copies are not evenly spread, on purpose. Only the box cap reaches
+# skills/critique/SKILL.md, because that skill writes boxes under
+# `## Critique findings` and writes nothing under `## Deviations`. Putting the
+# other two there would be a rule in a file that can never apply it.
+#
+# Commas are stripped before the comparison: prose writes 1,500 and an awk
+# argument cannot.
+#
+# The site phrases are part of the assertion. A rewording that no longer matches
+# goes red saying so, and the fix is to move the phrase into the list. Each has
+# to survive on one line, as in the checks above.
+CAPS=$(python3 - <<'CAP'
+import re
+
+out = []
+def bad(rule, detail): out.append(rule + "|" + detail)
+
+SITES = [
+    ("the box cap", [
+        ("skills/build/SKILL.md",    r'`## Critique findings` runs to ([0-9,]+) words',          "Build's mandate"),
+        ("skills/critique/SKILL.md", r'A box you write runs to ([0-9,]+) words',                 "the critic's copy"),
+        ("README.md",                r'\| a box under `## Critique findings` \| ([0-9,]+) words', "README's table"),
+        ("README.md",                r'-v findingcap=([0-9,]+)',                                 "the awk README ships"),
+    ]),
+    ("the bullet cap", [
+        ("skills/build/SKILL.md",    r'`## Deviations` runs to ([0-9,]+)',                       "Build's mandate"),
+        ("README.md",                r'\| a bullet under `## Deviations` \| ([0-9,]+) words',     "README's table"),
+        ("README.md",                r'-v bulletcap=([0-9,]+)',                                   "the awk README ships"),
+    ]),
+    ("the section budget", [
+        ("skills/build/SKILL.md",    r'on one slice file to ([0-9,]+) words',                    "Build's mandate"),
+        ("README.md",                r'per slice file \| ([0-9,]+) words',                       "README's table"),
+        ("README.md",                r'-v budget=([0-9,]+)',                                      "the awk README ships"),
+    ]),
+]
+
+text = {}
+for _, sites in SITES:
+    for f, _, _ in sites:
+        if f in text:
+            continue
+        try:
+            text[f] = open(f, encoding="utf-8").read().split("\n")
+        except OSError as e:
+            text[f] = None
+            bad("cap sites", "%s could not be read, so every cap written there went unread: %s" % (f, e))
+
+for cap, sites in SITES:
+    found = {}
+    for f, pat, name in sites:
+        if text.get(f) is None:
+            continue
+        hits = [(i + 1, m.group(1)) for i, l in enumerate(text[f]) for m in [re.search(pat, l)] if m]
+        if not hits:
+            bad(cap, "%s in %s no longer reads as this check expects, so the number written there went unread — the phrase is part of the assertion and a rewording has to move it here too" % (name, f))
+            continue
+        for ln, got in hits:
+            found.setdefault(got.replace(",", ""), []).append("%s at %s:%d, written %s" % (name, f, ln, got))
+    if len(found) > 1:
+        bad(cap, "is written %d different ways and every copy has to agree: %s" % (
+            len(found), "; ".join(" and ".join(found[v]) for v in sorted(found))))
+
+if not out:
+    out.append("summary|three prose caps agree across every copy of them")
+
+print("\n".join(out))
+CAP
+)
+if [ -z "$CAPS" ]; then
+  fail 'prose caps' 'skills/build/SKILL.md, skills/critique/SKILL.md and README.md' "this check produced no output at all, so its python did not run to the end and nothing here was compared"
+fi
+CAPSUM=''
+while IFS= read -r p; do
+  [ -n "$p" ] || continue
+  case "$p" in
+    'summary|'*) CAPSUM=${p#summary|}; continue ;;
+  esac
+  fail "${p%%|*}" 'the prose caps' "${p#*|}"
+done <<EOF
+$CAPS
+EOF
+
 rm -rf "$BLK"
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, both halves of the closed-finding clause and both halves of the ledger direction in two files, $FITSUM — clean"
+  echo "schema: $(printf '%s\n' "$SKILLS" | grep -c .) skills load, $N hook blocks parse, three schema copies agree, two trap triggers in two files, both halves of the closed-finding clause and both halves of the ledger direction in two files, ${CAPSUM:-no cap comparison ran}, $FITSUM — clean"
 fi
 exit "$FAIL"

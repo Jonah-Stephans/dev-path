@@ -334,8 +334,9 @@ the problem — so an entry quoting the statement would sit in front of the huma
 the spec stopped asking for. If O2 was later retired, this bullet naming a retired ID is the trace working.
 
 **That is the shape `devpath:slice` already writes** when a reworked design supersedes a built slice: a
-plain untagged sentence under `## Deviations`, nothing deleted, counted into the pull request body by
-Integrate's step 4 and read at the path it gives. One convention, two writers.
+plain untagged bullet under `## Deviations`, nothing deleted, counted into the pull request body by
+Integrate's step 4 and read at the path it gives. One convention, two writers, and
+`## How long a finding and a deviation may run` below holds for both.
 
 > **A plain bullet, never `- [ ]`.** Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole spec
 > directory, so a box here holds this spec's merge open forever. **No new tag either** — the closed set is
@@ -713,9 +714,10 @@ open at review, and the later one is the whole of it rather than the second inst
 
 ### The commit message
 
-**Suggested, with its reason. The subject line is the slice's title; the body names the slice file's path.
-Nothing else. Where the repo's standards rule says otherwise, the repo's rule wins and this line retires
-for that repo.**
+**Suggested, with its reason. The subject line is the slice's title; the body names the slice file's path,
+and may also carry the fix narrative for a finding this commit closes or the reasoning behind a deviation
+this commit writes. Nothing else. Where the repo's standards rule says otherwise, the repo's rule wins and
+this line retires for that repo.**
 
 ```
 Tolerance comparison in the invoice's currency
@@ -729,6 +731,20 @@ builder's, the slice file's `## Critique findings` in a critic's. **A pause comm
 the commit that finishes the slice after a human clears the box. **Intended rather than overlooked**, and
 a repo that wants them distinguishable in `git log --oneline` has its own standards rule, which wins here
 as above.
+
+**Why *nothing else* became a closed set of two.** `## How long a finding and a deviation may run` below
+caps what a box and a bullet may run to, and the words it displaces have to have somewhere to be. **The
+commit that made the fix is the honest home for why the fix was right**: the reasoning sits next to the
+diff it is about, where a reader who wants it is already looking, rather than in an append-only ledger
+every later reader has to read past. **A cap with no named route out is a quota, and a quota gets gamed.**
+
+**One clause covers both halves, because both writers commit.** `devpath:build` and `devpath:slice` are the
+two that write under `## Deviations`, and each commits what it wrote. `devpath:integrate` writes nothing
+there — it reads Build's bullet and prints it into the pull request body.
+
+**A worker does not commit, so a fix narrative reaches the body through its return.** The words a fix
+pass is told to keep out of the box go into what it hands back, and this is the orchestrator putting them
+where they belong.
 
 **Why the path in the body rather than a prefix or a trailer.** `git log -- devpath/<slug>/` already finds
 a spec's commits, so the path is for the human reading one commit in isolation and asking *which slice was
@@ -1191,6 +1207,37 @@ a check that went red and then green.** No new tag, and the closed set is unchan
 ```markdown
 - [x] fixed — any user could edit `Tolerance_Config__c`; unverified: no runner exists for permission sets
 ```
+
+**And a disposition does not re-argue the fix.** The line above is why: a bare `- [x] fixed` already says a
+check went red and then green, so the case for the fix being right is made by those two runs rather than by
+prose sitting beside them. **Write the tag, and where nothing could be run the reason nothing did. Stop
+there.**
+
+**The prohibition is the lever, and `## How long a finding and a deviation may run` below is only its
+backstop.** A word cap on its own tells you *compress the argument*; it never tells you the argument is no
+longer owed, and a worker who believes it is owed leaves the file its cap's worth of the wrong thing.
+
+**The displaced words are not lost. They go in your return, and the orchestrator commits them** into the
+commit body, which is the honest home for why a fix was right: next to the diff that is the reason.
+
+## How long a finding and a deviation may run
+
+> **A box under `## Critique findings` runs to 250 words. A bullet under `## Deviations` runs to 150
+> words, and every bullet on one slice file to 1,500 words. A box under `## Deviations` is exempt from
+> both.**
+
+**Mandated, and the writer is the whole of the enforcement.** Nothing in a run counts words and nothing
+blocks on a count. README carries an optional job a repo may paste if it wants the numbers refused at the
+pull request; the rule reads identically in a repo that pastes nothing.
+
+**The reproduction is never what binds.** Across a field run's 114 boxes the finding and its reproduction
+averaged 76 words. What 250 refuses is the box that argues its own case at length, which `## On a fix pass`
+above already prohibits and this only backstops.
+
+**1,500 is per slice file.** *Section budget* on its own reads either way, and a check has to pick one.
+
+**The displaced words go in the commit body**, which `### The commit message` above names. **A cap with no
+named route out is a quota, and a quota gets gamed.**
 
 ## How you reach a human
 
