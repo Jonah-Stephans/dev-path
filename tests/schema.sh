@@ -3,13 +3,14 @@
 # installed this plugin, none of which any prose assertion can see.
 #
 # Nine checks. That every skill still loads, that the hook blocks a repo pastes
-# are valid JSON and valid shell, that the three places the spec and slice
-# schemas are written still agree, that no schema heading has escaped its fence
-# into a skill's own outline, that the two human-invoked skills are the two, that
-# the manifests parse and name the same plugin, that both files stating the two
-# triggers for a trap state both of them, that fit-check's spelled counts agree
-# with the entry tables under them, and that both files stating what a closed
-# finding is worth state both halves of it.
+# are valid JSON and valid shell and name the event they speak on, that the
+# three places the spec and slice schemas are written still agree, that no
+# schema heading has escaped its fence into a skill's own outline, that the two
+# human-invoked skills are the two, that the manifests parse and name the same
+# plugin, that both files stating the two triggers for a trap state both of
+# them, that fit-check's spelled counts agree with the entry tables under them,
+# and that both files stating what a closed finding is worth state both halves
+# of it.
 #
 # Needs python3, which is what the JSON work runs on. Exit code is the build's.
 
@@ -49,10 +50,11 @@ done
 
 # ----------------------------------- 2. the hook blocks a repo pastes are valid
 #
-# README ships seven json blocks as copy-paste into a repo's settings.json, each
+# README ships eight json blocks as copy-paste into a repo's settings.json, each
 # carrying shell inside a JSON string. Both halves are hand-edited — the rename
 # in #44 moved 150 lines of this file — and a repo that pastes a broken one gets
-# a settings file that does not parse, or a hook that never fires.
+# a settings file that does not parse, a hook that never fires, or a hook whose
+# message the harness routes nowhere.
 BLK=$(mktemp -d) || exit 1
 awk -v d="$BLK" '
   /^```json$/ { n++; f = 1; next }
@@ -88,6 +90,27 @@ walk(json.load(open(sys.argv[1])))' "$b" > "$BLK/cmds"
         || fail 'hook blocks' "README.md block $(basename "$b" .json)" \
              "a command does not parse as shell: $(printf '%s' "$cmd" | sh -n 2>&1 | head -1)"
     done < "$BLK/cmds"
+
+    # A block that speaks through `hookSpecificOutput` names the event it is
+    # registered under, and the harness routes the message by that name. Both
+    # halves are hand-edited, so a block moved to another event keeps a wrapper
+    # naming the old one: the message goes nowhere, and at `PreToolUse` a block
+    # README says cannot deny has quietly acquired the ability. Blocks 4 and 8
+    # are the two that carry a wrapper; the rest are skipped rather than exempt.
+    ERR=$(python3 -c 'import json, re, sys
+d = json.load(open(sys.argv[1]))
+def cmds(o):
+    if isinstance(o, dict):
+        if isinstance(o.get("command"), str): yield o["command"]
+        for v in o.values(): yield from cmds(v)
+    elif isinstance(o, list):
+        for v in o: yield from cmds(v)
+for ev, groups in (d.get("hooks") or {}).items():
+    for c in cmds(groups):
+        for named in re.findall(r"hookEventName\\?\"?\s*:\s*\\?\"([A-Za-z]+)", c):
+            if named != ev:
+                sys.exit("is registered under %s and its wrapper names %s" % (ev, named))' "$b" 2>&1)
+    [ -n "$ERR" ] && fail 'hook blocks' "README.md block $(basename "$b" .json)" "$ERR"
   done
 fi
 
