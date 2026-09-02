@@ -2,9 +2,9 @@
 # devpath — repo-wide rules that hold no matter which file is edited next.
 #
 # Seven checks, all of them rules rather than paragraphs: the retired vocabulary,
-# the skill-to-skill call strings, the closed set of gate fields, the
-# commit-excess tag staying unread by anything mechanical, the Outcome handle
-# grammar, every stage naming when the stage is over, and no gate or layout
+# the skill-to-skill call strings, the closed set of gate fields, the two
+# `## Deviations` tag words staying unread by anything mechanical, the Outcome
+# handle grammar, every stage naming when the stage is over, and no gate or layout
 # prompt marking one of its options. What this file does not do is assert that a
 # given paragraph is still on a given page, which a diff already catches. Checks
 # 6 and 7 come closest and are still rules. Check 6 asserts a shape every file
@@ -178,27 +178,40 @@ if [ -n "$FIELDS" ]; then
 $FIELDS"
 fi
 
-# ----------------------------------------------------- 4. the excess tag is prose
+# ------------------------------------------ 4. the `## Deviations` tags are prose
 #
-# `- [ ] excess` is the same open box with its shortfall named, exactly as
-# `- [ ] unmet` is, so every existing check matches it and no new check exists.
-# The moment something mechanical reads the tag word, the tag has become a sixth
-# state and the frozen test has two answers.
+# `- [ ] excess` and `- [ ] blocked` are each the same open box with its
+# shortfall named, exactly as `- [ ] unmet` is, so every existing check matches
+# them and no new check exists. The moment something mechanical reads either tag
+# word, that tag has become a sixth state and the frozen test has two answers.
+#
+# Both words, one check, because they fail identically: `blocked` arrived after
+# `excess` and a second copy of this scan is how one of the two goes quiet.
 #
 # Two subjects. The executable files, minus this one — README's fenced json and
-# sh blocks are shipped code a repo pastes, so they count as mechanical, and the
-# scan of them names the tools those blocks actually run on.
+# sh blocks are shipped code a repo pastes, so they count as mechanical.
+#
+# Both subjects are asked one question — is a tool reading the word — rather than
+# whether the word appears. A string that only says `blocked` reads nothing, and
+# `blocked` is the ordinary English word for what these hook blocks do to a push,
+# so scanning for the bare word here goes red on a test that merely says it. The
+# tool list is what a read looks like in a shell file, a workflow or a block a
+# repo pastes.
 CODE=$(ls scripts/*.sh .github/workflows/ci.yml tests/*.sh 2>/dev/null | grep -vx 'tests/lint.sh')
 MECH=$(
   awk '
     /^```(json|sh|bash)$/ { fence = 1; next }
     /^```$/               { fence = 0; next }
-    fence && /excess([^a-z]|$)/ && /grep|awk|sed|jq|case|rg|"command"/ { print FILENAME ": " $0 }
+    fence && /(excess|blocked)([^a-z]|$)/ && /grep|awk|sed|jq|case|rg|"command"/ {
+      print FILENAME ": " $0
+    }
   ' README.md
-  [ -n "$CODE" ] && grep -nE 'excess([^a-z]|$)' $CODE | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
+  [ -n "$CODE" ] && grep -nE '(excess|blocked)([^a-z]|$)' $CODE \
+    | grep -E 'grep|awk|sed|jq|case|rg|"command"' \
+    | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'
 )
 if [ -n "$MECH" ]; then
-  report 'no new state' 'the excess tag' "something mechanical reads the tag word:
+  report 'no new state' 'the excess and blocked tags' "something mechanical reads a tag word:
 $MECH"
 fi
 
@@ -375,6 +388,6 @@ if [ "$PROMPTS" -lt 4 ]; then
 fi
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, one unread tag, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
+  echo "lint: vocabulary over $PN prose files, four compositions, two gate fields, two unread tags, the Outcome handle grammar over five rules, $STAGES stages naming when they are over, $PROMPTS prompts marking no option — clean"
 fi
 exit "$FAIL"

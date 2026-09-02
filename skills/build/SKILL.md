@@ -419,8 +419,9 @@ The print is how a human checks that claim in one glance.
 - **`design_approved`.** `true`, from `spec.md`'s front matter.
 - **The order.** The `depends_on` chain the walk sorted, and that it is acyclic.
 - **Each slice.** Its `done`, its `fix_cycles`, and its open findings under `## Critique findings`.
-- **The pause check.** Per slice, an untagged open box under `## Deviations`, or none. The frozen test
-  below is the grammar, and `- [ ] excess` is not a pause.
+- **The pause check.** Per slice, an open box under `## Deviations` that is a pause, and which kind:
+  untagged, or tagged `blocked`. Or none. The frozen test below is the grammar, and `- [ ] excess` is not
+  a pause.
 - **`touches`.** Which paths resolve, and which do not. `## Refuse first` had this run record a deviation
   for each one that does not.
 - **What expired.** Every Outcome whose `## Outcome checks` line this run expired, by ID.
@@ -474,7 +475,9 @@ happens, of which one real session's was 99% pasted history.
 **So a dispatch carries, and carries nothing else:** the fixed first line; the spec's path; what the
 worker is being asked to do this pass — build the slice, fix these named findings, or critique — and the
 findings themselves when it is a fix pass, because those are what Critique already wrote down and what the
-pass is *for*. **No conversation history, no prior worker's output, no file contents.**
+pass is *for*. **A rejected commit's refusal rides along on the same footing** and for the same reason: it
+is what that pass is *for*, it is the guard's own words rather than a prior worker's, and no worker can
+re-derive it from disk. **No conversation history, no prior worker's output, no file contents.**
 
 **Where the generalisation goes instead, because the list above is right to keep it out.** A run learns
 things no one slice holds: *the fixtures in this repo are uniform in a way that lets a passing test prove
@@ -517,6 +520,11 @@ that breaks precisely when that upgrade is taken. **A failed commit needs a huma
 reach one.** It agrees with how the adjacent tooling in this estate already reasons about commits. And it
 is immune to how a foreign guard identifies the caller.
 
+**The second of those is a reason and not a disposition, and it is the only sentence here that reads like
+one.** It says why the actor holding the commit step has to be the one who can reach a human. It does not
+say that every refused commit needs one. What a refusal means, and what you do about it, is
+`### A rejected commit` below.
+
 **Nothing observable changes: one code commit per slice, plus one for a pause.** The worker writes
 `done: true` and returns; commit on that return. **A pause returns too, and you commit on that return as
 well** — the worker wrote its box and stopped, and what it built before stopping is on disk. **The
@@ -524,6 +532,21 @@ critic's findings write is a second commit on the same slice**, on its own retur
 division, and **a trap or a struck note it wrote on `spec.md` rides in that commit** rather than earning
 one of its own — so *one commit per slice* is a claim about code, and it is written that way wherever it
 is claimed.
+
+**One pause cannot commit, and it is the one a refused commit wrote.** Two routes reach it and the reason
+is the same on both: another plugin's hook rejects the commit itself on grounds this slice cannot satisfy
+— a foreign refusal, under `## A foreign hook's refusal` in the worker prompt — or the repo's own
+commit-time check rejects it twice over a defect in the slice, under `### A rejected commit` below. Either
+way `git add -A` stages the same content straight back into the same refusal. The `- [ ] blocked` box
+reaches disk and never reaches the branch, and **nothing else for that slice reaches it either: no code,
+no `done: true`, no box.** Name every path left in the working tree when you stop, because the only thing
+behind this is a later `devpath:build` reaching *the working tree is dirty*, which prints those paths and
+asks a human. There is no second backstop.
+
+**Say which of those paths is the slice file, and that it holds the only copy of the pause.** That stop
+offers *restore `HEAD`'s version* on a tracked modified path, and taking it there deletes the refusal and
+leaves the slice reading *not started* to the next run, which walks into the same hook holding nothing
+about why the last one stopped. **The exit is *commit it here*.**
 
 **A pause commit is not a claim that the slice works.** What claims that is `done: true`, and a paused
 worker writes no such field. **Nothing mechanical reads the commit either** — the frozen test below joins
@@ -571,11 +594,11 @@ Build's: *a hit cut at the line break drops the end of the sentence.*
 
 **The tag is mandatory, and it closes a real ambiguity rather than decorating one.** An untagged open box
 under `## Deviations` is a pause: *this slice does not proceed until a human answers*. This one is a note
-about files a commit swept in. Untagged, the two are the same three characters in a diff, and **`done` in
-the front matter does not always tell you which** — a pause commits and stages the same way, so both boxes
-can be open on one slice carrying no `done: true`, where the field answers nothing. And nobody skimming
-seven slice files on a pull request is joining anything anyway. **`excess` names the shortfall in the box
-itself**, exactly as `- [ ] unmet` names it on an Outcome check.
+about files a commit swept in. Untagged, they are the same three characters in a diff, and **`done` in
+the front matter does not always tell you which** — a pause commits and stages the same way, so more than
+one box can be open on one slice carrying no `done: true`, where the field answers nothing. And nobody
+skimming seven slice files on a pull request is joining anything anyway. **`excess` names the shortfall in
+the box itself**, exactly as `- [ ] unmet` names it on an Outcome check.
 
 **It adds no state, and nothing over a spec directory reads it.** Every existing test matches
 `^[[:space:]]*- \[ \]` and still matches this one:
@@ -724,6 +747,55 @@ request is not in that loop — a repo that took README's first hook block denie
 box is open. **The pause commit reaches the remote on the next push**, once a human has cleared the box and
 the slice has finished.
 
+### A rejected commit
+
+> **On a `done: true` return, a commit the repo's own checks reject is the slice not being finished.
+> Dispatch one fresh Build worker on that slice, handed the rejection as it arrived, and attempt the
+> commit again on its return. Refused a second time, write the `- [ ] blocked` box and stop the run.**
+
+**Same species as a failing test, which is the rule this extends.** *A failed deploy or a failing test is
+the slice not being finished, and you keep working* is in the worker prompt below, and a commit-time check
+is a check the repo runs over code this slice just wrote: failing one means the code is not right yet,
+nothing has diverged from the design, and there is nothing here for a human to decide. That paragraph
+enumerates a deploy and a test rather than a commit because it is addressed to a worker, and the commit is
+yours.
+
+**And *you keep working* has no addressee at the moment a commit is refused**, which is the whole of what
+this section adds. The worker returned before you committed, so continuing the slice means dispatching
+another one.
+
+**That worker could not have seen it coming, which is what makes a second one worth dispatching.** It
+deployed the slice and ran its tests before it wrote `done: true`, and its green was honest: what rejects
+the commit runs at commit time, over the staged set, and reaches paths the repo's own scripts do not. You
+are not sending a worker back at something it skipped.
+
+**It is not a fix pass, and nothing counts it.** No critic has run and no finding exists. `fix_cycles` is
+Critique's field and Critique's write, so a refused commit increments nothing, the fix cap does not bound
+this, and the retry does not spend one of the passes that cap counts. Dispatch it as a build of that slice,
+with the rejection attached.
+
+**One retry, and one is a rule rather than a cap.** The objection to a retry count under the worker's
+deploy rule — that a threshold gets loosened — is why this is not written as a maximum. The second attempt
+is not an allowance; it is what tells the two cases apart. A refusal a worker can fix goes green on the
+retry, one it cannot comes back identical, and **there is no separate test anywhere that decides which you
+are holding before the retry runs.** Adding one would have this plugin form an opinion about what a guard
+it did not write meant, which is what `## A foreign hook's refusal` refuses to do, for the same reason —
+and against the one refusal this rule came from it answers backwards, because the repo's own checks were
+green while the commit failed.
+
+**The critic dispatch is still owed, and it waits.** It keys on the first worker's `done: true`, and that
+return has not been discharged — the commit it earned failed. The retry worker rewrites neither field, so
+its return neither re-arms nor discharges it. **Commit the retry, then dispatch.**
+
+**Refused a second time, write the `- [ ] blocked` box under `## Deviations` on that slice and stop the
+run. A worker that returns unable to reproduce the refusal is the same stop**, reached without a second
+commit attempt — the worker prompt below says why spending one buys nothing, and there is nothing left
+for you to try with it. The refusal goes in verbatim, for the reason `## A foreign hook's refusal` gives:
+the box states an obstacle this plugin has no standing to summarise. Its grammar and its one-box-per-slice
+rule are set there and hold here; its resume does not, because this box names no file to read against.
+**The first worker's `done: true` sits on that slice on disk and never reaches the branch either**, so
+nothing downstream reads it.
+
 ## Dispatch a critic on that same return
 
 **Mandated. A worker that returned having written `done: true` or `- [x] fixed` gets a critic before the
@@ -741,16 +813,33 @@ line above names** — the sentence describing the dispatch stands in for the di
 where the report is long and the call is one clause at the end of it. Narration is not the act. Where both
 happen in one turn, the order is dispatch, then report.
 
-**Both returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
+**Three returns, because the loop is build → review → fix → review.** A fix pass writes `- [x] fixed` and
 never `done: true` — that field was written when the slice was built — so a condition reading `done: true`
 alone would dispatch the first critic and none of the re-reviews. **And the re-review is the one the
 artifact cannot catch:** by then `fix_cycles` is present, so Integrate's step 3 is satisfied, and a fixed
 box is checked, so the box grep is too. A skipped re-review is the missed increment this design states
 outright it cannot detect — which is why this line carries it instead of a trace.
 
-**The condition is a return that wrote one of those two, and not merely a return.** A pause returns too,
-and a pause stops the whole run: no critic, no walk. **What that return does earn is its commit**, above
-— keeping the work is not the same act as judging it.
+**The third is a fix pass that disproved its finding.** `## On a fix pass` below sends a worker back
+having changed nothing where the check was green before it, and that return wrote neither field — so a
+condition reading only the writes leaves the finding open with nothing able to close it.
+
+**The condition is a return that wrote one of those two, or one reporting a check it ran and what the
+check did — never merely a return.** A pause returns having written nothing too, so *wrote nothing* cannot
+be the test; what separates them is the report, and a pause carries no check and no result. A pause stops
+the whole run: no critic, no walk. **What that return does earn is its commit**, above — keeping the work
+is not the same act as judging it.
+
+**A disproof dispatch carries the finding and not only the report.** `## Critique findings` appends and
+never deletes, so a critic that re-derives the finding rather than being handed it writes a second line
+beside the first and leaves the original open — which re-arms the loop this case exists to close. The
+warrant is the one a fix pass already has: the dispatch names the finding and carries it, and the critic
+disposes the line that is there.
+
+**Nothing about who writes what moves.** `false positive` is Critique's tag in Critique's seat, and a
+finding carrying no disposition is the one thing a pass may triage. **The loop ends on that disposition
+rather than on the cap** — the trigger is an undispositioned `- [ ]`, so closing the box stops it firing,
+and termination never waits on `fix_cycles` being right.
 
 **Run the skill; do not hand-roll a critic here.** The `Skill` tool loads `devpath:critique` into *this*
 session, as the plugin's other three compositions do, and **that skill dispatches the critic** — *a fresh
@@ -947,6 +1036,38 @@ a deviation and **not** a pause — nothing has diverged from the design and not
 **No retry count**: a cap on deploy attempts is a threshold that gets loosened, and the real bound is
 already there in the fix cap.
 
+**A commit the repo's own checks reject is the same species, and it is how you can be dispatched onto a
+slice that already reads finished.** You never see that rejection yourself: the orchestrator commits on
+your return, so the refusal lands after you are gone, and `### A rejected commit` above is where it sends a
+fresh worker back with the refusal attached. What follows is for that worker.
+
+**Reproduce the refusal before you change anything, and reproduce the *check*, not the hook.** Hook scripts
+routinely read git's own environment variables and do not run standalone, so invoking one proves nothing in
+either direction. **Reconstruct what to run from the hook's own configuration** — the globs it matches, the
+paths it passes and the flags it sets — rather than from the repo's script of the same name. The two
+differ, and that difference is what produced the refusal you were handed: in the run this came from, the
+repo's `lint` was green at the moment the commit-time check failed, because the hook aimed the same tool at
+a wider set of files.
+
+**The index is already staged, and you leave it alone.** A rejected commit aborts without unstaging, so
+`git add -A`'s work is intact and a staged-set check reproduces faithfully with no index write from you.
+**Do not stage and do not commit.** git's index is a shared write and the orchestrator owns it — the first
+of the four reasons under `## Committing` — so a worker that staged would break the reason that division
+exists. You fix and you verify; it re-stages on the next attempt.
+
+**Cannot reproduce it → change nothing, say so, and return.** A commit-message policy checks a message you
+never write. A signing key, an identity setting, a protected branch and a write permission are facts about
+the environment that no edit to this slice moves. None of them is reachable from here and none is a
+red-then-green loop, so an attempt buys nothing and leaves edits behind that nothing verified. **That
+return is where the run stops**, and the orchestrator writes the box.
+
+**You carry every obligation an ordinary build carries, and it is said again here because none of its
+triggers is in front of you.** The sequence above is written for a slice built from scratch, and you
+arrive at one whose criteria are already ticked. So, explicitly: **deploy the slice, run its tests, and
+do not hand back red.** **Criteria already ticked stay ticked** — *do not write them and do not rewrite
+them* holds here exactly as it does above. **`done: true` is already on the slice and you do not rewrite
+it**: the first worker wrote it, the field says the acceptance criteria are ticked, and they still are.
+
 ## Deviations, and the pause test
 
 **Build records; the recording is mandatory; the stopping is the engineer's call.**
@@ -983,11 +1104,13 @@ from not-started. **A pause is an open box under `## Deviations`.** Same grammar
 under `## Critique findings` an open box means *fix this*; under `## Deviations` it means *do not proceed
 on this slice until a human clears it*. **A pause box is never ground on as a fix item.**
 
-**A pause box carries no tag.** `- [ ] excess` under this same heading is the commit audit's, and **the
-tag tells them apart wherever they land** — which is what a human reads, where the frozen test above reads
-`done`.
+**Three boxes can appear under this heading, and the tag says which one you are looking at.** Untagged is
+the pause this section writes, where a human owes an answer. **`- [ ] blocked` is a pause as well** — a
+foreign guard refused a write this slice needs — and `## A foreign hook's refusal` below sets its shape.
+`- [ ] excess` is the commit audit's and is not a pause at all. **The tag tells them apart wherever they
+land** — which is what a human reads, where the frozen test above reads `done`.
 
-**Both boxes can be open on one slice, and a pause commit is how.** `git add -A` stages what is on disk
+**More than one can be open on one slice, and a pause commit is how.** `git add -A` stages what is on disk
 whether the slice finished or not, so the audit can write its box on the very slice that just paused:
 
 ```markdown
@@ -1001,11 +1124,12 @@ whether the slice finished or not, so the audit can write its box on the very sl
 **The frozen test still answers *frozen* here, and still reads `done` to do it.** No `done: true` plus an
 open box under `## Deviations` is the true reading of that slice — it is stopped, the push stays denied
 while it is, and Integrate refuses at the end. What the tag adds is which instruction is which: untagged
-is *do not proceed until a human answers*, tagged is *somebody should say whether that file was fine*.
+is *do not proceed until a human answers*, and `excess` is *somebody should say whether that file was
+fine*.
 
-**The tagged box outlives the pause, and the frozen test goes on reading *frozen*.** The
-`devpath:technical-design` session closes the untagged box and leaves the tagged one for the human at
-merge, so from the moment the pause clears until this stage writes `done: true` the slice carries no
+**An `- [ ] excess` box outlives the pause, and the frozen test goes on reading *frozen*.** The
+`devpath:technical-design` session closes the untagged box and leaves that one for the human at merge, so
+from the moment the pause clears until this stage writes `done: true` the slice carries no
 `done: true` and an open box under `## Deviations` — frozen, by a test that never reads the tag.
 **Mandated: after a human clears a pause, the cleared slice is the next slice this run builds.** Building
 that slice is never the thing denied — the stop is always read off some *other* slice, and a repo that took
@@ -1016,6 +1140,16 @@ and holding one slice to build another was already *on request only*.
 **You do not close your own pause.** The `devpath:technical-design` session that resolves it writes the
 disposition, in that session, before it ends. A stage that could clear the box it wrote is not a stop.
 
+**A `- [ ] blocked` box is closed by a later `devpath:build` worker, and that is a different act rather
+than this rule bending.** What that worker closes on is a change a human made outside the run — the file
+they edited, or the guard they moved — established at the moment of closing, and where nothing moved the
+run stops again. Answering your own question is the thing that would not be a stop.
+`## A foreign hook's refusal` below carries both establishing acts.
+
+**So an open `- [ ] blocked` box is the brief for the next dispatch rather than a bar on it.** Building the
+slice a pause box sits on is never the thing denied, above, and here the box is what the worker reads the
+file against. Waiting for a human to tick it waits forever: the human changes the file and nothing else.
+
 ## On a fix pass
 
 **Mandated: write `- [x] fixed` on each finding you fixed, in the same pass that fixes it.** The dispatch
@@ -1024,6 +1158,30 @@ already names the findings and carries them, so you have the list you are dispos
 ***Fixed* is a claim about work just done, which only the pass that did it can make** — the same rule as
 ticking a criterion as you satisfy it and never before. Critique owns `false positive`; `won't fix` is
 the human's decision, written in the seat where they are.
+
+**That is `## Critique findings`, and under `## Deviations` the same tag claims the file instead.** A
+`- [ ] blocked` box closes on what the resuming worker establishes about the file rather than on work that
+worker did, so *fixed* there says the code now does what the box named. It is the one closed tag an
+establishing act can earn, and `## A foreign hook's refusal` below is where it is written.
+
+**Mandated: run the check before you change anything, and it has to fail.** What discriminates a finding
+is a test or a mutation of the line it names, and never the suite. **A check that passes against the
+unfixed code is the finding disproved**, not a check written wrong.
+
+**Then fix it and run the same check green. Both runs in this pass** — a red you remember is not a run,
+because the code has moved since.
+
+**Green before the fix → change nothing and return saying which check you ran and what it did**, the route
+`### A rejected commit` above already takes on a refusal you cannot reproduce.
+
+**Where nothing can be run, `- [x] fixed` carries `unverified: <why>`.** `devpath:critique`'s
+`## What no check reaches` names those slices and no runner exists for any of them. The code changed, so
+*fixed* is honest; nothing proved it, so the line says so — and that is what makes **a bare `- [x] fixed`
+a check that went red and then green.** No new tag, and the closed set is unchanged.
+
+```markdown
+- [x] fixed — any user could edit `Tolerance_Config__c`; unverified: no runner exists for permission sets
+```
 
 ## How you reach a human
 
@@ -1048,7 +1206,7 @@ irreversibility case.
 
 ## A foreign hook's refusal
 
-> **Write the refusal verbatim into `## Deviations` and stop the run.**
+> **Write the refusal verbatim into a `- [ ] blocked` box under `## Deviations`, and stop the run.**
 
 **Mandated, and *verbatim* is the load-bearing word.** Paraphrasing another plugin's reasoning is where a
 dependency re-enters — the plugin would then be holding an opinion about what that guard meant, and the
@@ -1056,8 +1214,67 @@ next version of the guard makes the opinion wrong. **Copy the message the harnes
 
 **Nothing new is needed to detect it.** A refusal from another plugin's hook that this stage cannot satisfy
 **is** the case *any stop that needs a human stops the whole run* already covers, and the harness hands the
-guard's message straight to whoever made the call. Do not build a catalogue of another plugin's hooks, and
-do not route around a refusal.
+guard's message straight to whoever made the call. Do not build a catalogue of another plugin's hooks.
 
 **A deploy blocked by another plugin's hook is one of these.** A deploy that fails because no default org
-is set is the CLI's own error, above. Neither is yours to fix.
+is set is the CLI's own error, above. Neither is yours to fix. **A commit another plugin's hook rejects on
+grounds this slice cannot satisfy is one of these too**, and `## Committing` carries the one thing that
+case costs: that pause cannot commit itself.
+
+**Do not route around a refusal, and do not compose the write for anyone else to run.** Name the file, the
+change and the obstacle in prose, and stop. **A `sed`, a heredoc or a python rewrite aimed at the path that
+was just denied is routing around the refusal**, not another way of doing the work — the guard refused the
+write, and the tool it is attempted with is not what it refused. **Handing that command to a human to paste
+is the same act with a longer arm.** The run this rule came from did exactly that: a one-line `sed` against
+the path a hook had denied one turn earlier, which deleted the key instead of changing its value and left
+invalid JSON behind a verification too malformed to catch it. Prose is not the lesser form here. It is the
+form that gets read before it gets run.
+
+**The box is a pause, and this slot is the only place its shape is set:**
+
+```markdown
+## Deviations
+- [ ] blocked — sfdx-project.json needs sourceApiVersion at 67.0 and carries 66.0. The write was
+      denied: <the guard's message, verbatim>
+```
+
+**`blocked` is not a new state.** It is the same open box with its obstacle named, exactly as `- [ ] unmet`
+is on an Outcome check: every check still greps `^[[:space:]]*- \[ \]` and matches it, the frozen test
+still joins on `done`, and nothing mechanical anywhere reads the word. What the tag buys is who clears it,
+which is the whole reason this box carries one.
+
+**A human clears it outside the run, and `devpath` names no method.** Whether they lift the guard, grant
+this path an exception, or make the change themselves is theirs to choose — this plugin has no standing over
+another repo's hook, and none to send an engineer at a protected file by hand. **State what the slice needs,
+never how to get there:** the file, the change, and that the run stops until the file carries it.
+
+**The slice resumes in a fresh worker, and that worker reads before it writes.** Read the file against what
+the box named. **Three branches, and every one of them ends somewhere:**
+
+**Already carries the change** → write `- [x] fixed — <what you read>` and go on building the slice.
+**Here *fixed* is a claim about the file rather than about who edited it** — the code does what the box
+said it needed to, and the read is what establishes that. It is the one closed tag this act can earn:
+`false positive` says there was nothing there, `won't fix` says shipping without it, and neither is true
+of a file that now carries the change.
+
+**Does not, and the write goes through** — because the guard moved rather than the file → close the box
+the same way, on what the write did, and go on building the slice. **This branch is why the read is not
+the only thing that closes the box**: an engineer who lifted the guard or granted the path an exception
+has cleared the obstacle without touching the file, and a worker that only ever closed on a read would
+leave that box open with nobody left who may close it.
+
+**Does not, and the write is denied again** → the box you already have is still the true statement of the
+obstacle. **Replace the refusal on it with the new one, verbatim**, and stop the run. **One `- [ ] blocked`
+box per slice, always** — appending a second one naming the same file is a second copy of one question,
+and *read the file against what the box named* has no referent once there are two.
+
+**Read first, because both shortcuts fail.** Going straight to the write puts you back at the write that was
+denied. Assuming the human got it right is how a bad hand-edit reaches a commit — in the run this came from
+the edit happened to be correct, and nothing here would have caught it if it had not been.
+
+**Closing that box is not closing your own pause.** *You do not close your own pause* holds and keeps its
+reason: a stage that could answer its own question is not a stop. This worker answers nothing. It confirms
+a state a human changed outside the run, and it stops the run again where that state is wrong. **A guard
+that moved is that same change**, made by the same human in the same place, and the write going through is
+what confirms it exactly as the read confirms an edited file. **A human never ticks the box** — they change
+the file or they move the guard, and this worker is what closes it.

@@ -269,10 +269,12 @@ through untouched, because a slice carrying no `done: true` is not the same thin
 `devpath:build` pauses by writing an open box under `## Deviations` and committing what is on disk, so the
 file can hold a pause and a `- [ ] excess` note from the commit audit, with committed code behind them.
 
-**The pause box is closed by the `devpath:technical-design` session that resolves it, ticked in the
-disposition grammar.** The frozen test joins no `done: true` to an open box there. Drop that box in a
+**An untagged pause box is closed by the `devpath:technical-design` session that resolves it, ticked in
+the disposition grammar.** The frozen test joins no `done: true` to an open box there. Drop that box in a
 rewrite and the slice reads *not started* to the next `devpath:build`, with the question that stopped it
-gone. A `- [ ] excess` box stays open for the human at merge.
+gone. A `- [ ] excess` box stays open for the human at merge. A `- [ ] blocked` box is a pause on a write a
+foreign hook refused, and the `devpath:build` worker that resumes the slice closes it, so it reaches merge
+closed rather than open.
 
 ### A design that contradicts a built slice stops and asks
 

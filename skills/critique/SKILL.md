@@ -68,8 +68,32 @@ language, would need a plugin release to change, and would be the copy that rots
 
 ### Triage first
 
-**Real / false positive / won't fix, each verified against the actual call path.** Hand only confirmed
-items onward.
+**Real / false positive / won't fix.** Hand only confirmed items onward.
+
+**Real means a run came back the way the finding says, wherever a run is what settles it — never that the
+call path reads that way.** On the spec this rule comes from, arguments closed 55 findings of which 11
+changed nothing — revert each fix and all 564 tests stay green. An argument is how you choose what to run,
+never what confirms it.
+
+**A claim about the whole suite is paid for by whoever makes it.** *Nothing catches this* is not
+establishable from one file, so it costs one run of everything: mutate the line, run the suite, put it
+back. **Too expensive to run is too expensive to claim** — no threshold is written here, because the price
+rides on the claim rather than on the repo.
+
+**Everything else is one check in one file, and the table says who owns the run.** All three rows are real
+and all three go onward; what differs is which pass discharges the check.
+
+| The finding | Who runs it | What travels |
+| --- | --- | --- |
+| provable with no test code written | **you, in this pass** — mutate the line and run the tests that exist, which is an experiment rather than a fix | a disposition |
+| provable, but proving it needs test code written | **the fix pass, before it changes anything** — writing that test is the fix's own deliverable | the finding, and **the run is owed rather than waived** |
+| not provable at all — the slices `## What no check reaches` names | **nobody, and the line says so** | the finding, named as unprovable; the fix closes it carrying `unverified:` |
+
+**Row 3 is the one that was missing, and it asks a different question from the section it names.**
+`## What no check reaches` answers *this slice's behaviour cannot be verified, so route it to the verifiers
+that remain*. This row answers *the finding is real, the fix will be made, and nothing can prove the fix* —
+which is what `devpath:build` writes `unverified:` for. Neither knew the other existed, and naming the
+section here is what stops them colliding.
 
 **Critique owns *false positive*** — a factual claim it can verify. ***Won't fix* needs the human** — a
 judgment about what is worth doing.
@@ -103,11 +127,20 @@ from it.
 
 ```markdown
 ## Critique findings
-- [x] fixed — `ToleranceService` swallowed the DML exception
+- [x] fixed — a failed tolerance write reported success
 - [x] false positive — null guard at line 42; the caller guarantees non-null
 - [x] won't fix — hard-coded org id in the test; fixture is scratch-org-local
 - [ ] bulk path still throws above 200 rows
 ```
+
+**A finding is raised as what would be observed, never as what is wrong with the mechanism** — the line
+goes in front of the human approving the pull request, and *two rows where the user owns one* tells them
+what *the create-adoption guard is redundant* does not. **Raised, so the text carries through the tag:**
+closing a box replaces the tag rather than the line.
+
+**A disposition is a different act and this does not bind it.** `won't fix` is the human's words and no
+agent may shape them. **`false positive` replaces the raised text** — what was raised is the thing that
+turned out to be wrong, so the line says what cleared it instead.
 
 **Every checked box carries its tag as the first word.** A bare checked box reads as *fixed in code* when
 it may not have been, and **only `fixed` and `met` mean the code changed.** Pin that apostrophe in
@@ -133,10 +166,11 @@ proceed on this slice until a human clears it** — **a pause box is never groun
 readings of one test: the grep answers *is anything open*, the section answers *what do I do about this
 one*.
 
-**One box under `## Deviations` carries its own tag, and it is not a pause.** `- [ ] excess` is the commit
-audit's note on files a commit swept in past the slice's `touches`, and review is exactly where it gets
-closed. **Leave it as you found it**: not a finding to fix, and not yours to close. The human closes it at
-review.
+**Two boxes under `## Deviations` carry a tag, and neither is yours.** `- [ ] excess` is the commit audit's
+note on files a commit swept in past the slice's `touches`, and review is exactly where it gets closed — by
+the human, in front of the diff. `- [ ] blocked` is a pause — a foreign guard refused a write the slice
+needs — and the `devpath:build` worker that resumes the slice closes it. **Leave both as you found them**:
+neither is a finding to fix, and neither is yours to close.
 
 ### Traps
 
@@ -186,6 +220,19 @@ and this section carries no mechanism that touches it.
 **A trap is written off a finding, never hunted for.** Both triggers are facts about a finding already
 confirmed on this slice, and nothing here sends you looking for a class of defect. That would be this
 skill writing a check instead of reading the repo's standard, which is the line the section above draws.
+
+**Mandated: reach the mutation before you write the entry**, which is the whole-suite claim above and
+costs the run. **Reachable:** you can state the sequence of acts, against the code as it stands, that gets
+to the branch and makes it observable. **And green:** where a test already fails on it, there is nothing
+here for the next worker to write.
+
+**Reachable is stated and not run, which is why it is the half to be hard on.** The run above settles
+green alone, and green is the same colour whether no test covers the mutation or nothing can reach it.
+Driving a sequence to a branch is test code and critics do not write test code, so nothing here can make
+you prove it. A mutation nothing can reach still loads into every later worker, where it reads as a live
+gap. An entry written here on 31 August said collapsing one guard moved the client's checked entry; a
+lockout landing on 1 September closed the pairing that guard arbitrated, and collapsing it now moves
+nothing. **An entry gets its one run when it is written**, and nothing goes back.
 
 **Write the mutation, as a target.** An entry states what a test here must be able to fail on, which is
 something the next worker can go and write. A prohibition — *fixtures should not all look alike* — hands
