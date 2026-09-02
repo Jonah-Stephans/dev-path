@@ -10,10 +10,10 @@
 # and that neither reads `## Outcome checks`, that each one is silent on every
 # state where Learn is not owed, that each one fires on a pull request out of
 # draft with no lessons pull request open, that blocks 6 and 7 emit the JSON the
-# harness reads, that block 4 does too and exits 0 either way, and that block 8
-# fires on a built slice no critic has read and is silent everywhere else. Every
-# run of a Learn block also counts the `gh` calls, because a second draft read is
-# paid at the end of every turn rather than once.
+# harness reads, that blocks 4 and 8 do too and exit 0 either way, and that block
+# 8 fires on a built slice no critic has read and is silent everywhere else.
+# Every run of a Learn block also counts the `gh` calls, because a second draft
+# read is paid at the end of every turn rather than once.
 #
 # Blocks 6 and 7 are Stop hooks, so they run at the end of every turn on the
 # branch.
@@ -325,7 +325,7 @@ RC=$?
 [ "$RC" -ne 0 ] && fail 'hook blocks' 'README.md block 4' \
   "with a jq that errors the block exited $RC rather than 0, so a typo in its message denies the write"
 
-# ------------------- 6. block 8 fires on a built slice no critic has read, only
+# -------- 6. block 8 fires on a built slice no critic has read, and never worse
 #
 # Block 8 is the second `jq -n` message on this menu that nothing else runs, and
 # it fires far more often than block 4 does — on every ordinary builder return —
@@ -337,6 +337,10 @@ RC=$?
 # slice not built yet. The other two are the shapes where reading the prompt any
 # further would be wrong: a first line naming a path that is not there, and a
 # dispatch that is not a slice dispatch at all.
+#
+# Then the `exit 0` it ends on, the way check 5 tests block 4's. Block 4's typo
+# costs one write; this block fires on every ordinary builder return, so the
+# same typo is a blocking error on every slice of the walk.
 mkdir -p "$W/repo/devpath/d-spec/slices"
 
 mkslice() {  # mkslice <file> <done line> [fix_cycles line]
@@ -384,7 +388,13 @@ run8 "devpath slice: devpath/d-spec/slices/03.md" no "a slice not built yet"
 run8 "devpath slice: devpath/d-spec/slices/99.md" no "a first line naming a slice that is not there"
 run8 "go and read the codebase"                   no "a dispatch that is not a slice dispatch"
 
+OUT=$(printf '{"tool_input":{"prompt":"devpath slice: devpath/d-spec/slices/01.md\\nbuild it"}}' \
+  | PATH="$W/badjq:$PATH" sh "$W/b8.sh" 2>/dev/null)
+RC=$?
+[ "$RC" -ne 0 ] && fail 'hook blocks' 'README.md block 8' \
+  "with a jq that errors the block exited $RC rather than 0, so a typo in its message denies every builder return"
+
 if [ "$FAIL" -eq 0 ]; then
-  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec; blocks 4, 6, 7 and 8 each emit the wrapper their event reads, block 4 exits 0 even where jq does not, and block 8 fires only on a built slice no critic has read — clean"
+  echo "hooks: blocks 6 and 7 are silent on a draft and on no pull request, fire out of draft, and scope to this spec; blocks 4, 6, 7 and 8 each emit the wrapper their event reads, blocks 4 and 8 exit 0 even where jq does not, and block 8 fires only on a built slice no critic has read — clean"
 fi
 exit "$FAIL"
