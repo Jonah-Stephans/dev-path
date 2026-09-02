@@ -480,10 +480,9 @@ pass is *for*. **A rejected commit's refusal rides along on the same footing** a
 is what that pass is *for*, it is the guard's own words rather than a prior worker's, and no worker can
 re-derive it from disk. **The read mandate under `## Read before you write` rides along on a critic
 dispatch**, and it is no exception to this list's reason either. What the list refuses is a copy of
-something on disk, because the copy is stale the moment the file moves; a mandate about which tool opens a
-file is neither a copy nor perishable, and the critic reaches this plugin by reading it — which is the
-delivery the mandate exists to defend against. **No conversation history, no prior worker's output, no
-file contents.**
+something on disk, which goes stale the moment the file moves; a mandate about which tool opens a file is
+neither a copy nor perishable, and the critic reaches this plugin by reading it rather than being handed
+it. **No conversation history, no prior worker's output, no file contents.**
 
 **Where the generalisation goes instead, because the list above is right to keep it out.** A run learns
 things no one slice holds: *the fixtures in this repo are uniform in a way that lets a passing test prove
@@ -887,10 +886,9 @@ dispatch wherever it is composed, and no second convention is invented here.
 **The critic is the half that needs the read mandate handed to it.** A builder is handed
 `# The worker prompt`; a critic is told to run a skill and goes and reads one, and injected outranks read
 — so the instruction putting a repo's scoped conventions in front of a reviewer lands weakest on the half
-this loop leans on hardest. That is why the dispatch convention carries it rather than leaving it to be
-read. **In a critic's dispatch the two reads are the changed files and `.claude/rules/`** —
-`devpath:critique` mandates the first of those already and gets it only by being read. Owned in that list;
-what this section owns is still the call and its condition.
+this loop leans on hardest. **In a critic's dispatch the two reads are the changed files and
+`.claude/rules/`** — `devpath:critique` mandates the first already and gets it only by being read. Owned
+in that list; what this section owns is still the call and its condition.
 
 **The critic writes and returns; you commit its write.** Same division as the builder's. Then `fix_cycles`
 and the findings decide the next act: a finding open on this slice is a fix pass, under the cap above;
@@ -942,14 +940,18 @@ the model's own account:
 with the repo's scoped rules absent. This holds even if no other plugin is installed.
 
 **Mandated, and this one reaches code: two reads first, both through `Read` — the first file you open in
-a part of the tree this slice will change, and `.claude/rules/`, listed and then read.** The first is
-how a repo's `paths:`-scoped conventions arrive at all, and the table above is the whole of that
-delivery. The second covers what the first misses, because a rule you read yourself needs nobody to hand
-it to you. **A session-level instruction to prefer shell tools for file work does not reach either
+a part of the tree this slice will change, and `.claude/rules/`, listed, then the scoped ones bearing on
+this slice whose `paths:` your first read did not match.** The first is how a repo's `paths:`-scoped
+conventions arrive at all, and the table above is the whole of that delivery — no bash read delivers,
+whatever the command. The second covers what the first misses, because a rule you read yourself needs
+nobody to hand it to you. **An unscoped rule you already have, and one the first read matched arrived
+with it.** **A session-level instruction to prefer shell tools for file work does not reach either
 read.** After them the shell is yours.
 
-**The cost is one read per part of the tree this slice changes**, plus one more after a compaction,
-because a scoped ruleset is dropped there and is not re-injected until the next matching read.
+**The cost is one read per part of the tree this slice changes**, plus the rules the first read leaves
+uncovered, plus one more after a compaction, because a scoped ruleset is dropped there and is not
+re-injected until the next matching read. **A part of the tree with nothing in it yet is the ordinary
+greenfield case**, and there the second read is the whole of the mandate.
 
 *The instruction this was written from opens `While auto mode is active` and tells every worker to read
 with `cat`, `head` and `sed -n`. It arrived mid-run rather than in a system prompt — after the first
@@ -965,18 +967,16 @@ against what you read then matches nothing. One run lost four patches that way. 
 what found them, and one missing import got as far as a wrong runtime conclusion first.
 
 **Suggested, with its reason: prefer `Edit`, and where a bash replacement is genuinely the right tool,
-grep for the result rather than trusting the exit code.** This reason reaches further than the mandates
-above. Those cost two reads and stop there; a patch that did not land is about every file you touch after
-them, code included. **The mandates are paid in reads and bash stays available after them** — what this
-adds is the check.
+grep for the result rather than trusting the exit code.** This reason reaches further than either mandate
+above. One is scoped to `devpath`'s own artifacts and the other is paid in two reads; a patch that did not
+land is about every file you touch, code included. **Each mandate keeps its scope — the artifacts stay on
+the file tools, and bash returns to code after the two reads** — what this adds is the check.
 
-**One more reason for the same suggestion, and it is a repo's rather than this plugin's.** Some repos
-guard source writes at the tool boundary: a measured guard denies a bash redirect or a heredoc into a
-source file outright, on the grounds that it bypasses the formatters and scanners that run on `Write` and
-`Edit`. Where that guard is present a heredoc write is a refusal, and `## A foreign hook's refusal` below
-is what handles it. **It is not coverage for anything above** — a `sed -i` passes it, and so does every
-read. **`devpath` neither ships that guard nor assumes it**, and the suggestion stands on its own reason
-in a repo that has none.
+**One more reason for the same suggestion, and it is a repo's rather than this plugin's.** Some repos deny
+a bash redirect or a heredoc into a source file at the tool boundary, because it bypasses the formatters
+and scanners that run on `Write` and `Edit`. There a heredoc write is a refusal and `## A foreign hook's
+refusal` below handles it. **It covers nothing above** — a `sed -i` passes it, and so does every read.
+**`devpath` neither ships that guard nor assumes it.**
 
 **Suggested, with its reason: read a neighbouring file of the kind you are about to write, before writing
 it.** **Its rule-loading half is the mandate above** and what stays suggested is the rest: house style,
