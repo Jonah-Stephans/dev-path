@@ -731,6 +731,12 @@ honestly. **It accumulates**, so on the base branch `grep -rn "won't fix" devpat
 of everything the team knowingly shipped unresolved. **Pin that apostrophe as ASCII** — a typographic one
 silently empties the ledger.
 
+**`unverified: <why>` rides in the same way, and lands one heading above.** A finding closed carrying it
+is one no check in the repo can prove, so the set of them **is** the list a human has to check by hand —
+which is why `devpath:integrate` puts it under its own heading rather than inside the accounting. **Where
+the set is empty the heading says so in a sentence**, because a section that ran and found none and a
+section nobody filled are the same blank.
+
 **`devpath` writes `fixed`, `met` and `false positive` off its own judgment. `won't fix` it writes only on
 an instruction** — the human decides it and gives the reason in their own words, and the session they say
 it to writes the line, under any heading. **No agent drafts the reason. No reason, no write.** Approval
