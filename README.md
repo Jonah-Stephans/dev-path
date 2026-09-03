@@ -224,7 +224,7 @@ than the only one.
 | --- | --- | --- |
 | No undispositioned `- [ ]` reaches the base branch | **hard** | the open-box grep above, as a job on the pull request, scoped to the spec directories that pull request touches. **Not section-blind at push time** — `## Acceptance criteria` boxes are open by design mid-build, so block 1 is narrower |
 | No box or bullet over its cap is added or changed | **hard** | the second half of the open-box job above. **Diff-scoped, and not to be widened** — both sections are append-only, so a whole-file check is permanently red on prose written before the caps and there is no legal way to shorten it |
-| `fix_cycles >= 2` opens no unattended fix pass | **the rule holds; no block ships** | the grant is *spoken and never stored*, so a hook reading the field cannot tell a capped slice from a granted lap. A repo can only buy this by giving up the granted lap |
+| `fix_cycles >= 3` opens no unattended fix pass | **the rule holds; no block ships** | the grant is *spoken and never stored*, so a hook reading the field cannot tell a capped slice from a granted lap. A repo can only buy this by giving up the granted lap |
 | A gate field is `true` before the next stage runs | **hard** | block 2 |
 | Spec and slice files match the schema | **hard** | block 4 |
 | A mid-run stop stops the whole run | **hard** | block 3 |
@@ -544,7 +544,7 @@ the block finds the field there and says nothing. There is no state to reset.
 **It cannot tell a deliberate hand-back from a forgotten dispatch.** The bottom rung of Build's worker
 lifecycle — finish the pass in hand, say the remaining slices want a fresh session, say the uncritiqued
 state, hand back — writes the identical bytes, and Build calls that a legitimate way to run rather than a
-failure. The hand-back is *spoken and never stored*, the same shape as the `fix_cycles >= 2` row above.
+failure. The hand-back is *spoken and never stored*, the same shape as the `fix_cycles >= 3` row above.
 Here it costs nothing: `PostToolUse` cannot deny, so the run continues either way.
 
 **Neither `SubagentStop` nor `Stop` is the event, and both are worth saying out loud.** Exit 2 on
@@ -785,7 +785,7 @@ a gate appearing at the end of the block rather than in the middle of it.
 | `depends_on` | each slice | Slice | the cited-paths check; Build's structural refusal; the order walk |
 | `touches` | each slice | Slice | the cited-paths check; the contention script; Build's mid-run-stop intersection — **three readers and no fourth** |
 | `done` | each slice | Build | the router; Build's `depends_on` refusal; derived spec progress |
-| `fix_cycles` | each slice | Critique | the two-cycle cap, read by `devpath:build` at its start. **Its presence** is read by Integrate's step 3 — absent on a built slice, the slice pass never ran |
+| `fix_cycles` | each slice | Critique | the fix cycles cap, read by `devpath:build` at its start. **Its presence** is read by Integrate's step 3 — absent on a built slice, the slice pass never ran |
 
 > **Value is always `true`. Absence is how you say no. Nothing ever writes `false`.**
 
@@ -1052,7 +1052,7 @@ are enforced by programs; this orchestrator is a model running a skill, and no h
 counts or context size. **Nobody in the coding-agent systems surveyed has such a bound either** — so it is
 an admission, not a gap to fill.
 
-**Survey's five-dispatch ceiling is prose, and no run is checked against it.** Unlike `fix_cycles >= 2`
+**Survey's five-dispatch ceiling is prose, and no run is checked against it.** Unlike `fix_cycles >= 3`
 there is no field to read and no arithmetic to run — the number lives in the instruction, and a session
 either honours it or does not. It is written down at all because the unbounded form measured itself once,
 at thirteen researchers on a thirteen-Outcome spec.
@@ -1062,7 +1062,7 @@ are pinned to the same number and the split is pinned to adding up, because a lo
 stale quotations still reading five is drift a test can see. **A sixth dispatch is not**, and no test in
 this repo pretends otherwise.
 
-**The determinism split.** `fix_cycles` being an integer and `>= 2` being arithmetic is deterministic, and
+**The determinism split.** `fix_cycles` being an integer and `>= 3` being arithmetic is deterministic, and
 so is *is a box still open* — a regex against a fixed grammar, roughly 100% accurate where prose reads at
 roughly 5%. **The evaluation is not**, because the router is the checker and that is a model reading a file.
 **Nor is the increment**: `fix_cycles` rises because Critique's instructions say so, and a missed increment

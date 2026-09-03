@@ -386,15 +386,18 @@ fi
 
 # ------------------------------ 7. no gate or layout prompt marks one of its options
 #
-# Four stops put a question the run cannot answer for itself: the intent gate, the
-# design gate, the slice layout and build's dirty-tree stop. At the three gates
-# the default *is* the judgment being asked for, so a marked option is the plugin
-# answering its own gate. At the dirty-tree stop the run has read the diff and
-# still cannot know whose work it is looking at, which is the same prohibition
+# Five stops put a question the run cannot answer for itself: the intent gate, the
+# design gate, the slice layout, build's dirty-tree stop and build's fix cycles
+# cap. At the three gates the default *is* the judgment being asked for, so a
+# marked option is the plugin answering its own gate. The cap trip joins them by
+# that reason and not the dirty-tree stop's: the run has computed no verdict and
+# stops because it cannot decide. At the dirty-tree stop the run has read the diff
+# and still cannot know whose work it is looking at, which is the same prohibition
 # reached by a different road. Integrate's step 3 is the one stop that marks one,
 # because there the run computed the verdict already and the human is choosing a
 # disposition — so this check names four files and leaves
-# skills/integrate/SKILL.md out.
+# skills/integrate/SKILL.md out. Five stops, four files: two of them are
+# skills/build/SKILL.md's, so the file list does not move.
 #
 # Scoped to fenced blocks, because all four files argue the prohibition in
 # prose and an unscoped grep would go red against a compliant plugin — and a

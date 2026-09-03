@@ -111,6 +111,12 @@ below already sends you to.
 into the pull-request body in front of the approver and lands in `grep -rn "won't fix" devpath/` forever.
 A reason an agent wrote is a waiver signed by the applicant.
 
+**One reason `devpath` writes for itself, and it is a fixed form: `- [x] won't fix — moved to slice NN`**,
+on a finding cut away to a new slice at the fix cycles cap. Its only variable is a slice number the run
+just made, the same spec directory verifies it, and it asserts nothing about the code — so it cannot carry
+the class of error a drafted reason carries. **Give the agent latitude to phrase it and the prohibition
+above is back.**
+
 **What that costs, said plainly: the one route past a real-but-not-done finding is the human saying so, in
 their own words, in the session.** The alternatives are mid-run human input, which is ruled out, or a
 stored permission, which the cap below refuses.
@@ -275,7 +281,7 @@ writes nothing. A disproof that used to spend a lap of the cap now costs none.
 
 **Why the re-review and not the tick.** A fix pass removing the box as it ticked it breaks the count in the
 other direction. Row 2 fires because **the next critic sees a `- [x] fixed` box** — take the box away at
-the tick and row 2 never matches, the field freezes at 0, and the two-cycle cap never trips. **A stub left
+the tick and row 2 never matches, the field freezes at 0, and the fix cycles cap never trips. **A stub left
 behind fails the same way, less obviously:** a one-line stub still carrying the tag matches row 2 forever,
 and one that drops the tag to avoid that leaves `devpath:integrate` step 4 nothing to count, which is the
 thing the stub was bought for. **Whole line, no stub.**
@@ -430,17 +436,16 @@ rewritten: that heading is gated material, and correcting it is a stop rather th
 Where the premise is still quotable from `## Design`, it is trigger 2 above and the trap is already owed —
 **this section adds no trigger and widens neither.**
 
-## The two-cycle cap
+## The fix cycles cap
 
 > **The cap does not stop the work. It stops the work being unattended.**
 
 **A cycle is a fix and its re-review.** The initial pass is a review, not a cycle — nothing was fixed, so
-there was no round trip. The sequence is build → review → **fix → review → fix → review** → stop: **two
-fix attempts before it asks.** That also makes `fix_cycles: 0` mean something true — *reviewed once,
-needed nothing.*
+there was no round trip. The sequence is build → review → **fix → review** → **fix → review**, one bold
+pair per cycle, so `fix_cycles: N` counts fix attempts and nothing else. That also makes `fix_cycles: 0`
+mean something true — *reviewed once, needed nothing.*
 
-**`fix_cycles` is read by `devpath:build`, at its start.** At `>= 2` on that slice, Build may not open
-another fix pass unasked.
+**The threshold is `skills/build/SKILL.md`'s**, written once in the seat that reads it.
 
 **The trigger is an undispositioned `- [ ]`**, identical to *Critique clean*. A finding already marked
 `won't fix` or `false positive` does not hold the loop open.
@@ -466,7 +471,7 @@ absent until this skill's first pass writes it, and it is absent for exactly one
 ### When the cap trips
 
 **Ask the engineer already in that session. No new human, no third gate.** The answers are the disposition
-grammar, plus *keep going*.
+grammar, *keep going*, and *cut a new slice* — which `skills/build/SKILL.md` asks and performs.
 
 **The grant is spoken and never stored.** Default **one lap per "go"**, with an optional count — *cycle up
 to three more times*. Storing it would be a new field and, worse, a standing permission sitting on disk
@@ -503,7 +508,7 @@ code. It is also the line most likely to be dropped as friction by someone readi
 which is why it is written as a rule.
 
 **Everything else applies unchanged**: a fresh critic, the disposition grammar, `fix_cycles` and the
-two-cycle cap, and Build doing the fixing.
+fix cycles cap, and Build doing the fixing.
 
 ## What no check reaches
 

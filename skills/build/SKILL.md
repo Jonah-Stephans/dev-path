@@ -383,13 +383,84 @@ back into work.
 
 ## Read `fix_cycles` before opening a fix pass
 
-**At `fix_cycles >= 2` on that slice, do not open another fix pass unasked.** Ask the engineer already in
-this session — **no new human, no third gate.** The answers are the disposition grammar, plus *keep
-going*.
+**At `fix_cycles >= 3` on that slice, do not open another fix pass unasked.** Ask the engineer already in
+this session — **no new human, no third gate.** The answers are the disposition grammar, *keep going*,
+and *cut a new slice*.
 
 > **The cap does not stop the work. It stops the work being unattended.**
 
 `fix_cycles` is Critique's field and Critique's write. **Never write it here.** Build's field is `done`.
+
+### Does the finding name work this slice was cut to do?
+
+**That is the whole axis between *keep going* and *cut a new slice*, and it is readable from the slice
+file at the moment of the trip.** Read each open finding against `## What to build`. **Inside the
+behaviour the slice builds → another lap**, and five unalike defects in that behaviour are still five
+defects in this slice. **Outside it → cut**, because fixing it here grows the slice past criteria a built
+slice cannot re-cut — *the criteria on a built slice are not re-cut at all* — so no number of laps closes
+it.
+
+**A finding that changes the design is neither, and this is not its exit.** Apply the test this skill
+already states — *what* the slice builds or only *how* — and route *what* to `devpath:technical-design`,
+exactly as `## Cut for an unmet Outcome`'s own limit sends it.
+
+### Cutting is the act `## Cut for an unmet Outcome` already describes
+
+**Go to that section by name and follow it**, including its limit test. **Its trigger is not widened**,
+and this stop supplies its own instead. **The authority reaches because the seat is the same**: that section is the orchestrator's act
+and so is this stop, while the worker's unattended re-cut is neither — the capped slice keeps `done: true`
+and is cut around, never re-cut.
+
+**Two writes, and the second is the one that gets forgotten.** The `## Deviations` bullet, and a
+disposition closing the moved finding: Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole
+spec directory, so a finding left open at the cut holds this spec's merge open forever. It closes as
+**`- [x] won't fix — moved to slice NN`**, the one reason `devpath` writes for itself, in the fixed form
+`skills/critique/SKILL.md` states. **No sixth tag** — `tests/lint.sh` asserts the set. And **no Outcome ID
+on that line**: `lint.sh`'s handle grammar is scoped to `## Outcome checks` and never reaches a finding.
+
+**The stop is a halt, not an end.** *Keep going* resumes on the granted lap; a disposition that leaves
+nothing open walks to the next slice; *cut a new slice* cuts, writes both records, and dispatches. The
+grant is *spoken and never stored*, so a run that ended here would kill it before it could be spent. What
+`## Any stop that needs a human stops the whole run` forbids is continuing **without** an answer.
+
+### Print every open finding, and mark no option
+
+**Every open finding on that slice prints whole above the prompt, as `## Critique findings` holds it.**
+`## Print what you re-derived` does not cover it: that prints before the first dispatch, and a cap trips
+after a critique it never saw.
+
+> **The tool presents the decision. It never presents the material.** A click is legal downstream of a
+> read and never instead of one.
+
+**No option is marked as recommended.** The run has computed no verdict here — it is stopping precisely
+because it cannot decide, which is the three gates' reason rather than the dirty-tree stop's. Marking one
+would be the plugin answering a question it opened because it could not answer it. `tests/lint.sh` check 7
+holds that against this file's own illustrations.
+
+**A description says what an option does to each finding, never whether it is the right one** — that is
+where a mark comes back without the word check 7 greps for. This draft of *False positive* was cut for
+being one: *"On 2 this would be saying the reorder bug is not real, which the `CARD_ARROW_DELTAS` reading
+does not support."* **Only the options that need a choice name the findings**; the two dispositions do the
+same write on any finding.
+
+```
+  01-width-follows-columns-side-by-side — the cap is reached. What happens here?
+
+  ▸ Keep going              Another fix pass on both. 1 is a defect in the width
+                            mechanism this slice was cut for. 2 is keyboard reorder,
+                            absent from 01's ## What to build, so fixing it here grows
+                            01 past its criteria. One lap, or say how many.
+
+  ▸ Won't fix               Name 1 or 2 and give your reason. This session writes the
+                            tag and your words onto that line.
+
+  ▸ False positive          Name 1 or 2. Same write, and the loop stops holding on it.
+
+  ▸ Cut a new slice         For 2. Keyboard reorder is in the design, so this is a cut
+                            and not a design change. Slice 05 takes it, 01 keeps
+                            done: true, a bullet under ## Deviations records it, and 2
+                            closes as won't fix — moved to slice 05. 1 stays open.
+```
 
 ## Print what you re-derived, before anything else
 
