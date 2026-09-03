@@ -406,10 +406,14 @@ exactly as `## Cut for an unmet Outcome`'s own limit sends it.
 
 ### Cutting is the act `## Cut for an unmet Outcome` already describes
 
-**Go to that section by name and follow it**, including its limit test. **Its trigger is not widened**,
-and this stop supplies its own instead. **The authority reaches because the seat is the same**: that section is the orchestrator's act
-and so is this stop, while the worker's unattended re-cut is neither — the capped slice keeps `done: true`
-and is cut around, never re-cut.
+**Go to `## Cut for an unmet Outcome, then expire the section` by name and follow it**, including its
+limit test. **Its trigger is not widened**, and this stop supplies its own instead. **The authority
+reaches because the seat is the same**: that section is the orchestrator's act and so is this stop — the
+capped slice keeps `done: true` and is cut around, never re-cut.
+
+**Where that section reads off an unmet Outcome, read off the finding instead**: `## What to build` comes
+from the open finding, and the new slice's `## Deviations` bullet names the slice it was cut from —
+`- Cut from 01 at the fix cap: keyboard section reorder moves ±1 through a two-dimensional layout.`
 
 **Two writes, and the second is the one that gets forgotten.** The `## Deviations` bullet, and a
 disposition closing the moved finding: Integrate's test 1 greps `^[[:space:]]*- \[ \]` across the whole
@@ -419,9 +423,11 @@ spec directory, so a finding left open at the cut holds this spec's merge open f
 on that line**: `lint.sh`'s handle grammar is scoped to `## Outcome checks` and never reaches a finding.
 
 **The stop is a halt, not an end.** *Keep going* resumes on the granted lap; a disposition that leaves
-nothing open walks to the next slice; *cut a new slice* cuts, writes both records, and dispatches. The
-grant is *spoken and never stored*, so a run that ended here would kill it before it could be spent. What
-`## Any stop that needs a human stops the whole run` forbids is continuing **without** an answer.
+nothing open walks to the next slice; *cut a new slice* cuts, writes both records, and dispatches. **An
+answer that leaves another finding open asks again on what is left** — the cap is still tripped and
+nothing here granted a lap. The grant is *spoken and never stored*, so a run that ended here would kill it
+before it could be spent. What `## Any stop that needs a human stops the whole run` forbids is continuing
+**without** an answer.
 
 ### Print every open finding, and mark no option
 
@@ -458,8 +464,9 @@ same write on any finding.
 
   ▸ Cut a new slice         For 2. Keyboard reorder is in the design, so this is a cut
                             and not a design change. Slice 05 takes it, 01 keeps
-                            done: true, a bullet under ## Deviations records it, and 2
-                            closes as won't fix — moved to slice 05. 1 stays open.
+                            done: true, a bullet under 05's ## Deviations records it,
+                            and 2 closes as won't fix — moved to slice 05. 1 stays
+                            open, and this stop asks again on it.
 ```
 
 ## Print what you re-derived, before anything else

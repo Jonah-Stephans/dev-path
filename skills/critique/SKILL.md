@@ -477,9 +477,10 @@ grammar, *keep going*, and *cut a new slice* — which `skills/build/SKILL.md` a
 to three more times*. Storing it would be a new field and, worse, a standing permission sitting on disk
 long after the conversation that granted it. It lives in the session and dies with it.
 
-**Only *keep going* needs no write at all.** Every other answer is a disposition the human states and
-this session writes onto the line, between this run and the next one — and the next `devpath:critique` run
-then opens a slice whose finding is already dispositioned.
+**Only *keep going* needs no write at all.** A disposition is the human's — their words, onto the line,
+written by this session. *Cut a new slice* is the cut plus two writes, and none of them is the human's to
+phrase; `skills/build/SKILL.md` states all three. Either way the next `devpath:critique` run opens a slice
+whose finding is already dispositioned.
 
 **`fix_cycles` keeps counting through granted laps**, so a slice that ends at 7 is honestly recorded as one
 that fought. **Nothing caps how many times a human may grant** — any limit there would be the first thing
