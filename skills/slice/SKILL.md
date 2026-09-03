@@ -142,7 +142,7 @@ output**: Slice writes it, and `devpath:build` names it as the thing the slice f
 
 **`done` and `fix_cycles` are absent at creation.** Mandated. `done: true` is Build's, written when the
 acceptance criteria are ticked; `fix_cycles` is Critique's, written on its first pass over the slice. A
-slice created carrying `fix_cycles: 1` would put every new slice one lap from the two-cycle cap.
+slice created carrying `fix_cycles: 1` would spend a lap of the fix cycles cap before anything was fixed.
 
 ### `## What to build`
 
